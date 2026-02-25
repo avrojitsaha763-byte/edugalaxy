@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Add Question</h2>
+<form method="POST">
+    <input name="class_level" placeholder="Class">
+    <input name="board" placeholder="Board">
+    <input name="subject" placeholder="Subject">
+    <input name="difficulty" placeholder="Difficulty">
+    <input name="question" placeholder="Question">
+    <input name="optionA" placeholder="Option A">
+    <input name="optionB" placeholder="Option B">
+    <input name="optionC" placeholder="Option C">
+    <input name="optionD" placeholder="Option D">
+    <input name="correct_answer" placeholder="Correct (A/B/C/D)">
+    <button type="submit">Add</button>
+</form>
+{% endblock %}

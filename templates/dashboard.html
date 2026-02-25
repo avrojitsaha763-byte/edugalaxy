@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Dashboard</h2>
+<p>XP: {{ user[6] }}</p>
+<p>Level: {{ user[7] }}</p>
+<p>Medal: {{ user[9] }}</p>
+
+<form action="/start_quiz" method="POST">
+    <select name="subject">
+        <option>Math</option>
+        <option>Science</option>
+        <option>English</option>
+    </select>
+    <button type="submit">Start Quiz</button>
+</form>
+{% endblock %}

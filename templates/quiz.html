@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<form action="/submit_quiz" method="POST">
+    {% for q in questions %}
+    <p>{{ q[5] }}</p>
+    <input type="radio" name="{{ q[0] }}" value="A"> {{ q[6] }}<br>
+    <input type="radio" name="{{ q[0] }}" value="B"> {{ q[7] }}<br>
+    <input type="radio" name="{{ q[0] }}" value="C"> {{ q[8] }}<br>
+    <input type="radio" name="{{ q[0] }}" value="D"> {{ q[9] }}<br>
+    <hr>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

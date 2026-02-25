@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Leaderboard</h2>
+{% for u in users %}
+<p>{{ u[0] }} | XP: {{ u[1] }} | Level: {{ u[2] }} | {{ u[3] }}</p>
+{% endfor %}
+{% endblock %}
