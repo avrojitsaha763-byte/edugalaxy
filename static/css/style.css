@@ -60,17 +60,53 @@ body {
 }
 
 /* avatar styling */
-.avatar-section { text-align:center; margin-bottom:20px; }
-.avatar-image { width:120px; height:120px; border-radius:50%; border:4px solid var(--primary-blue); object-fit:cover; }
-.avatar-btn { padding:8px 16px; background:var(--accent-purple); color:var(--white); border:none; border-radius:8px; cursor:pointer; font-size:0.9rem; }
-.avatar-btn:hover { background:var(--primary-blue); }
+.avatar-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.avatar-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid var(--primary-blue);
+    object-fit: cover;
+}
+
+.avatar-btn {
+    padding: 8px 16px;
+    background: var(--accent-purple);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.avatar-btn:hover {
+    background: var(--primary-blue);
+}
 
 /* page-specific backgrounds and fonts */
-body.home-page { background: linear-gradient(135deg, #f5f7fa 0%, #e4eef7 100%); }
-body.quiz-page { background: linear-gradient(135deg, #fff9e6 0%, #ffe0b2 100%); }
-body.profile-page { background: linear-gradient(135deg, #e8d5f2 0%, #f0e6ff 100%); }
-body.leaderboard-page { background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); }
-body.dashboard-page { background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%); }
+body.home-page {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4eef7 100%);
+}
+
+body.quiz-page {
+    background: linear-gradient(135deg, #fff9e6 0%, #ffe0b2 100%);
+}
+
+body.profile-page {
+    background: linear-gradient(135deg, #e8d5f2 0%, #f0e6ff 100%);
+}
+
+body.leaderboard-page {
+    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+}
+
+body.dashboard-page {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+}
 
 @keyframes fadeIn {
     from {
