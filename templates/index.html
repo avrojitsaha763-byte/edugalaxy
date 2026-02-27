@@ -9,10 +9,32 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
             rel="stylesheet">
         <!-- External CSS -->
-        <link rel="C:\Users\AVROJIT\OneDrive\Desktop\EDUGALAXY\edugalaxy\static\css\style.css" href="stylesheet">
+        <link rel="stylesheet" href="/static/css/style.css">
     </head>
 
     <body>
+        <!-- animated background galaxy objects -->
+        <div class="galaxy-animation">
+            <!-- stars -->
+            <div class="galaxy-star" style="top:5%; left:15%; animation-duration:3s;"></div>
+            <div class="galaxy-star" style="top:20%; left:40%; animation-duration:4s;"></div>
+            <div class="galaxy-star" style="top:70%; left:25%; animation-duration:2.5s;"></div>
+            <div class="galaxy-star" style="top:45%; left:80%; animation-duration:3.5s;"></div>
+            <div class="galaxy-star" style="top:85%; left:60%; animation-duration:2.2s;"></div>
+            <!-- planets -->
+            <div class="galaxy-planet" style="top:30%; left:10%; animation-duration:20s;"></div>
+            <div class="galaxy-planet" style="top:60%; left:75%; animation-duration:18s;"></div>
+            <!-- meteor -->
+            <div class="galaxy-meteor" style="top:10%; left:-5%; animation-delay:1s;"></div>
+            <div class="galaxy-meteor" style="top:80%; left:-10%; animation-delay:3s;"></div>
+            <!-- moon/satellite -->
+            <div class="galaxy-satellite" style="top:50%; left:50%; animation-duration:12s;"></div>
+            <!-- moon -->
+            <div class="galaxy-moon" style="top:40%; left:20%; animation-duration:14s;"></div>
+            <!-- asteroid -->
+            <div class="galaxy-asteroid" style="top:70%; left:30%; animation-delay:2s;"></div>
+        </div>
+
         <!-- ============================================
          NAVBAR
          ============================================ -->
@@ -64,6 +86,8 @@
             </div>
         </aside>
 
+        {% block content %}
+
         <!-- ============================================
          HERO SECTION
          ============================================ -->
@@ -83,7 +107,7 @@
             <div class="hero-content">
                 <h1>Welcome to EDUGALAXY – Learn, Play & Grow!</h1>
                 <p>Discover a world of fun learning adventures! 📖✨ Join us and make education exciting!</p>
-                <button class="hero-cta" onclick="startLearning()"><a href="/templates/signup.html">Start Learning 🚀</a></button>
+                <button class="hero-cta" onclick="startLearning()"><a href="/signup">Start Learning 🚀</a></button>
 
                 <!-- Hero Illustration -->
                 <div class="hero-illustration">
@@ -183,6 +207,7 @@
             </div>
         </section>
 
+        {% endblock %}
         <!-- ============================================
          FOOTER
          ============================================ -->
@@ -200,7 +225,7 @@
         </footer>
 
         <!-- External JavaScript -->
-        <script src="C:\Users\AVROJIT\OneDrive\Desktop\EDUGALAXY\edugalaxy\static\js\script.js"></script>
+        <script src="/static/js/script.js"></script>
     </body>
 
 </html>

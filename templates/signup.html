@@ -1,36 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "index.html" %}
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>SIGNUP PAGE</title>
-    </head>
-
-    <body>
-        <h2>WELCOME Student Register Below</h2>
-        <form method="POST">
-            <input name="name" placeholder="Name" required>
-            <input name="email" type="email" required>
-            <input name="password" type="password" required>
-            <select name="class_level">
+{% block content %}
+<section class="auth-section">
+    <div class="form-card">
+        <h2>Join EDUGALAXY</h2>
+        <form method="POST" class="signup-form">
+            <input name="name" placeholder="Full Name" required>
+            <input name="email" type="email" placeholder="Email Address" required>
+            <input name="password" type="password" placeholder="Password" required>
+            <select name="class_level" required>
+                <option value="" disabled selected>Class Level</option>
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
                 <option>4</option>
                 <option>5</option>
             </select>
-            <select name="board">
+            <select name="board" required>
+                <option value="" disabled selected>Board</option>
                 <option>ICSE</option>
                 <option>CBSE</option>
                 <option>WBSC</option>
             </select>
-            <button type="submit">Signup</button>
+            <button type="submit">Sign Up</button>
         </form>
-        <div>
-        <h3>Already Joined Us login below</h3>
-        <button><a href="/templates/login.html">Login</a></button>
+        <p class="small-text">Already a member? <a href="/login">Log in</a></p>
     </div>
-    </body>
-
-</html>
+</section>
+{% endblock %}

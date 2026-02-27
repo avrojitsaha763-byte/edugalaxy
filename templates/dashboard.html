@@ -1,16 +1,20 @@
 {% extends "index.html" %}
 {% block content %}
-<h2>Dashboard</h2>
-<p>XP: {{ user[6] }}</p>
-<p>Level: {{ user[7] }}</p>
-<p>Medal: {{ user[9] }}</p>
-
-<form action="/start_quiz" method="POST">
-    <select name="subject">
-        <option>Math</option>
-        <option>Science</option>
-        <option>English</option>
-    </select>
-    <button type="submit">Start Quiz</button>
-</form>
+<h2 class="section-title slide-up">Dashboard</h2>
+<div class="card slide-up">
+    <p>XP: {{ user[6] }}</p>
+    <p>Level: {{ user[7] }}</p>
+    <p>Medal: {{ user[9] }}</p>
+</div>
+<div class="card slide-up">
+    <form action="/start_quiz" method="POST">
+        <select name="subject" required>
+            <option value="" disabled selected>Select Subject</option>
+            <option>Math</option>
+            <option>Science</option>
+            <option>English</option>
+        </select>
+        <button type="submit" class="hero-cta">Start Quiz</button>
+    </form>
+</div>
 {% endblock %}

@@ -1,7 +1,11 @@
 {% extends "index.html" %}
 {% block content %}
-<h2>Leaderboard</h2>
-{% for u in users %}
-<p>{{ u[0] }} | XP: {{ u[1] }} | Level: {{ u[2] }} | {{ u[3] }}</p>
-{% endfor %}
+<h2 class="section-title slide-up">Leaderboard</h2>
+<div class="leaderboard-list">
+    {% for u in users %}
+    <div class="card slide-up">
+        <strong>{{ u[0] }}</strong> &mdash; XP: {{ u[1] }} | Level: {{ u[2] }} | {{ u[3] }}
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
