@@ -1,22 +1,36 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Signup</h2>
-<form method="POST">
-    <input name="name" placeholder="Name" required>
-    <input name="email" type="email" required>
-    <input name="password" type="password" required>
-    <select name="class_level">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-    </select>
-    <select name="board">
-        <option>ICSE</option>
-        <option>CBSE</option>
-        <option>WBSC</option>
-    </select>
-    <button type="submit">Signup</button>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SIGNUP PAGE</title>
+    </head>
+
+    <body>
+        <h2>WELCOME Student Register Below</h2>
+        <form method="POST">
+            <input name="name" placeholder="Name" required>
+            <input name="email" type="email" required>
+            <input name="password" type="password" required>
+            <select name="class_level">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+            </select>
+            <select name="board">
+                <option>ICSE</option>
+                <option>CBSE</option>
+                <option>WBSC</option>
+            </select>
+            <button type="submit">Signup</button>
+        </form>
+        <div>
+        <h3>Already Joined Us login below</h3>
+        <button><a href="/templates/login.html">Login</a></button>
+    </div>
+    </body>
+
+</html>
