@@ -3,8 +3,12 @@
 <section class="quiz-session">
     <div class="quiz-header slide-up">
         <div class="timer">Time left: <span id="timer">60</span>s</div>
-        <div class="timer-bar"><div id="timer-fill"></div></div>
-        <div class="progress"><div id="progress-bar"></div></div>
+        <div class="timer-bar">
+            <div id="timer-fill"></div>
+        </div>
+        <div class="progress">
+            <div id="progress-bar"></div>
+        </div>
         {% if high_score %}
         <div class="high-score">High Score: {{ high_score }}</div>
         {% endif %}

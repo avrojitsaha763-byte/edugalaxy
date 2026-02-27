@@ -1,11 +1,20 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from question_engine import get_random_questions
+import os
 
 app = Flask(__name__)
 app.secret_key = "supersecret"
 DATABASE = "database.db"
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # ---------------- DATABASE ----------------
 
@@ -24,7 +33,8 @@ def init_db():
         xp INTEGER DEFAULT 0,
         level INTEGER DEFAULT 1,
         streak INTEGER DEFAULT 0,
-        medals TEXT DEFAULT 'None'
+        medals TEXT DEFAULT 'None',
+        avatar TEXT DEFAULT 'default.png'
     )
     """)
 
@@ -157,12 +167,23 @@ def profile():
 
     if request.method == "POST":
         data = request.form
+        avatar_file = "default.png"
+        
+        # Handle avatar upload
+        if 'avatar' in request.files:
+            file = request.files['avatar']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(f"avatar_{session['user_id']}.{file.filename.rsplit('.', 1)[1].lower()}")
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                avatar_file = filename
+        
         cursor.execute("""
-        UPDATE users SET name=?, class_level=?, board=? WHERE id=?
+        UPDATE users SET name=?, class_level=?, board=?, avatar=? WHERE id=?
         """, (
             data.get("name"),
             data.get("class_level"),
             data.get("board"),
+            avatar_file,
             session["user_id"]
         ))
         conn.commit()
@@ -187,11 +208,12 @@ def start_quiz():
     session["questions"] = questions
     session["score"] = 0
 
-    # retrieve existing high score
-    cursor = conn.cursor()
-    cursor.execute("SELECT MAX(score) FROM quiz_scores WHERE user_id=?", (session["user_id"],))
-    high_score = cursor.fetchone()[0] or 0
-    conn.close()
+    # retrieve existing high score using a new connection
+    conn2 = sqlite3.connect(DATABASE)
+    cursor2 = conn2.cursor()
+    cursor2.execute("SELECT MAX(score) FROM quiz_scores WHERE user_id=?", (session["user_id"],))
+    high_score = cursor2.fetchone()[0] or 0
+    conn2.close()
 
     return render_template("quiz.html", questions=questions, high_score=high_score)
 

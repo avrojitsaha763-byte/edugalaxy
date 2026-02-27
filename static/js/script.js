@@ -151,50 +151,57 @@ window.addEventListener( 'DOMContentLoaded', () =>
     document.querySelectorAll( 'button' ).forEach( btn => btn.addEventListener( 'click', createRipple ) );
     // if result page present and celebrate flag
     const resultCard = document.querySelector( '.score-display' );
-    if ( resultCard && resultCard.classList.contains('celebrate') )
+    if ( resultCard && resultCard.classList.contains( 'celebrate' ) )
     {
         launchConfetti();
     }
 
     // quiz page logic: timer & progress
-    const quizSection = document.querySelector('.quiz-session');
-    if ( quizSection ) {
-        const questions = document.querySelectorAll('.question-card');
+    const quizSection = document.querySelector( '.quiz-session' );
+    if ( quizSection )
+    {
+        const questions = document.querySelectorAll( '.question-card' );
         const total = questions.length;
         const totalTime = total * 20; // 20s per question
         let timeLeft = totalTime;
-        const timerEl = document.getElementById('timer');
-        const timerFill = document.getElementById('timer-fill');
-        const progressBar = document.getElementById('progress-bar');
+        const timerEl = document.getElementById( 'timer' );
+        const timerFill = document.getElementById( 'timer-fill' );
+        const progressBar = document.getElementById( 'progress-bar' );
 
-        function updateProgress() {
-            const answered = document.querySelectorAll('.quiz-form input[type=radio]:checked').length;
-            const percent = total ? (answered/total)*100 : 0;
+        function updateProgress ()
+        {
+            const answered = document.querySelectorAll( '.quiz-form input[type=radio]:checked' ).length;
+            const percent = total ? ( answered / total ) * 100 : 0;
             progressBar.style.width = percent + '%';
         }
-        document.querySelectorAll('.quiz-form input[type=radio]').forEach(r => {
-            r.addEventListener('change', () => {
+        document.querySelectorAll( '.quiz-form input[type=radio]' ).forEach( r =>
+        {
+            r.addEventListener( 'change', () =>
+            {
                 updateProgress();
                 // highlight the selected label
                 const name = r.name;
-                document.querySelectorAll(`input[name="${name}"]`).forEach(other => {
-                    const lbl = other.closest('label');
-                    if (lbl) lbl.classList.remove('selected');
-                });
-                const parentLabel = r.closest('label');
-                if (parentLabel) parentLabel.classList.add('selected');
-            });
-        });
+                document.querySelectorAll( `input[name="${ name }"]` ).forEach( other =>
+                {
+                    const lbl = other.closest( 'label' );
+                    if ( lbl ) lbl.classList.remove( 'selected' );
+                } );
+                const parentLabel = r.closest( 'label' );
+                if ( parentLabel ) parentLabel.classList.add( 'selected' );
+            } );
+        } );
         updateProgress();
-        const interval = setInterval(() => {
+        const interval = setInterval( () =>
+        {
             timeLeft -= 1;
-            if (timerEl) timerEl.textContent = timeLeft;
-            if (timerFill) timerFill.style.width = (timeLeft/totalTime*100) + '%';
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                document.querySelector('.quiz-form').submit();
+            if ( timerEl ) timerEl.textContent = timeLeft;
+            if ( timerFill ) timerFill.style.width = ( timeLeft / totalTime * 100 ) + '%';
+            if ( timeLeft <= 0 )
+            {
+                clearInterval( interval );
+                document.querySelector( '.quiz-form' ).submit();
             }
-        }, 1000);
+        }, 1000 );
     }
 } );
 
