@@ -52,6 +52,16 @@ def init_db():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS quiz_scores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        score INTEGER,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -136,6 +146,33 @@ def dashboard():
 
     return render_template("dashboard.html", user=user)
 
+
+@app.route("/profile", methods=["GET","POST"])
+def profile():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        data = request.form
+        cursor.execute("""
+        UPDATE users SET name=?, class_level=?, board=? WHERE id=?
+        """, (
+            data.get("name"),
+            data.get("class_level"),
+            data.get("board"),
+            session["user_id"]
+        ))
+        conn.commit()
+
+    cursor.execute("SELECT * FROM users WHERE id=?", (session["user_id"],))
+    user = cursor.fetchone()
+    conn.close()
+
+    return render_template("profile.html", user=user)
+
 @app.route("/start_quiz", methods=["POST"])
 def start_quiz():
     subject = request.form["subject"]
@@ -150,7 +187,13 @@ def start_quiz():
     session["questions"] = questions
     session["score"] = 0
 
-    return render_template("quiz.html", questions=questions)
+    # retrieve existing high score
+    cursor = conn.cursor()
+    cursor.execute("SELECT MAX(score) FROM quiz_scores WHERE user_id=?", (session["user_id"],))
+    high_score = cursor.fetchone()[0] or 0
+    conn.close()
+
+    return render_template("quiz.html", questions=questions, high_score=high_score)
 
 @app.route("/submit_quiz", methods=["POST"])
 def submit_quiz():
@@ -163,6 +206,13 @@ def submit_quiz():
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
+    # determine previous high score
+    cursor.execute("SELECT MAX(score) FROM quiz_scores WHERE user_id=?", (session["user_id"],))
+    prev_max = cursor.fetchone()[0] or 0
+
+    # record this attempt
+    cursor.execute("INSERT INTO quiz_scores (user_id, score) VALUES (?,?)", (session["user_id"], score))
+
     cursor.execute("SELECT xp, streak FROM users WHERE id=?", (session["user_id"],))
     user = cursor.fetchone()
 
@@ -179,10 +229,14 @@ def submit_quiz():
     WHERE id=?
     """, (new_xp,new_level,new_streak,medal,session["user_id"]))
 
+    # compute high score including this attempt
+    high_score = max(prev_max, score)
+    new_high = score >= prev_max
+
     conn.commit()
     conn.close()
 
-    return render_template("result.html", score=score)
+    return render_template("result.html", score=score, high_score=high_score, medal=medal, new_high=new_high)
 
 @app.route("/leaderboard")
 def leaderboard():

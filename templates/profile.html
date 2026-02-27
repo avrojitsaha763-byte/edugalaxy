@@ -1,0 +1,40 @@
+{% extends "index.html" %}
+
+{% block content %}
+<section class="profile-section slide-up">
+    <div class="card">
+        <h2 class="section-title">Your Profile</h2>
+        <form method="POST" class="signup-form">
+            <label>Name</label>
+            <input name="name" value="{{ user[1] }}" required>
+
+            <label>Email</label>
+            <input value="{{ user[2] }}" disabled>
+
+            <label>Class Level</label>
+            <select name="class_level" required>
+                <option {% if user[4] == '1' %}selected{% endif %}>1</option>
+                <option {% if user[4] == '2' %}selected{% endif %}>2</option>
+                <option {% if user[4] == '3' %}selected{% endif %}>3</option>
+                <option {% if user[4] == '4' %}selected{% endif %}>4</option>
+                <option {% if user[4] == '5' %}selected{% endif %}>5</option>
+            </select>
+
+            <label>Board</label>
+            <select name="board" required>
+                <option {% if user[5] == 'ICSE' %}selected{% endif %}>ICSE</option>
+                <option {% if user[5] == 'CBSE' %}selected{% endif %}>CBSE</option>
+                <option {% if user[5] == 'WBSC' %}selected{% endif %}>WBSC</option>
+            </select>
+
+            <button type="submit" class="hero-cta">Save Changes</button>
+        </form>
+        <div class="card">
+            <p><strong>XP:</strong> {{ user[6] }}</p>
+            <p><strong>Level:</strong> {{ user[7] }}</p>
+            <p><strong>Streak:</strong> {{ user[8] }}</p>
+            <p><strong>Medals:</strong> {{ user[9] }}</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

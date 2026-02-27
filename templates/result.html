@@ -1,7 +1,16 @@
 {% extends "index.html" %}
 {% block content %}
-<div class="card score-display zoom-in">
+<div class="card score-display zoom-in{% if new_high %} celebrate{% endif %}">
     <h2>Your Score: {{ score }}</h2>
+    {% if new_high %}
+    <p class="new-high">🎉 New High Score! 🎉</p>
+    {% endif %}
+    {% if high_score %}
+    <p>High Score: {{ high_score }}</p>
+    {% endif %}
+    {% if medal and medal != 'None' %}
+    <p>Medal: <strong>{{ medal }}</strong></p>
+    {% endif %}
     <a href="/dashboard" class="hero-cta">Back</a>
 </div>
 {% endblock %}

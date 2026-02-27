@@ -1,15 +1,29 @@
 {% extends "index.html" %}
 {% block content %}
-<form action="/submit_quiz" method="POST" class="quiz-form">
-    {% for q in questions %}
-    <div class="card slide-up">
-        <p class="question-text">{{ q[5] }}</p>
-        <label><input type="radio" name="{{ q[0] }}" value="A"> {{ q[6] }}</label><br>
-        <label><input type="radio" name="{{ q[0] }}" value="B"> {{ q[7] }}</label><br>
-        <label><input type="radio" name="{{ q[0] }}" value="C"> {{ q[8] }}</label><br>
-        <label><input type="radio" name="{{ q[0] }}" value="D"> {{ q[9] }}</label>
+<section class="quiz-session">
+    <div class="quiz-header slide-up">
+        <div class="timer">Time left: <span id="timer">60</span>s</div>
+        <div class="timer-bar"><div id="timer-fill"></div></div>
+        <div class="progress"><div id="progress-bar"></div></div>
+        {% if high_score %}
+        <div class="high-score">High Score: {{ high_score }}</div>
+        {% endif %}
     </div>
-    {% endfor %}
-    <button type="submit" class="hero-cta">Submit</button>
-</form>
+    <form action="/submit_quiz" method="POST" class="quiz-form">
+        {% for q in questions %}
+        <div class="card slide-up question-card" data-difficulty="{{ q[4] }}">
+            <div class="question-header">
+                <span class="question-number">Question {{ loop.index }} / {{ questions|length }}</span>
+                <span class="difficulty-label {{ q[4]|lower }}">{{ q[4] }}</span>
+            </div>
+            <p class="question-text">{{ q[5] }}</p>
+            <label><input type="radio" name="{{ q[0] }}" value="A"> {{ q[6] }}</label><br>
+            <label><input type="radio" name="{{ q[0] }}" value="B"> {{ q[7] }}</label><br>
+            <label><input type="radio" name="{{ q[0] }}" value="C"> {{ q[8] }}</label><br>
+            <label><input type="radio" name="{{ q[0] }}" value="D"> {{ q[9] }}</label>
+        </div>
+        {% endfor %}
+        <button type="submit" class="hero-cta">Submit</button>
+    </form>
+</section>
 {% endblock %}
