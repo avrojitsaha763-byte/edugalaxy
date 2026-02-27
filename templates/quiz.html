@@ -2,7 +2,7 @@
 {% block content %}
 <section class="quiz-session">
     <div class="quiz-header slide-up">
-        <div class="timer">Time left: <span id="timer">60</span>s</div>
+        <div class="timer">Time left: <span id="timer">--</span>s</div>
         <div class="timer-bar">
             <div id="timer-fill"></div>
         </div>
@@ -13,7 +13,7 @@
         <div class="high-score">High Score: {{ high_score }}</div>
         {% endif %}
     </div>
-    <form action="/submit_quiz" method="POST" class="quiz-form">
+    <form action="/submit_quiz" method="POST" class="quiz-form" data-class="{{ class_level }}">
         {% for q in questions %}
         <div class="card slide-up question-card" data-difficulty="{{ q[4] }}">
             <div class="question-header">

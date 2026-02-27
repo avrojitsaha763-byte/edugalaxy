@@ -162,12 +162,26 @@ window.addEventListener( 'DOMContentLoaded', () =>
     {
         const questions = document.querySelectorAll( '.question-card' );
         const total = questions.length;
-        const totalTime = total * 20; // 20s per question
+        const classLevel = document.querySelector('.quiz-form').dataset.class || '3';
+        
+        // Calculate time per question based on class level
+        let timePerQuestion = 20;  // default
+        if (classLevel === '1' || classLevel === '2') {
+            timePerQuestion = 30;  // easier, more time
+        } else if (classLevel === '3' || classLevel === '4') {
+            timePerQuestion = 20;  // medium
+        } else if (classLevel === '5') {
+            timePerQuestion = 15;  // harder, less time
+        }
+        
+        const totalTime = total * timePerQuestion;
         let timeLeft = totalTime;
         const timerEl = document.getElementById( 'timer' );
         const timerFill = document.getElementById( 'timer-fill' );
         const progressBar = document.getElementById( 'progress-bar' );
-
+        
+        // Set initial timer display
+        if ( timerEl ) timerEl.textContent = timeLeft;
         function updateProgress ()
         {
             const answered = document.querySelectorAll( '.quiz-form input[type=radio]:checked' ).length;

@@ -215,7 +215,7 @@ def start_quiz():
     high_score = cursor2.fetchone()[0] or 0
     conn2.close()
 
-    return render_template("quiz.html", questions=questions, high_score=high_score)
+    return render_template("quiz.html", questions=questions, high_score=high_score, class_level=user[0])
 
 @app.route("/submit_quiz", methods=["POST"])
 def submit_quiz():
