@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="form-card">
+        <h2>Join EDUGALAXY</h2>
+        <form method="POST" class="signup-form">
+            <input name="name" placeholder="Full Name" required>
+            <input name="email" type="email" placeholder="Email Address" required>
+            <input name="password" type="password" placeholder="Password" required>
+            <select name="class_level" required>
+                <option value="" disabled selected>Class Level</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+            </select>
+            <select name="board" required>
+                <option value="" disabled selected>Board</option>
+                <option>ICSE</option>
+                <option>CBSE</option>
+                <option>WBSC</option>
+            </select>
+            <button type="submit">Sign Up</button>
+        </form>
+        <p class="small-text">Already a member? <a href="/login">Log in</a></p>
+    </div>
+</section>
+{% endblock %}

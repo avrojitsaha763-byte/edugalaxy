@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EDUGALAXY - Learn, Play & Grow!</title>
+        <!-- Google Fonts - Child-friendly font -->
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet">
+        <!-- External CSS -->
+        <link rel="stylesheet" href="/static/css/style.css">
+    </head>
+
+    <body>
+        <!-- animated background galaxy objects -->
+        <div class="galaxy-animation">
+            <!-- stars -->
+            <div class="galaxy-star" style="top:5%; left:15%; animation-duration:3s;"></div>
+            <div class="galaxy-star" style="top:20%; left:40%; animation-duration:4s;"></div>
+            <div class="galaxy-star" style="top:70%; left:25%; animation-duration:2.5s;"></div>
+            <div class="galaxy-star" style="top:45%; left:80%; animation-duration:3.5s;"></div>
+            <div class="galaxy-star" style="top:85%; left:60%; animation-duration:2.2s;"></div>
+            <!-- planets -->
+            <div class="galaxy-planet" style="top:30%; left:10%; animation-duration:20s;"></div>
+            <div class="galaxy-planet" style="top:60%; left:75%; animation-duration:18s;"></div>
+            <!-- meteor -->
+            <div class="galaxy-meteor" style="top:10%; left:-5%; animation-delay:1s;"></div>
+            <div class="galaxy-meteor" style="top:80%; left:-10%; animation-delay:3s;"></div>
+            <!-- moon/satellite -->
+            <div class="galaxy-satellite" style="top:50%; left:50%; animation-duration:12s;"></div>
+            <!-- moon -->
+            <div class="galaxy-moon" style="top:40%; left:20%; animation-duration:14s;"></div>
+            <!-- asteroid -->
+            <div class="galaxy-asteroid" style="top:70%; left:30%; animation-delay:2s;"></div>
+        </div>
+
+        <!-- ============================================
+         NAVBAR
+         ============================================ -->
+        <nav class="navbar">
+            <!-- Logo - Click to scroll to top -->
+            <div class="logo" onclick="scrollToTop()">
+                <span class="logo-icon">🌟</span>
+                <span>EDUGALAXY</span>
+            </div>
+
+            <!-- Desktop Navigation Links -->
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#syllabus">Syllabus</a>
+                <a href="#test">Test</a>
+            </div>
+
+            <!-- Menu Icon (Three Vertical Lines) -->
+            <div class="menu-icon" onclick="toggleSidebar()">
+                <span class="menu-line"></span>
+                <span class="menu-line"></span>
+                <span class="menu-line"></span>
+            </div>
+        </nav>
+
+        <!-- ============================================
+         SIDEBAR OVERLAY
+         ============================================ -->
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+        <!-- ============================================
+         SIDEBAR (Slide Menu)
+         ============================================ -->
+        <aside class="sidebar">
+            <div class="sidebar-links">
+                <a href="/profile" class="sidebar-link" onclick="closeSidebar()">
+                    <span>👤</span> Profile
+                </a>
+                <a href="/syllabus" class="sidebar-link" onclick="closeSidebar()">
+                    <span>📚</span> Syllabus
+                </a>
+                <a href="#materials" class="sidebar-link" onclick="closeSidebar()">
+                    <span>📚</span> Study Materials
+                </a>
+                <a href="#achievements" class="sidebar-link" onclick="closeSidebar()">
+                    <span>🏆</span> Achievements
+                </a>
+                <a href="#help" class="sidebar-link" onclick="closeSidebar()">
+                    <span>❓</span> Help & Support
+                </a>
+            </div>
+        </aside>
+
+        {% block content %}
+
+        <!-- ============================================
+         HERO SECTION
+         ============================================ -->
+        <section id="home" class="hero">
+            <!-- Floating Background Shapes -->
+            <div class="floating-shapes">
+                <div class="shape star" style="top: 10%; left: 10%; animation-delay: 0s;">⭐</div>
+                <div class="shape star" style="top: 20%; right: 15%; animation-delay: 1s;">✨</div>
+                <div class="shape star" style="top: 60%; left: 5%; animation-delay: 2s;">🌟</div>
+                <div class="shape cloud" style="top: 15%; right: 25%;"></div>
+                <div class="shape cloud" style="top: 70%; right: 10%; animation-delay: 1.5s;"></div>
+                <div class="shape planet" style="top: 40%; left: 8%;"></div>
+                <div class="shape planet" style="bottom: 20%; right: 20%; animation-delay: 3s;"></div>
+                <div class="shape star" style="top: 35%; right: 5%; animation-delay: 0.5s;">🪐</div>
+            </div>
+
+            <div class="hero-content">
+                <h1>Welcome to EDUGALAXY – Learn, Play & Grow!</h1>
+                <p>Discover a world of fun learning adventures! 📖✨ Join us and make education exciting!</p>
+                <button class="hero-cta" onclick="startLearning()"><a href="/signup">Start Learning 🚀</a></button>
+
+                <!-- Hero Illustration -->
+                <div class="hero-illustration">
+                    <div class="illustration-container">
+                        <div class="rocket">🚀</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+         FEATURES SECTION
+         ============================================ -->
+        <section id="about" class="features">
+            <h2 class="section-title">✨ Amazing Features ✨</h2>
+
+            <div class="features-grid">
+                <!-- Feature 1: Interactive Learning -->
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Interactive Learning</h3>
+                    <p>Learn through fun games and interactive activities that make education an exciting adventure!</p>
+                </div>
+
+                <!-- Feature 2: Fun Quizzes -->
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Fun Quizzes</h3>
+                    <p>Test your knowledge with cool quizzes that challenge your brain and make learning fun!</p>
+                </div>
+
+                <!-- Feature 3: Smart Syllabus -->
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Smart Syllabus</h3>
+                    <p>Follow a personalized learning path designed just for you to learn at your own pace!</p>
+                </div>
+
+                <!-- Feature 4: Achievement Rewards -->
+                <div class="feature-card">
+                    <div class="feature-icon">🏅</div>
+                    <h3>Achievement Rewards</h3>
+                    <p>Earn badges, stars, and rewards as you complete lessons and become a learning superstar!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+         WHY CHOOSE US SECTION
+         ============================================ -->
+        <section id="syllabus" class="why-choose-us">
+            <h2 class="section-title">🌈 Why Choose EDUGALAXY? 🌈</h2>
+
+            <div class="why-content">
+                <div class="why-text">
+                    <p>At EDUGALAXY, we believe learning should be as exciting as playing your favorite game! Our
+                        platform is specially designed for young explorers aged 7-12, making education a fun-filled
+                        journey through the galaxy of knowledge!</p>
+                </div>
+
+                <div class="why-list">
+                    <div class="why-item">
+                        <div class="why-icon">🎨</div>
+                        <span>Colorful & Fun Design</span>
+                    </div>
+                    <div class="why-item">
+                        <div class="why-icon">👨‍🏫</div>
+                        <span>Expert Teachers</span>
+                    </div>
+                    <div class="why-item">
+                        <div class="why-icon">📊</div>
+                        <span>Track Your Progress</span>
+                    </div>
+                    <div class="why-item">
+                        <div class="why-icon">🎁</div>
+                        <span>Exciting Rewards</span>
+                    </div>
+                    <div class="why-item">
+                        <div class="why-icon">🔒</div>
+                        <span>Safe & Secure</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+         TEST SECTION (Placeholder)
+         ============================================ -->
+        <section id="test" class="features" style="background: linear-gradient(180deg, #e9ecef 0%, #f8f9fa 100%);">
+            <h2 class="section-title">🎯 Take a Test 🎯</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Sample Test</h3>
+                    <p>Try our fun sample test to see how much you've learned! Are you ready for the challenge?</p>
+                </div>
+            </div>
+        </section>
+
+        {% endblock %}
+        <!-- ============================================
+         FOOTER
+         ============================================ -->
+        <footer class="footer">
+            <div class="footer-logo">🌟 EDUGALAXY</div>
+
+            <div class="social-icons">
+                <div class="social-icon">📘</div>
+                <div class="social-icon">📸</div>
+                <div class="social-icon">🐦</div>
+                <div class="social-icon">📺</div>
+            </div>
+
+            <p class="copyright">© 2024 EDUGALAXY. All rights reserved. Made with 💜 for young learners!</p>
+        </footer>
+
+        <!-- External JavaScript -->
+        <script src="/static/js/script.js"></script>
+    </body>
+
+</html>
