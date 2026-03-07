@@ -198,7 +198,7 @@ Read in this order:
 GET /api/voiceover/<page>?type=mixed
   Returns: Voiceover + Melody mixed
 
-GET /api/voiceover/<page>?type=voiceover  
+GET /api/voiceover/<page>?type=voiceover
   Returns: Just the voiceover (MP3)
 
 GET /api/voiceover/<page>?type=melody
@@ -312,7 +312,7 @@ Then: Delete MP3 file, refresh page
 
 ### Change Melody
 ```
-File: edugalaxy/ai_voice_service.py  
+File: edugalaxy/ai_voice_service.py
 Line: ~40 (MELODY_CONFIGS)
 
 Example:
@@ -374,7 +374,7 @@ If something doesn't work:
 
 You now have:
 ✅ Professional AI voiceovers (14 unique, completely free)
-✅ Custom melodies (14 unique, algorithmically generated)  
+✅ Custom melodies (14 unique, algorithmically generated)
 ✅ Smart mixing (voiceover + melody)
 ✅ All 14 pages covered
 ✅ Mobile compatible
@@ -395,8 +395,8 @@ You now have:
 
 ---
 
-**Created**: March 7, 2026  
-**Version**: 2.0 - AI Voice with Melodies  
-**Status**: ✅ Production Ready  
+**Created**: March 7, 2026
+**Version**: 2.0 - AI Voice with Melodies
+**Status**: ✅ Production Ready
 
 **Enjoy your AI voice system!** 🎙️🎵
