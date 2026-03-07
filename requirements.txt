@@ -3,3 +3,7 @@ pymongo
 dnspython
 werkzeug
 python-dotenv
+gtts
+pydub
+numpy
+scipy
