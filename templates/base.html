@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}EduGalaxy - Hacker Space Learning{% endblock %}</title>
+        <!-- CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <!-- FontAwesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        
+        <!-- Three.js CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <!-- Three.js Post-Processing CDNs -->
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+        
+        <!-- Tone.js for Generative Music -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+        <!-- GSAP CDN for animations -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+        <!-- GSAP ScrollTrigger -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    </head>
+
+    <body>
+        <!-- System Bootloader SVG -->
+        <div id="boot-sequence" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none;">
+            <svg id="hexa-loader" width="200" height="200" viewBox="0 0 200 200">
+                <polygon points="100,20 170,60 170,140 100,180 30,140 30,60" fill="none" stroke="#ff0055" stroke-width="4" stroke-dasharray="1000" stroke-dashoffset="1000">
+                    <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="2s" fill="freeze" />
+                </polygon>
+                <text x="100" y="105" fill="#00ffff" font-family="'Orbitron', sans-serif" font-size="16" text-anchor="middle" letter-spacing="2">INITIALIZING</text>
+            </svg>
+            <div id="boot-log" style="color: #00ff00; font-family: monospace; text-align: left; width: 300px; height: 100px; overflow: hidden; font-size: 12px; margin-top: 20px; opacity: 0.8;"></div>
+        </div>
+
+        <!-- 3D WebGL Background -->
+        <canvas id="galaxy-canvas"></canvas>
+        <div id="cosmic-overlay"></div>
+        <div id="crt-scanlines"></div> <!-- NEW: CRT Effect -->
+
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="{{ url_for('home') }}" class="logo">
+                    <i class="fas fa-satellite"></i> <span>EduGalaxy</span>
+                </a>
+                <ul class="nav-links">
+                    {% if session.get('user_id') %}
+                    <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('quiz') }}"><i class="fas fa-rocket"></i> Launch Quiz</a></li>
+                    <li><a href="{{ url_for('leaderboard') }}"><i class="fas fa-trophy"></i> Rankings</a></li>
+                    {% if session.get('user_email') == 'admin@edugalaxy.com' %}
+                    <li><a href="{{ url_for('admin') }}"><i class="fas fa-terminal"></i> Terminal</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('logout') }}" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Abort</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('signup') }}" class="btn btn-signup">Sign Up</a></li>
+                    {% endif %}
+                    
+                    <!-- Global Audio Toggle Btn -->
+                    <li>
+                        <button id="audio-toggle-btn" class="audio-toggle" title="Toggle Sound">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                <i class="fas fa-info-circle"></i> {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Main Content -->
+        <main id="page-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 EduGalaxy. Gamify Your Galactic Journey!</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Custom JS Engine -->
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+        {% block scripts %}{% endblock %}
+    </body>
+
+</html>

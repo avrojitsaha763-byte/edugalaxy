@@ -1,11 +1,92 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
+
+{% block title %}EduGalaxy - Galactic Rankings{% endblock %}
+
 {% block content %}
-<h2 class="section-title slide-up">Leaderboard</h2>
-<div class="leaderboard-list">
-    {% for u in users %}
-    <div class="card slide-up">
-        <strong>{{ u[0] }}</strong> &mdash; XP: {{ u[1] }} | Level: {{ u[2] }} | {{ u[3] }}
+<div class="leaderboard-container">
+    <div class="leaderboard-header">
+        <h1 class="glitch-text" data-text="Global Rankings"><i class="fas fa-chart-network"></i> Global Rankings</h1>
+        <p style="color: var(--hologram-green);">Top Cadets across all sectors</p>
     </div>
-    {% endfor %}
+
+    {% if users %}
+    <div class="leaderboard-table-container glass-panel" style="padding: 0;">
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-sort-amount-up"></i> Position</th>
+                    <th><i class="fas fa-id-badge"></i> Explorer</th>
+                    <th><i class="fas fa-meteor"></i> Dark Matter (XP)</th>
+                    <th><i class="fas fa-space-shuttle"></i> Tier (Level)</th>
+                    <th><i class="fas fa-boxes"></i> Relic (Medal)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="{% if session.get('user_id') == user.id %}current-user{% endif %}">
+                    <td class="rank-cell">
+                        {% if loop.index == 1 %}
+                        <i class="fas fa-crown gold-crown"></i>
+                        {% elif loop.index == 2 %}
+                        <i class="fas fa-crown silver-crown"></i>
+                        {% elif loop.index == 3 %}
+                        <i class="fas fa-crown bronze-crown"></i>
+                        {% else %}
+                        <span class="rank-number">#{{ loop.index }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="player-cell">
+                        <div class="player-info">
+                            <div class="player-avatar">
+                                {{ user.name[0]|upper }}
+                            </div>
+                            <span class="player-name">{{ user.name }}</span>
+                        </div>
+                    </td>
+                    <td class="xp-cell">
+                        <i class="fas fa-meteor xp-icon"></i>
+                        {{ user.xp }}
+                    </td>
+                    <td class="level-cell">
+                        <span class="level-badge">{{ user.level }}</span>
+                    </td>
+                    <td class="medal-cell">
+                        {% if user.medals == 'Diamond' %}
+                        <i class="fas fa-gem medal-icon diamond"></i>
+                        <span class="medal-name diamond">Diamond</span>
+                        {% elif user.medals == 'Gold' %}
+                        <i class="fas fa-award medal-icon gold"></i>
+                        <span class="medal-name gold">Gold</span>
+                        {% elif user.medals == 'Silver' %}
+                        <i class="fas fa-award medal-icon silver"></i>
+                        <span class="medal-name silver">Silver</span>
+                        {% elif user.medals == 'Bronze' %}
+                        <i class="fas fa-award medal-icon bronze"></i>
+                        <span class="medal-name bronze">Bronze</span>
+                        {% else %}
+                        <span class="medal-name none">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-users">
+        <i class="fas fa-user-astronaut"></i>
+        <h2>Void Deteced!</h2>
+        <p>Be the first explorer to dominate the galaxy!</p>
+    </div>
+    {% endif %}
+
+    <!-- Your Rank Section (if logged in) -->
+    {% if session.get('user_id') %}
+    <div class="your-rank-section">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-large">
+            <i class="fas fa-undo"></i> Return to Command Center
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

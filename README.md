@@ -1,2 +1,0 @@
-# edugalaxy
-hackathon project

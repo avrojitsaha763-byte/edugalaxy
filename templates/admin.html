@@ -1,19 +1,126 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
+
+{% block title %}EduGalaxy - Admin Terminal{% endblock %}
+
 {% block content %}
-<h2 class="section-title slide-up">Add Question</h2>
-<div class="card">
-    <form method="POST" class="signup-form">
-        <input name="class_level" placeholder="Class" required>
-        <input name="board" placeholder="Board" required>
-        <input name="subject" placeholder="Subject" required>
-        <input name="difficulty" placeholder="Difficulty" required>
-        <input name="question" placeholder="Question" required>
-        <input name="optionA" placeholder="Option A" required>
-        <input name="optionB" placeholder="Option B" required>
-        <input name="optionC" placeholder="Option C" required>
-        <input name="optionD" placeholder="Option D" required>
-        <input name="correct_answer" placeholder="Correct (A/B/C/D)" required>
-        <button type="submit" class="hero-cta">Add</button>
-    </form>
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="glitch-text" data-text="SYSTEM OVERRIDE: Admin"><i class="fas fa-terminal blink"></i> SYSTEM OVERRIDE: Admin</h1>
+        <p style="color: var(--hologram-green);">Inject new data nodes into the central matrix</p>
+    </div>
+
+    <div class="admin-content">
+        <div class="admin-form-card glass-panel" style="border-color: var(--hologram-green); box-shadow: 0 0 20px rgba(0,255,135,0.2);">
+            <h2 class="glitch-text" data-text="Add New Parameter" style="color: var(--hologram-green);"><i class="fas fa-database"></i> Add New Parameter</h2>
+
+            <form method="POST" action="{{ url_for('admin') }}" class="admin-form">
+                <div class="form-group">
+                    <label for="question">
+                        > Input Query String:
+                    </label>
+                    <textarea id="question" name="question" rows="3" required
+                        placeholder="Initialize query sequence..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="option_a">
+                            > Variable [A]:
+                        </label>
+                        <input type="text" id="option_a" name="option_a" required placeholder="Data fragment A">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="option_b">
+                            > Variable [B]:
+                        </label>
+                        <input type="text" id="option_b" name="option_b" required placeholder="Data fragment B">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="option_c">
+                            > Variable [C]:
+                        </label>
+                        <input type="text" id="option_c" name="option_c" required placeholder="Data fragment C">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="option_d">
+                            > Variable [D]:
+                        </label>
+                        <input type="text" id="option_d" name="option_d" required placeholder="Data fragment D">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="correct_answer">
+                            > Expected Output:
+                        </label>
+                        <select id="correct_answer" name="correct_answer" required>
+                            <option value="">Awaiting selection...</option>
+                            <option value="A">Variable [A]</option>
+                            <option value="B">Variable [B]</option>
+                            <option value="C">Variable [C]</option>
+                            <option value="D">Variable [D]</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="difficulty">
+                            > Threat Level:
+                        </label>
+                        <select id="difficulty" name="difficulty" required>
+                            <option value="">Awaiting classification...</option>
+                            <option value="Easy">Easy (10 DM)</option>
+                            <option value="Medium">Medium (20 DM)</option>
+                            <option value="Hard">Hard (30 DM)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">
+                        > Discipline Sector:
+                    </label>
+                    <input type="text" id="subject" name="subject" required
+                        placeholder="e.g. Astrophysics, Quantum Mechanics, History...">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-large">
+                    <i class="fas fa-upload"></i> Execute Command: Compile Node
+                </button>
+            </form>
+        </div>
+
+        <div class="admin-info-card">
+            <h3><i class="fas fa-shield-alt"></i> Terminal Protocols</h3>
+            <ul style="color: var(--hologram-green); list-style-type: square; margin-left: 20px;">
+                <li>Verify structural integrity of the query formulation.</li>
+                <li>Ensure mutual exclusivity of variables A, B, C, D.</li>
+                <li>Assign appropriate Threat Levels to maintain ecosystem balance:
+                    <ul style="color: var(--nebula-cyan); margin-left: 20px; list-style-type: circle;">
+                        <li><strong>Easy:</strong> Novice (10 Dark Matter)</li>
+                        <li><strong>Medium:</strong> Advanced (20 Dark Matter)</li>
+                        <li><strong>Hard:</strong> Master (30 Dark Matter)</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="back-link" style="margin-top: 2rem;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-power-off"></i> Terminate Session
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+/* Blink cursor effect just for admin */
+.blink { animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+</style>
 {% endblock %}

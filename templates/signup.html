@@ -1,30 +1,84 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
+
+{% block title %}EduGalaxy - New Crew Member{% endblock %}
 
 {% block content %}
-<section class="auth-section">
-    <div class="form-card">
-        <h2>Join EDUGALAXY</h2>
-        <form method="POST" class="signup-form">
-            <input name="name" placeholder="Full Name" required>
-            <input name="email" type="email" placeholder="Email Address" required>
-            <input name="password" type="password" placeholder="Password" required>
-            <select name="class_level" required>
-                <option value="" disabled selected>Class Level</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-            </select>
-            <select name="board" required>
-                <option value="" disabled selected>Board</option>
-                <option>ICSE</option>
-                <option>CBSE</option>
-                <option>WBSC</option>
-            </select>
-            <button type="submit">Sign Up</button>
+<div class="auth-container">
+    <div class="auth-card signup-card glass-panel" style="padding: 3.5rem;">
+        <div class="auth-header">
+            <h1 class="glitch-text" data-text="Enlist Now"><i class="fas fa-user-astronaut"></i> Enlist Now</h1>
+            <p style="color: var(--nebula-cyan);">Join EduGalaxy and start your cosmic training!</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('signup') }}" class="auth-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">
+                        <i class="fas fa-id-badge"></i> Full Name
+                    </label>
+                    <input type="text" id="name" name="name" required placeholder="Enter designation">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Comm-Link (Email)
+                    </label>
+                    <input type="email" id="email" name="email" required placeholder="name@edugalaxy.net">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-key"></i> Security Key (Password)
+                </label>
+                <input type="password" id="password" name="password" required placeholder="Create secure passcode"
+                    minlength="6">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="class_level">
+                        <i class="fas fa-user-graduate"></i> Academic Tier
+                    </label>
+                    <select id="class_level" name="class_level" required>
+                        <option value="">Select your tier</option>
+                        <option value="Tier 1 (Class 1)">Tier 1 (Class 1)</option>
+                        <option value="Tier 2 (Class 2)">Tier 2 (Class 2)</option>
+                        <option value="Tier 3 (Class 3)">Tier 3 (Class 3)</option>
+                        <option value="Tier 4 (Class 4)">Tier 4 (Class 4)</option>
+                        <option value="Tier 5 (Class 5)">Tier 5 (Class 5)</option>
+                        <option value="Tier 6 (Class 6)">Tier 6 (Class 6)</option>
+                        <option value="Tier 7 (Class 7)">Tier 7 (Class 7)</option>
+                        <option value="Tier 8 (Class 8)">Tier 8 (Class 8)</option>
+                        <option value="Tier 9 (Class 9)">Tier 9 (Class 9)</option>
+                        <option value="Tier 10 (Class 10)">Tier 10 (Class 10)</option>
+                        <option value="Tier 11 (Class 11)">Tier 11 (Class 11)</option>
+                        <option value="Tier 12 (Class 12)">Tier 12 (Class 12)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="board">
+                        <i class="fas fa-globe"></i> Federation Board
+                    </label>
+                    <select id="board" name="board" required>
+                        <option value="">Select governing body</option>
+                        <option value="CBSE">CBSE Fleet</option>
+                        <option value="ICSE">ICSE Command</option>
+                        <option value="State">State Systems</option>
+                        <option value="IB">Intergalactic Baccalaureate</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-large">
+                <i class="fas fa-space-shuttle"></i> Confirm Enlistment
+            </button>
         </form>
-        <p class="small-text">Already a member? <a href="/login">Log in</a></p>
+
+        <div class="auth-footer">
+            <p>Already enlisted? <a href="{{ url_for('login') }}">Access Terminal here</a></p>
+        </div>
     </div>
-</section>
+</div>
 {% endblock %}

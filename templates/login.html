@@ -1,15 +1,38 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
+
+{% block title %}EduGalaxy - Crew Login{% endblock %}
 
 {% block content %}
-<section class="auth-section">
-    <div class="form-card slide-up">
-        <h2>Welcome Back!</h2>
-        <form method="POST" class="signup-form">
-            <input name="email" type="email" placeholder="Email Address" required>
-            <input name="password" type="password" placeholder="Password" required>
-            <button type="submit" class="hero-cta">Login</button>
+<div class="auth-container">
+    <div class="auth-card glass-panel" style="padding: 3rem;">
+        <div class="auth-header">
+            <h1 class="glitch-text" data-text="Authentication"><i class="fas fa-fingerprint"></i> Authentication</h1>
+            <p style="color: var(--nebula-cyan);">Access your central control dashboard</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Comm-Link (Email)
+                </label>
+                <input type="email" id="email" name="email" required placeholder="cadet@edugalaxy.net">
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-key"></i> Security Key (Password)
+                </label>
+                <input type="password" id="password" name="password" required placeholder="Enter passcode">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-large">
+                <i class="fas fa-sign-in-alt"></i> Initialize Login
+            </button>
         </form>
-        <p class="small-text">Don't have an account? <a href="/signup">Sign up</a></p>
+
+        <div class="auth-footer">
+            <p>No clearance yet? <a href="{{ url_for('signup') }}">Register here</a></p>
+        </div>
     </div>
-</section>
+</div>
 {% endblock %}

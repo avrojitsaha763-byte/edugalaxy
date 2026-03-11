@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}EduGalaxy - Hacker Space Learning{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="glitch-text" data-text="Welcome to EduGalaxy">Welcome to <span class="highlight">EduGalaxy</span></h1>
+        <p class="hero-subtitle glitch-text" data-text="Transform your learning journey into a cosmic adventure!">Transform your learning journey into a cosmic adventure!</p>
+        <p class="hero-description" style="margin-top:20px;">
+            Master new subjects, earn XP, unlock holographic medals, and compete with explorers worldwide.
+            Our gamified approach makes learning an epic voyage through the stars.
+        </p>
+        <div class="hero-buttons" style="margin-top: 40px;">
+            <a href="{{ url_for('signup') }}" class="btn btn-primary btn-large">
+                <i class="fas fa-rocket"></i> Initiate Launch
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary btn-large">
+                <i class="fas fa-user-astronaut"></i> Crew Login
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="features">
+    <h2>Mission Objectives</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3>Cosmic Challenges</h3>
+            <p>Engage your mind with dynamic quizzes across varying difficulties and subjects.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-level-up-alt"></i>
+            </div>
+            <h3>Earn XP & Level Up</h3>
+            <p>Gain experience points for every correct answer and expand your galactic influence.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-fire-alt"></i>
+            </div>
+            <h3>Streak Multipliers</h3>
+            <p>Keep your accuracy high for combo streak bonuses and rapid progression!</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-gem"></i>
+            </div>
+            <h3>Unlock Relics</h3>
+            <p>Collect Bronze, Silver, Gold, and Diamond holographic medals on your journey.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <h3>Global Network</h3>
+            <p>See how your stats rank on the global leaderboard against the entire academy.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-chart-network"></i>
+            </div>
+            <h3>Telemetry Data</h3>
+            <p>Monitor your performance metrics and track your cognitive expansion over time.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="stats-container">
+        <div class="stat-item">
+            <i class="fas fa-users"></i>
+            <span class="stat-number">10,402+</span>
+            <span class="stat-label">Active Cadets</span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-database"></i>
+            <span class="stat-number">5,200+</span>
+            <span class="stat-label">Data Nodes (Q's)</span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-star-half-alt"></i>
+            <span class="stat-number">142+</span>
+            <span class="stat-label">Daily Masteries</span>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

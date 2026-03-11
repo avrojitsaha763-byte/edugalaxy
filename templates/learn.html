@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}EduGalaxy - Interactive Learning Hub{% endblock %}
+
+{% block content %}
+<div class="learn-container" style="max-width: 800px; margin: 0 auto; padding-top: 2rem;">
+    <div class="learn-header text-center" style="margin-bottom: 3rem;">
+        {% if lesson %}
+            <h1 class="glitch-text" data-text="{{ lesson.title }}" style="color: var(--starlight-white); font-size: 2.5rem;"><i class="fas fa-graduation-cap" style="color: var(--neon-pink);"></i> {{ lesson.title }}</h1>
+            <p style="color: var(--hologram-green); font-size: 1.2rem; margin-bottom: 0.5rem">{{ lesson.intro }}</p>
+            <div style="display: inline-block; padding: 0.5rem 1.5rem; background: rgba(0, 255, 255, 0.1); border: 1px solid var(--nebula-cyan); border-radius: 20px; color: var(--nebula-cyan); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem;">
+                <i class="fas fa-satellite-dish"></i> Target Topic: {{ lesson.syllabus_topic }}
+            </div>
+        {% else %}
+            <h1 class="glitch-text" data-text="Holographic Academy"><i class="fas fa-graduation-cap"></i> Holographic Academy</h1>
+            <p style="color: var(--nebula-cyan); font-size: 1.2rem;">Welcome, Cadet! Select a subject to begin your interactive training based on your local syllabus.</p>
+        {% endif %}
+    </div>
+
+    <!-- 3D Animated Progress Bars -->
+    <div class="glass-panel slide-up" style="padding: 2rem; margin-bottom: 2.5rem;">
+        <h2 style="color: var(--starlight-white); margin-bottom: 1.5rem; font-size: 1.3rem; text-align: center;">
+            <i class="fas fa-chart-line" style="color: var(--hologram-green);"></i> Syllabus Completion Tracker
+        </h2>
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Math Progress -->
+            <div class="progress-item">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--neon-pink); font-weight: bold; letter-spacing: 1px;"><i class="fas fa-calculator"></i> Mathematics</span>
+                    <span style="color: var(--starlight-white);">{{ progress.math }}%</span>
+                </div>
+                <div class="progress-bar-3d">
+                    <div class="progress-bar-fill math-fill" style="width: {{ progress.math }}%;"></div>
+                    <div class="progress-bar-glow math-glow" style="width: {{ progress.math }}%;"></div>
+                </div>
+            </div>
+            <!-- Science Progress -->
+            <div class="progress-item">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--hologram-green); font-weight: bold; letter-spacing: 1px;"><i class="fas fa-flask"></i> Science & EVS</span>
+                    <span style="color: var(--starlight-white);">{{ progress.science }}%</span>
+                </div>
+                <div class="progress-bar-3d">
+                    <div class="progress-bar-fill science-fill" style="width: {{ progress.science }}%;"></div>
+                    <div class="progress-bar-glow science-glow" style="width: {{ progress.science }}%;"></div>
+                </div>
+            </div>
+            <!-- English Progress -->
+            <div class="progress-item">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--nebula-cyan); font-weight: bold; letter-spacing: 1px;"><i class="fas fa-book-open"></i> English Language</span>
+                    <span style="color: var(--starlight-white);">{{ progress.english }}%</span>
+                </div>
+                <div class="progress-bar-3d">
+                    <div class="progress-bar-fill english-fill" style="width: {{ progress.english }}%;"></div>
+                    <div class="progress-bar-glow english-glow" style="width: {{ progress.english }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not lesson %}
+        <!-- Subject Selection -->
+        <div class="glass-panel" style="padding: 3rem; text-align: center;">
+            <h2 style="margin-bottom: 2rem; color: var(--starlight-white);">Choose Your Mission</h2>
+            <form method="POST" action="{{ url_for('learn') }}" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 400px; margin: 0 auto;">
+                <select name="subject" required style="padding: 1rem; border-radius: var(--border-radius); background: rgba(0,0,0,0.5); border: 1px solid var(--cosmic-purple); color: var(--starlight-white); font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem;">
+                    <option value="">Select an area of study...</option>
+                    <option value="Math">Mathematics</option>
+                    <option value="Science">Science & EVS</option>
+                    <option value="English">English Language</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-large">
+                    <i class="fas fa-play"></i> Initialize Lesson
+                </button>
+            </form>
+            <div style="margin-top: 2rem;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Return to Command
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <!-- The Interactive Lesson -->
+        <div class="lesson-content">
+            <!-- Fact 1 Card -->
+            <div class="glass-panel slide-up" style="padding: 2.5rem; margin-bottom: 2rem; border-left: 4px solid var(--neon-pink);">
+                <h3><i class="fas fa-lightbulb" style="color: var(--neon-pink);"></i> Cosmic Fact</h3>
+                <p style="font-size: 1.3rem; line-height: 1.6; color: var(--starlight-white);">{{ lesson.fact_1 }}</p>
+            </div>
+
+            <!-- Core Concept Card -->
+            <div class="glass-panel slide-up" style="padding: 2.5rem; margin-bottom: 2rem; border-left: 4px solid var(--hologram-green); animation-delay: 0.2s;">
+                <h3><i class="fas fa-atom" style="color: var(--hologram-green);"></i> Core Concept</h3>
+                <p style="font-size: 1.3rem; line-height: 1.6; color: var(--starlight-white);">{{ lesson.core_concept }}</p>
+            </div>
+            
+            <!-- Fact 2 Card -->
+            <div class="glass-panel slide-up" style="padding: 2.5rem; margin-bottom: 3rem; border-left: 4px solid var(--nebula-cyan); animation-delay: 0.4s;">
+                <h3><i class="fas fa-rocket" style="color: var(--nebula-cyan);"></i> Explorer's Note</h3>
+                <p style="font-size: 1.3rem; line-height: 1.6; color: var(--starlight-white);">{{ lesson.fact_2 }}</p>
+            </div>
+
+            <!-- Call to Action / Quiz Transition -->
+            <div class="glass-panel text-center slide-up" style="padding: 3rem; background: rgba(20, 0, 40, 0.6); border: 2px solid var(--cosmic-purple); animation-delay: 0.6s;">
+                <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">{{ lesson.interactive_prompt }}</h3>
+                <form method="POST" action="{{ url_for('quiz') }}" style="margin-top: 2rem;">
+                    <input type="hidden" name="topic" value="{{ lesson.syllabus_topic }}">
+                    <button type="submit" class="btn btn-primary btn-large" style="font-size: 1.2rem; display: inline-flex; align-items: center; gap: 0.5rem; animation: pulseGlow 2s infinite;">
+                        <i class="fas fa-bolt"></i> Test My Knowledge!
+                    </button>
+                </form>
+                <div style="margin-top: 1.5rem;">
+                    <a href="{{ url_for('learn') }}" style="color: var(--starlight-white); text-decoration: underline;">Learn something else</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .slide-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: slideUpFade 0.6s ease forwards;
+    }
+    @keyframes slideUpFade {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 3D Animated Progress Bar */
+    .progress-bar-3d {
+        position: relative;
+        height: 28px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.3);
+        transform: perspective(400px) rotateX(5deg);
+    }
+    .progress-bar-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 14px;
+        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        background-size: 30px 30px;
+        animation: progressStripes 1s linear infinite;
+    }
+    .progress-bar-glow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 14px;
+        filter: blur(8px);
+        opacity: 0.5;
+        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: progressPulse 2s ease-in-out infinite;
+    }
+
+    /* Math: pink/magenta */
+    .math-fill {
+        background: linear-gradient(90deg, #ff006e, #ff47a3, #ff006e);
+        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+        background-size: 30px 30px;
+    }
+    .math-glow { background: linear-gradient(90deg, #ff006e, #ff47a3); }
+
+    /* Science: green */
+    .science-fill {
+        background: linear-gradient(90deg, #00ff87, #60efff, #00ff87);
+        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+        background-size: 30px 30px;
+    }
+    .science-glow { background: linear-gradient(90deg, #00ff87, #60efff); }
+
+    /* English: cyan */
+    .english-fill {
+        background: linear-gradient(90deg, #00d4ff, #7b61ff, #00d4ff);
+        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+        background-size: 30px 30px;
+    }
+    .english-glow { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
+
+    @keyframes progressStripes {
+        from { background-position: 30px 0; }
+        to { background-position: 0 0; }
+    }
+    @keyframes progressPulse {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 0.7; }
+    }
+</style>
+{% endblock %}
