@@ -1,38 +1,97 @@
 {% extends "base.html" %}
-
-{% block title %}EduGalaxy - Crew Login{% endblock %}
-
+{% block title %}EduGalaxy — Authentication Portal{% endblock %}
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card glass-panel" style="padding: 3rem;">
-        <div class="auth-header">
-            <h1 class="glitch-text" data-text="Authentication"><i class="fas fa-fingerprint"></i> Authentication</h1>
-            <p style="color: var(--nebula-cyan);">Access your central control dashboard</p>
+<div class="auth-universe" id="login-universe">
+    <!-- Holographic 3D wrapper handled by script.js -->
+    
+    <div class="auth-card-premium holo-terminal">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <i class="fas fa-microchip"></i> CYBER-PORTAL
         </div>
+        <h2 class="auth-heading">Auth Sequence Initiated</h2>
+        <p class="auth-sub">Decrypting user credentials... Please enter data.</p>
 
-        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
-            <div class="form-group">
-                <label for="email">
-                    <i class="fas fa-envelope"></i> Comm-Link (Email)
-                </label>
-                <input type="email" id="email" name="email" required placeholder="cadet@edugalaxy.net">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for cat, msg in messages %}
+            <div class="auth-flash {{ cat }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form-premium">
+            <div class="afp-group">
+                <label><i class="fas fa-envelope"></i> Email Address</label>
+                <input type="email" name="email" required placeholder="cadet@edugalaxy.net" id="lg-email" autocomplete="email">
             </div>
-
-            <div class="form-group">
-                <label for="password">
-                    <i class="fas fa-key"></i> Security Key (Password)
-                </label>
-                <input type="password" id="password" name="password" required placeholder="Enter passcode">
+            <div class="afp-group">
+                <label><i class="fas fa-key"></i> Password</label>
+                <div class="pw-wrap">
+                    <input type="password" name="password" required placeholder="••••••••" id="lg-pw" autocomplete="current-password">
+                    <button type="button" class="pw-toggle" onclick="togglePw('lg-pw',this)"><i class="fas fa-eye"></i></button>
+                </div>
             </div>
-
-            <button type="submit" class="btn btn-primary btn-block btn-large">
-                <i class="fas fa-sign-in-alt"></i> Initialize Login
+            <button type="submit" class="auth-submit-btn">
+                <i class="fas fa-rocket"></i> Launch Into Learning
+                <span class="btn-glow"></span>
             </button>
         </form>
 
-        <div class="auth-footer">
-            <p>No clearance yet? <a href="{{ url_for('signup') }}">Register here</a></p>
-        </div>
+        <div class="auth-divider">or</div>
+        <p class="auth-switch">New to EduGalaxy? <a href="{{ url_for('signup') }}">Join the Academy →</a></p>
     </div>
 </div>
+
+<style>
+.auth-universe { min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+
+.holo-terminal { 
+    position:relative; z-index:2; width:100%; max-width:440px; padding:2.5rem; 
+    background:rgba(0,30,20,0.6); 
+    backdrop-filter:blur(25px); 
+    border:1px solid rgba(0,255,168,0.4); 
+    border-radius:15px; 
+    box-shadow:0 0 50px rgba(0,255,168,0.2), inset 0 0 20px rgba(0,255,168,0.1); 
+    transform-style: preserve-3d;
+}
+.holo-terminal::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,168,0.05) 3px, rgba(0,255,168,0.05) 4px);
+    pointer-events:none; z-index:10; border-radius:15px;
+}
+
+.auth-logo { font-family:'Courier New', monospace; font-weight:bold; font-size:1.5rem; letter-spacing:2px; color:#00ffa8; margin-bottom:1.5rem; text-shadow:0 0 10px #00ffa8; }
+.auth-logo i { margin-right:8px; }
+.auth-heading { font-family:'Orbitron',sans-serif; font-size:1.8rem; margin-bottom:0.5rem; color:#fff; }
+.auth-sub { color:rgba(255,255,255,0.55); font-size:0.95rem; margin-bottom:2rem; }
+.auth-flash { padding:0.8rem 1.2rem; border-radius:10px; font-weight:600; margin-bottom:1rem; font-size:0.9rem; }
+.auth-flash.success { background:rgba(34,197,94,0.2); border:1px solid rgba(34,197,94,0.4); color:#4ade80; }
+.auth-flash.error { background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
+
+.auth-form-premium { display:flex; flex-direction:column; gap:1.2rem; position:relative; z-index:11;}
+.afp-group label { display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-family:'Courier New', monospace; font-weight:bold; color:#00ffa8; margin-bottom:0.5rem; letter-spacing:1px; }
+.afp-group input { width:100%; padding:0.9rem 1.2rem; background:rgba(0,255,168,0.05); border:1px solid rgba(0,255,168,0.3); border-radius:8px; color:#fff; font-size:1rem; font-family:inherit; transition:all 0.3s; }
+.afp-group input:focus { outline:none; border-color:#00ffa8; background:rgba(0,255,168,0.1); box-shadow:0 0 15px rgba(0,255,168,0.3); }
+.pw-wrap { position:relative; }
+.pw-toggle { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#00ffa8; cursor:pointer; font-size:1rem; }
+.auth-submit-btn { position:relative; padding:1rem; background:transparent; border:1px solid #00ffa8; border-radius:8px; color:#00ffa8; font-size:1.1rem; font-weight:bold; cursor:pointer; font-family:'Orbitron',sans-serif; letter-spacing:2px; text-transform:uppercase; overflow:hidden; transition:all 0.3s; }
+.auth-submit-btn:hover { background:rgba(0,255,168,0.2); box-shadow:0 0 20px rgba(0,255,168,0.5); transform:scale(1.02); }
+.btn-glow { position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(0,255,168,0.4),transparent); transform:translateX(-100%); animation:scan 3s infinite; }
+@keyframes scan { 100%{transform:translateX(100%);} }
+.auth-divider { text-align:center; color:rgba(255,255,255,0.3); margin:1.5rem 0 0.5rem; font-size:0.85rem; position:relative; }
+.auth-divider::before,.auth-divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:rgba(255,255,255,0.1); }
+.auth-divider::before { left:0; } .auth-divider::after { right:0; }
+.auth-switch { text-align:center; color:rgba(255,255,255,0.55); font-size:0.95rem; }
+.auth-switch a { color:#f97316; font-weight:700; text-decoration:none; }
+.auth-switch a:hover { text-decoration:underline; }
+</style>
+<script>
+function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.innerHTML = inp.type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+}
+</script>
 {% endblock %}

@@ -1,95 +1,295 @@
 {% extends "base.html" %}
-
-{% block title %}EduGalaxy - Hacker Space Learning{% endblock %}
+{% block title %}EduGalaxy — Where Learning Becomes Legend{% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <div class="hero-content">
-        <h1 class="glitch-text" data-text="Welcome to EduGalaxy">Welcome to <span class="highlight">EduGalaxy</span></h1>
-        <p class="hero-subtitle glitch-text" data-text="Transform your learning journey into a cosmic adventure!">Transform your learning journey into a cosmic adventure!</p>
-        <p class="hero-description" style="margin-top:20px;">
-            Master new subjects, earn XP, unlock holographic medals, and compete with explorers worldwide.
-            Our gamified approach makes learning an epic voyage through the stars.
+<!-- CINEMATIC HERO (STAR WARS THEME - BEYOND LIMITS EXTREME SCROLL) -->
+<section class="hero-section" id="hero" style="min-height: 300vh; position: relative; padding-top: 20vh;">
+    <div class="hero-particles" id="hero-particles"></div>
+    <div class="hero-content" style="position: sticky; top: 25vh; max-width: 900px; padding: 3rem; background: rgba(2, 0, 10, 0.6); border-radius: 30px; backdrop-filter: blur(20px); border: 2px solid rgba(0, 255, 135, 0.3); box-shadow: 0 0 100px rgba(0,255,135,0.1), inset 0 0 30px rgba(0,255,135,0.05); margin: 0 auto;">
+        <div class="hero-badge" style="color:#00ff87; border-color: rgba(0,255,135,0.5); background: rgba(0,255,135,0.1); font-family: 'Courier New', monospace; font-weight: bold; font-size: 1.1rem; text-shadow: 0 0 10px #00ff87;">
+            <i class="fas fa-exclamation-triangle"></i> EMERGENCY BROADCAST: ALIEN INVASION DETECTED IN SECTOR 7
+        </div>
+        <h1 class="hero-title" style="margin-top: 1rem;">
+            <span class="hero-line-1" style="font-size: clamp(2rem, 5vw, 3.5rem); text-shadow: 0 0 15px rgba(255,255,255,0.5); font-family: 'Orbitron', sans-serif;">The Galaxy Needs You,</span><br>
+            <span class="hero-line-2 gradient-text" id="typewriter" style="font-family: 'Orbitron', sans-serif; font-size: clamp(3rem, 8vw, 6.5rem); text-shadow: 0 0 40px rgba(0,212,255,1), 0 0 80px rgba(0,212,255,0.6); line-height: 1.1; font-weight: 900; background: linear-gradient(to right, #00f0ff, #fff, #00f0ff); -webkit-background-clip: text; color: transparent;">Protagonist Hero</span>
+        </h1>
+        <p class="hero-subtitle" style="font-size: 1.4rem; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); margin-top: 1.5rem; max-width: 800px;">
+            Alien warships are invading! The only way to stop them is to complete your training. Master Math, Science, and Languages to power the planetary defense grid.
         </p>
-        <div class="hero-buttons" style="margin-top: 40px;">
-            <a href="{{ url_for('signup') }}" class="btn btn-primary btn-large">
-                <i class="fas fa-rocket"></i> Initiate Launch
+        <div class="hero-cta" style="margin-top: 2rem;">
+            <a href="{{ url_for('signup') }}" class="btn-hero-primary" style="background: linear-gradient(135deg, #ff0055, #ff6b35);">
+                <i class="fas fa-space-shuttle"></i> Launch Defensive Strike
+                <span class="btn-glow"></span>
             </a>
-            <a href="{{ url_for('login') }}" class="btn btn-secondary btn-large">
-                <i class="fas fa-user-astronaut"></i> Crew Login
+            <a href="{{ url_for('login') }}" class="btn-hero-secondary">
+                <i class="fas fa-terminal"></i> Enter Command Center
             </a>
+        </div>
+        <div class="hero-stats" style="margin-top: 2rem; opacity: 0.8;">
+            <div class="stat-pill"><span class="stat-num" data-target="15">0</span> Jedi Masters</div>
+            <div class="stat-pill"><span class="stat-num" data-target="6">0</span> Training Holo-Decks</div>
         </div>
     </div>
-</div>
+    
+    <div class="hero-scroll-hint" style="color: #00d4ff; text-shadow: 0 0 10px #00d4ff;">
+        <span>ZOOM INTO THE GALAXY</span><br>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
 
-<!-- Features Section -->
-<section class="features">
-    <h2>Mission Objectives</h2>
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-question-circle"></i>
-            </div>
-            <h3>Cosmic Challenges</h3>
-            <p>Engage your mind with dynamic quizzes across varying difficulties and subjects.</p>
+<!-- HOW IT WORKS -->
+<section class="how-section">
+    <div class="section-header">
+        <span class="section-tag">THE JOURNEY</span>
+        <h2>From Zero to Hero in <span class="gradient-text">4 Simple Steps</span></h2>
+    </div>
+    <div class="steps-grid">
+        <div class="step-card" data-step="01">
+            <div class="step-icon-wrap" style="--sc:#fb923c"><i class="fas fa-user-plus"></i></div>
+            <h3>Join the Academy</h3>
+            <p>Sign up in under 30 seconds. Pick your class, board, and your hero is ready.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-level-up-alt"></i>
-            </div>
-            <h3>Earn XP & Level Up</h3>
-            <p>Gain experience points for every correct answer and expand your galactic influence.</p>
+        <div class="step-card" data-step="02">
+            <div class="step-icon-wrap" style="--sc:#a78bfa"><i class="fas fa-book-open"></i></div>
+            <h3>Choose a Subject</h3>
+            <p>Select Math, English, Science, Hindi, Bengali, GK or Computer — all CBSE/ICSE aligned.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-fire-alt"></i>
-            </div>
-            <h3>Streak Multipliers</h3>
-            <p>Keep your accuracy high for combo streak bonuses and rapid progression!</p>
+        <div class="step-card" data-step="03">
+            <div class="step-icon-wrap" style="--sc:#22d3ee"><i class="fas fa-gamepad"></i></div>
+            <h3>Play & Learn</h3>
+            <p>Storybook, Adventure, Puzzle, Lab, Voice, 3D Island — 6 unique modes unlock knowledge.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-gem"></i>
-            </div>
-            <h3>Unlock Relics</h3>
-            <p>Collect Bronze, Silver, Gold, and Diamond holographic medals on your journey.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-satellite-dish"></i>
-            </div>
-            <h3>Global Network</h3>
-            <p>See how your stats rank on the global leaderboard against the entire academy.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-chart-network"></i>
-            </div>
-            <h3>Telemetry Data</h3>
-            <p>Monitor your performance metrics and track your cognitive expansion over time.</p>
+        <div class="step-card" data-step="04">
+            <div class="step-icon-wrap" style="--sc:#facc15"><i class="fas fa-trophy"></i></div>
+            <h3>Earn & Rank Up</h3>
+            <p>Collect XP, unlock achievement badges, climb the global leaderboard, and level up!</p>
         </div>
     </div>
 </section>
 
-<!-- Stats Section -->
-<section class="stats-section">
-    <div class="stats-container">
-        <div class="stat-item">
-            <i class="fas fa-users"></i>
-            <span class="stat-number">10,402+</span>
-            <span class="stat-label">Active Cadets</span>
+<!-- FEATURES -->
+<section class="features-section">
+    <div class="section-header">
+        <span class="section-tag">FEATURES</span>
+        <h2>Six Ways to <span class="gradient-text">Become a Legend</span></h2>
+    </div>
+    <div class="features-hex-grid">
+        <div class="feature-hex" style="--fc:#f87171">
+            <div class="hex-icon">📖</div>
+            <h3>AI Storybook</h3>
+            <p>Animated stories narrated by your favourite anime character with voice synthesis</p>
         </div>
-        <div class="stat-item">
-            <i class="fas fa-database"></i>
-            <span class="stat-number">5,200+</span>
-            <span class="stat-label">Data Nodes (Q's)</span>
+        <div class="feature-hex" style="--fc:#fb923c">
+            <div class="hex-icon">🎮</div>
+            <h3>Adventure Game</h3>
+            <p>Collect knowledge crystals in a real-time 2D canvas game — arrow keys, WASD support</p>
         </div>
-        <div class="stat-item">
-            <i class="fas fa-star-half-alt"></i>
-            <span class="stat-number">142+</span>
-            <span class="stat-label">Daily Masteries</span>
+        <div class="feature-hex" style="--fc:#facc15">
+            <div class="hex-icon">🧩</div>
+            <h3>Smart Puzzles</h3>
+            <p>Drag & drop math equations, crosswords, and word challenges with instant feedback</p>
+        </div>
+        <div class="feature-hex" style="--fc:#34d399">
+            <div class="hex-icon">🔬</div>
+            <h3>Virtual Lab</h3>
+            <p>Run water cycle, plant growth, magnetism, light & shadow simulations step-by-step</p>
+        </div>
+        <div class="feature-hex" style="--fc:#a78bfa">
+            <div class="hex-icon">🎤</div>
+            <h3>Voice Learning</h3>
+            <p>Speak answers aloud — mic recognition evaluates pronunciation in real time</p>
+        </div>
+        <div class="feature-hex" style="--fc:#22d3ee">
+            <div class="hex-icon">🌍</div>
+            <h3>3D Island</h3>
+            <p>Explore a Three.js 3D Learning Island with orbiting knowledge orbs, trees, stars</p>
         </div>
     </div>
 </section>
 
+<!-- CHARACTER SHOWCASE -->
+<section class="chars-section">
+    <div class="section-header">
+        <span class="section-tag">YOUR HEROES</span>
+        <h2>15 Anime Legends <span class="gradient-text">Ready to Teach</span></h2>
+        <p style="color:rgba(255,255,255,0.6);margin-top:0.5rem;">From Naruto to Anya — every character teaches a different subject!</p>
+    </div>
+    <div class="chars-strip">
+        {% set chars = [('naruto','#fb923c'),('luffy','#f87171'),('goku','#60a5fa'),('tanjiro','#2dd4bf'),('deku','#22d3ee'),('ichigo','#fb923c'),('nezuko','#f472b6'),('nami','#fb923c'),('sakura','#f472b6'),('anya','#a78bfa'),('chopper','#f87171'),('zenitsu','#facc15'),('bulma','#60a5fa'),('boruto','#fb923c'),('rukia','#60a5fa')] %}
+        {% for char, color in chars %}
+        <div class="char-strip-card" style="--cc:{{color}}">
+            <img src="/static/anime/{{char}}.png" alt="{{char|title}}" loading="lazy">
+            <div class="char-strip-name">{{char|title}}</div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ACHIEVEMENT PREVIEW -->
+<section class="achievements-preview">
+    <div class="section-header">
+        <span class="section-tag">ACHIEVEMENTS</span>
+        <h2>Collect <span class="gradient-text">12 Legendary Badges</span></h2>
+    </div>
+    <div class="badges-preview-grid">
+        <div class="badge-prev" style="--bc:#fb923c">🚀 First Step</div>
+        <div class="badge-prev" style="--bc:#cd7f32">🥉 Bronze Mind</div>
+        <div class="badge-prev" style="--bc:#c0c0c0">🥈 Silver Mind</div>
+        <div class="badge-prev" style="--bc:#ffd700">🥇 Gold Mind</div>
+        <div class="badge-prev" style="--bc:#a5f3fc">💎 Diamond Mind</div>
+        <div class="badge-prev" style="--bc:#f97316">🔥 On Fire</div>
+        <div class="badge-prev" style="--bc:#a78bfa">📚 Polymath</div>
+        <div class="badge-prev" style="--bc:#34d399">🔬 Scientist</div>
+        <div class="badge-prev" style="--bc:#60a5fa">📖 Storyteller</div>
+        <div class="badge-prev" style="--bc:#f472b6">🎤 Voice Hero</div>
+        <div class="badge-prev" style="--bc:#facc15">🧩 Puzzle Master</div>
+        <div class="badge-prev" style="--bc:#22d3ee">🌍 3D Explorer</div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final-cta">
+    <div class="final-cta-content">
+        <h2>Ready to Begin Your <span class="gradient-text">Galactic Journey?</span></h2>
+        <p>Join 10,000+ students already learning with anime heroes today.</p>
+        <a href="{{ url_for('signup') }}" class="btn-hero-primary" style="font-size:1.3rem;padding:1.2rem 3rem;">
+            <i class="fas fa-rocket"></i> Launch Now — It's Free!
+            <span class="btn-glow"></span>
+        </a>
+    </div>
+</section>
+
+<style>
+/* ══ HERO ══ */
+.hero-section { position:relative; min-height:100vh; display:flex; align-items:center; justify-content:space-between; padding:8rem 6vw 4rem; overflow:hidden; gap:2rem; flex-wrap:wrap; }
+.hero-particles { position:absolute; inset:0; z-index:0; }
+.hero-content { position:relative; z-index:1; max-width:600px; }
+.hero-badge { display:inline-block; padding:0.4rem 1.2rem; border:1px solid rgba(251,146,60,0.5); border-radius:50px; color:#fb923c; font-size:0.8rem; font-weight:700; letter-spacing:2px; margin-bottom:1.5rem; background:rgba(251,146,60,0.1); }
+.hero-title { font-family:'Bangers',cursive; line-height:1.05; margin-bottom:1.5rem; }
+.hero-line-1 { display:block; font-size:clamp(2rem,6vw,4rem); color:rgba(255,255,255,0.8); }
+.hero-line-2 { display:block; font-size:clamp(3rem,9vw,6rem); }
+.gradient-text { background:linear-gradient(135deg,#f97316,#a855f7,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-subtitle { font-size:1.1rem; line-height:1.7; color:rgba(255,255,255,0.7); margin-bottom:2rem; max-width:520px; }
+.hero-cta { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2.5rem; }
+.btn-hero-primary { position:relative; display:inline-flex; align-items:center; gap:0.7rem; padding:1rem 2.5rem; background:linear-gradient(135deg,#f97316,#ef4444); color:#fff; border-radius:50px; font-weight:900; font-size:1.1rem; text-decoration:none; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s; }
+.btn-hero-primary:hover { transform:translateY(-2px) scale(1.03); box-shadow:0 20px 50px rgba(249,115,22,0.5); }
+.btn-glow { position:absolute; inset:-50%; background:radial-gradient(circle,rgba(255,255,255,0.3),transparent 60%); animation:btnGlow 2s ease-in-out infinite; }
+@keyframes btnGlow { 0%,100%{transform:scale(0.8);opacity:0;} 50%{transform:scale(1.5);opacity:1;} }
+.btn-hero-secondary { display:inline-flex; align-items:center; gap:0.7rem; padding:1rem 2rem; border:2px solid rgba(255,255,255,0.3); color:#fff; border-radius:50px; font-weight:700; text-decoration:none; transition:all 0.3s; }
+.btn-hero-secondary:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.6); }
+.hero-stats { display:flex; gap:1rem; flex-wrap:wrap; }
+.stat-pill { padding:0.5rem 1.2rem; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:50px; font-weight:700; font-size:0.9rem; }
+.stat-num { color:#f97316; font-size:1.1rem; }
+
+/* ══ HERO CHARACTERS ══ */
+.hero-characters { position:relative; z-index:1; display:flex; align-items:flex-end; gap:1rem; }
+.hero-char { position:relative; }
+.hero-char img { height:clamp(160px,20vw,280px); object-fit:contain; filter:drop-shadow(0 0 30px var(--c)); animation:float 3s ease-in-out infinite; }
+.hero-char-1 { animation-delay:0s; }
+.hero-char-2 img { animation-delay:0.5s; }
+.hero-char-3 img { animation-delay:1s; }
+.char-glow-ring { position:absolute; bottom:-10px; left:50%; transform:translateX(-50%); width:80%; height:20px; background:radial-gradient(ellipse,var(--c),transparent); opacity:0.7; filter:blur(8px); }
+.hero-scroll-hint { position:absolute; bottom:2rem; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.4); font-size:1.5rem; animation:bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(10px);} }
+
+/* ══ SECTIONS ══ */
+section { padding:6rem 6vw; }
+.section-header { text-align:center; margin-bottom:4rem; }
+.section-tag { display:inline-block; padding:0.3rem 1rem; border:1px solid rgba(249,115,22,0.4); border-radius:50px; color:#f97316; font-size:0.75rem; font-weight:800; letter-spacing:3px; margin-bottom:1rem; }
+.section-header h2 { font-family:'Bangers',cursive; font-size:clamp(2rem,5vw,3.5rem); line-height:1.1; }
+
+/* ══ HOW IT WORKS ══ */
+.how-section { background:rgba(255,255,255,0.02); }
+.steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:2rem; }
+.step-card { position:relative; padding:2.5rem 2rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:24px; text-align:center; transition:transform 0.3s,box-shadow 0.3s; }
+.step-card:hover { transform:translateY(-8px); box-shadow:0 30px 60px rgba(0,0,0,0.3); }
+.step-card::before { content:attr(data-step); position:absolute; top:1rem; right:1.5rem; font-family:'Bangers',cursive; font-size:3rem; color:rgba(255,255,255,0.05); }
+.step-icon-wrap { width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,var(--sc),transparent); border:1px solid var(--sc); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 1rem; box-shadow:0 0 20px var(--sc); }
+.step-card h3 { font-size:1.2rem; margin-bottom:0.7rem; }
+.step-card p { color:rgba(255,255,255,0.65); font-size:0.95rem; line-height:1.6; }
+
+/* ══ FEATURES HEX ══ */
+.features-hex-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; }
+.feature-hex { padding:2.5rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:24px; border-top:3px solid var(--fc); transition:all 0.3s; }
+.feature-hex:hover { transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,0,0,0.2),0 0 30px color-mix(in srgb,var(--fc) 20%,transparent); }
+.hex-icon { font-size:3rem; margin-bottom:1rem; }
+.feature-hex h3 { font-size:1.2rem; margin-bottom:0.5rem; color:var(--fc); }
+.feature-hex p { color:rgba(255,255,255,0.65); font-size:0.95rem; line-height:1.6; }
+
+/* ══ CHARACTERS STRIP ══ */
+.chars-section { overflow:hidden; }
+.chars-strip { display:flex; gap:1.2rem; overflow-x:auto; padding-bottom:1rem; scrollbar-width:none; }
+.chars-strip::-webkit-scrollbar { display:none; }
+.char-strip-card { flex:0 0 120px; text-align:center; cursor:pointer; }
+.char-strip-card img { width:100px; height:130px; object-fit:contain; filter:drop-shadow(0 0 12px var(--cc)); transition:transform 0.3s,filter 0.3s; }
+.char-strip-card:hover img { transform:scale(1.12) translateY(-8px); filter:drop-shadow(0 0 25px var(--cc)); }
+.char-strip-name { font-family:'Bangers',cursive; font-size:1rem; color:var(--cc); letter-spacing:1px; margin-top:0.5rem; }
+
+/* ══ BADGES PREVIEW ══ */
+.badges-preview-grid { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; }
+.badge-prev { padding:0.8rem 1.5rem; border-radius:50px; border:2px solid var(--bc); background:color-mix(in srgb,var(--bc) 15%,transparent); color:#fff; font-weight:800; font-size:0.9rem; letter-spacing:1px; box-shadow:0 0 15px color-mix(in srgb,var(--bc) 30%,transparent); transition:all 0.3s; cursor:pointer; }
+.badge-prev:hover { background:var(--bc); transform:scale(1.05); }
+
+/* ══ FINAL CTA ══ */
+.final-cta { text-align:center; background:radial-gradient(ellipse at center,rgba(249,115,22,0.1),transparent 70%); border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08); }
+.final-cta h2 { font-family:'Bangers',cursive; font-size:clamp(2rem,5vw,3.5rem); margin-bottom:1rem; }
+.final-cta p { color:rgba(255,255,255,0.65); margin-bottom:2rem; font-size:1.1rem; }
+
+/* FLOAT ANIMATION (used in most frames) */
+@keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-16px);} }
+</style>
+
+<script>
+// Typewriter
+const words = ['Young Cadet','Defenders','Protagonist Hero','Galaxy Saver'];
+let wi=0, ci=0, deleting=false;
+const tw = document.getElementById('typewriter');
+function typeLoop() {
+    if(!tw) return;
+    const w = words[wi];
+    if (!deleting) { if (ci < w.length) { tw.textContent = w.slice(0,++ci); setTimeout(typeLoop, 80); } else { deleting=true; setTimeout(typeLoop, 1800); } }
+    else { if (ci > 0) { tw.textContent = w.slice(0,--ci); setTimeout(typeLoop, 40); } else { deleting=false; wi=(wi+1)%words.length; setTimeout(typeLoop, 200); } }
+}
+typeLoop();
+
+// Animated stat counters
+document.querySelectorAll('.stat-num').forEach(el => {
+    const target = +el.dataset.target;
+    let cur = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+        cur = Math.min(target, cur + step);
+        el.textContent = Math.floor(cur).toLocaleString();
+        if (cur >= target) clearInterval(timer);
+    }, 25);
+});
+
+// Hero mini-particles
+(function() {
+    const canvas = document.createElement('canvas');
+    const container = document.getElementById('hero-particles');
+    container.appendChild(canvas);
+    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const particles = Array.from({length:80}, () => ({
+        x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+        vx:(Math.random()-0.5)*0.5, vy:(Math.random()-0.5)*0.5,
+        r:Math.random()*2+1, a:Math.random()
+    }));
+    function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        particles.forEach(p => {
+            p.x+=p.vx; p.y+=p.vy;
+            if(p.x<0||p.x>canvas.width) p.vx*=-1;
+            if(p.y<0||p.y>canvas.height) p.vy*=-1;
+            ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+            ctx.fillStyle=`rgba(249,115,22,${p.a*0.6})`; ctx.fill();
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+    window.addEventListener('resize',()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
+})();
+</script>
 {% endblock %}

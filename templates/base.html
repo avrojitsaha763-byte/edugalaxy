@@ -5,10 +5,21 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}EduGalaxy - Hacker Space Learning{% endblock %}</title>
+        <meta name="description" content="EduGalaxy — The world's first anime-powered interactive learning platform for kids. 6 modes, 15 anime heroes, CBSE/ICSE/WBSE Classes 1–5.">
+        <meta name="theme-color" content="#f97316">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="EduGalaxy">
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.svg') }}">
         <!-- CSS -->
+
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <!-- Google Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@400;500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <!-- FontAwesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         
@@ -57,8 +68,9 @@
                 <ul class="nav-links">
                     {% if session.get('user_id') %}
                     <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="{{ url_for('quiz') }}"><i class="fas fa-rocket"></i> Launch Quiz</a></li>
+                    <li><a href="{{ url_for('learn') }}"><i class="fas fa-rocket"></i> Learn</a></li>
                     <li><a href="{{ url_for('leaderboard') }}"><i class="fas fa-trophy"></i> Rankings</a></li>
+                    <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-astronaut"></i> Profile</a></li>
                     {% if session.get('user_email') == 'admin@edugalaxy.com' %}
                     <li><a href="{{ url_for('admin') }}"><i class="fas fa-terminal"></i> Terminal</a></li>
                     {% endif %}
@@ -68,6 +80,7 @@
                     <li><a href="{{ url_for('login') }}">Login</a></li>
                     <li><a href="{{ url_for('signup') }}" class="btn btn-signup">Sign Up</a></li>
                     {% endif %}
+
                     
                     <!-- Global Audio Toggle Btn -->
                     <li>
@@ -117,6 +130,13 @@
         <!-- Custom JS Engine -->
         <script src="{{ url_for('static', filename='script.js') }}"></script>
         {% block scripts %}{% endblock %}
+        <!-- Register Service Worker (PWA) -->
+        <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(()=>{});
+        }
+        </script>
     </body>
 
 </html>
+

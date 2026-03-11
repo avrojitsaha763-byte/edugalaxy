@@ -1,162 +1,390 @@
 {% extends "base.html" %}
-
-{% block title %}EduGalaxy - Command Dashboard{% endblock %}
+{% block title %}EduGalaxy — Command Center{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-        <h1 class="glitch-text" data-text="Welcome back, Commander {{ user.name }}!">Welcome back, Commander <span class="highlight">{{ user.name }}</span>!</h1>
-        <p style="color: var(--nebula-cyan); letter-spacing: 2px;">Ready to continue your galactic exploration?</p>
+<div class="cmd-center">
+
+<!-- ═══ WELCOME HERO ═══ -->
+<div class="cmd-welcome">
+    <div>
+        <h1 class="cmd-title">Welcome back, <span class="gradient-text">{{ user.name }}!</span></h1>
+        <p class="cmd-sub">{{ user.class_level }} · {{ user.board }} · <span style="color:#22d3ee;">{{ user.medals }} Tier</span></p>
     </div>
-
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-        <!-- XP Card -->
-        <div class="stat-card xp-card">
-            <div class="stat-icon">
-                <i class="fas fa-meteor"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value">{{ user.xp }}</span>
-                <span class="stat-label">Total Dark Matter (XP)</span>
-            </div>
-        </div>
-
-        <!-- Level Card -->
-        <div class="stat-card level-card">
-            <div class="stat-icon">
-                <i class="fas fa-space-shuttle"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value">Tier {{ user.level }}</span>
-                <span class="stat-label">Current Tier (Level)</span>
-            </div>
-        </div>
-
-        <!-- Streak Card -->
-        <div class="stat-card streak-card">
-            <div class="stat-icon">
-                <i class="fas fa-fire-alt"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value">{{ user.streak }}</span>
-                <span class="stat-label">Combo Streak Multiplier</span>
-            </div>
-        </div>
-
-        <!-- Medal Card -->
-        <div class="stat-card medal-card">
-            <div class="stat-icon">
-                {% if user.medals == 'Diamond' %}
-                <i class="fas fa-gem diamond"></i>
-                {% elif user.medals == 'Gold' %}
-                <i class="fas fa-award gold"></i>
-                {% elif user.medals == 'Silver' %}
-                <i class="fas fa-award silver"></i>
-                {% elif user.medals == 'Bronze' %}
-                <i class="fas fa-award bronze"></i>
-                {% else %}
-                <i class="fas fa-certificate none"></i>
-                {% endif %}
-            </div>
-            <div class="stat-info">
-                <span class="stat-value">{{ user.medals }}</span>
-                <span class="stat-label">Equipped Relic (Medal)</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Progress Section -->
-    <div class="progress-section">
-        <h2 class="glitch-text" data-text="Tier Progression Tracker"><i class="fas fa-route"></i> Tier Progression Tracker</h2>
-        <div class="progress-card glass-panel" style="padding: 2.5rem;">
-            {% set next_level_xp = user.level * 100 %}
-            {% set current_level_xp = (user.level - 1) * 100 %}
-            {% set progress = ((user.xp - current_level_xp) / (next_level_xp - current_level_xp) * 100) | round %}
-
-            <div class="progress-info">
-                <span>Tier {{ user.level }} &rarr; Tier {{ user.level + 1 }}</span>
-                <span>{{ user.xp }} / {{ next_level_xp }} DM (XP)</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: {{ progress }}%"></div>
-            </div>
-            <p class="xp-to-next">{{ next_level_xp - user.xp }} DM needed for hyper-jump</p>
-        </div>
-    </div>
-
-    <!-- Medal Progress -->
-    <div class="medal-progress-section">
-        <h2 class="glitch-text" data-text="Relic Vault (Medals)"><i class="fas fa-boxes"></i> Relic Vault (Medals)</h2>
-        <div class="medals-grid">
-            <div class="medal-item glass-panel {% if user.xp >= 100 %}completed{% elif user.xp >= 50 %}in-progress{% endif %}">
-                <i class="fas fa-award bronze"></i>
-                <span>Bronze Relic</span>
-                <span class="medal-xp">100 DM</span>
-            </div>
-            <div class="medal-item glass-panel {% if user.xp >= 300 %}completed{% elif user.xp >= 150 %}in-progress{% endif %}">
-                <i class="fas fa-award silver"></i>
-                <span>Silver Relic</span>
-                <span class="medal-xp">300 DM</span>
-            </div>
-            <div class="medal-item glass-panel {% if user.xp >= 600 %}completed{% elif user.xp >= 400 %}in-progress{% endif %}">
-                <i class="fas fa-award gold"></i>
-                <span>Gold Relic</span>
-                <span class="medal-xp">600 DM</span>
-            </div>
-            <div class="medal-item glass-panel {% if user.xp >= 1000 %}completed{% elif user.xp >= 800 %}in-progress{% endif %}">
-                <i class="fas fa-gem diamond"></i>
-                <span>Diamond Relic</span>
-                <span class="medal-xp">1000 DM</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons" style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-        
-        <!-- NEW: Class 1-5 Learning Hub Link -->
-        <a href="{{ url_for('learn') }}" class="btn btn-primary btn-large" style="width: 100%; max-width: 500px; padding: 1.5rem; font-size: 1.2rem; background: linear-gradient(45deg, var(--cosmic-purple), var(--hologram-green)); border: none; box-shadow: 0 0 20px var(--hologram-green); animation: pulseGlow 2s infinite;">
-            <i class="fas fa-graduation-cap"></i> Enter Holographic Academy (Classes 1-5)
-        </a>
-
-        <div style="width: 100%; max-width: 500px; height: 1px; background: rgba(255,255,255,0.1); margin: 1rem 0;"></div>
-
-        <form method="POST" action="{{ url_for('quiz') }}" style="width: 100%; max-width: 500px; display: flex; gap: 0.5rem;">
-            <input type="text" name="topic" placeholder="Access AI Matrix: Enter ANY topic..." required style="flex-grow: 1; padding: 1rem; border-radius: var(--border-radius); background: rgba(0,0,0,0.5); border: 1px solid var(--cosmic-purple); color: var(--starlight-white); font-family: 'Space Grotesk', sans-serif;">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-brain"></i> Generate AI Quiz
-            </button>
-        </form>
-        
-        <div style="display: flex; gap: 1rem; width: 100%; justify-content: center; margin-top: 0.5rem;">
-            <a href="{{ url_for('quiz') }}" class="btn btn-secondary">
-                <i class="fas fa-random"></i> Standard Sector
-            </a>
-            <a href="{{ url_for('leaderboard') }}" class="btn btn-secondary">
-                <i class="fas fa-list-ol"></i> Galactic Rankings
-            </a>
-        </div>
-    </div>
-
-    <!-- User Info -->
-    <div class="user-info-section">
-        <h2 class="glitch-text" data-text="Cadet Profile Data"><i class="fas fa-id-card-alt"></i> Cadet Profile Data</h2>
-        <div class="info-grid glass-panel" style="padding: 2.5rem;">
-            <div class="info-item">
-                <span class="info-label">Comm-Link:</span>
-                <span class="info-value">{{ user.email }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Academic Tier:</span>
-                <span class="info-value">{{ user.class_level }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Federation Board:</span>
-                <span class="info-value">{{ user.board }}</span>
-            </div>
+    <div class="cmd-level-badge">
+        <svg viewBox="0 0 120 120" class="xp-ring-svg">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="url(#xpGrad)" stroke-width="10"
+                    stroke-dasharray="327" stroke-dashoffset="{{ 327 - (327 * xp_progress / 100) }}"
+                    stroke-linecap="round" transform="rotate(-90 60 60)"/>
+            <defs>
+                <linearGradient id="xpGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#f97316"/>
+                    <stop offset="100%" stop-color="#a855f7"/>
+                </linearGradient>
+            </defs>
+        </svg>
+        <div class="xp-ring-content">
+            <div class="xp-ring-label">Tier</div>
+            <div class="xp-ring-value">{{ user.level }}</div>
+            <div class="xp-ring-xp">{{ user.xp }} XP</div>
         </div>
     </div>
 </div>
+
+<!-- ═══ STAT CARDS ═══ -->
+<div class="stat-cards-row">
+    <div class="stat-card-new" style="--sc-a:#f97316;--sc-b:#ef4444">
+        <i class="fas fa-meteor"></i>
+        <div class="sc-val">{{ user.xp }}</div>
+        <div class="sc-lab">Total XP</div>
+        <div class="sc-bar"><div class="sc-bar-fill" style="width:{{ xp_progress }}%"></div></div>
+        <div class="sc-hint">{{ next_level_xp - user.xp }} XP to Tier {{ user.level + 1 }}</div>
+    </div>
+    <div class="stat-card-new" style="--sc-a:#a855f7;--sc-b:#6366f1">
+        <i class="fas fa-fire-alt"></i>
+        <div class="sc-val">{{ user.streak }}</div>
+        <div class="sc-lab">Study Streak</div>
+        <div class="sc-hint">Keep it going! 🔥</div>
+    </div>
+    <div class="stat-card-new" style="--sc-a:#06b6d4;--sc-b:#0ea5e9">
+        <i class="fas fa-trophy"></i>
+        <div class="sc-val">
+            {% if user.medals == 'Diamond' %}💎{% elif user.medals == 'Gold' %}🥇{% elif user.medals == 'Silver' %}🥈{% elif user.medals == 'Bronze' %}🥉{% else %}🎖️{% endif %}
+        </div>
+        <div class="sc-lab">{{ user.medals }} Medal</div>
+        <div class="sc-hint">Your highest relic</div>
+    </div>
+    <div class="stat-card-new" style="--sc-a:#10b981;--sc-b:#059669">
+        <i class="fas fa-book-open"></i>
+        <div class="sc-val">{{ subjects|length }}</div>
+        <div class="sc-lab">Subjects</div>
+        <div class="sc-hint">{{ user.class_level }}</div>
+    </div>
+</div>
+
+<div class="cmd-grid">
+    <div class="cmd-left">
+
+        <!-- ═══ DAILY CHALLENGE ═══ -->
+        <div class="daily-challenge-card {% if daily_done %}challenge-done{% endif %}">
+            <div class="dc-header">
+                <div><span class="dc-tag">⚡ DAILY CHALLENGE</span>
+                <h3 class="dc-title">{{ daily_challenge.q }}</h3></div>
+                <div class="dc-xp">+{{ daily_challenge.xp }} XP</div>
+            </div>
+            {% if daily_done %}
+            <div class="dc-done-banner">✅ Completed! Come back tomorrow for a new challenge.</div>
+            {% else %}
+            <div class="dc-input-row">
+                <input id="dc-answer" type="text" placeholder="Your answer..." class="dc-input" autocomplete="off">
+                <button onclick="checkDailyChallenge('{{ daily_challenge.ans }}', {{ daily_challenge.xp }})" class="dc-btn">
+                    <i class="fas fa-bolt"></i> Submit
+                </button>
+            </div>
+            <div id="dc-feedback" class="dc-feedback"></div>
+            {% endif %}
+        </div>
+
+        <!-- ═══ SUBJECT LABS ═══ -->
+        <div class="section-title-row">
+            <h2>🚀 Choose Your Mission</h2>
+            <span style="opacity:0.5;font-size:0.9rem;">{{ subjects|length }} subjects available</span>
+        </div>
+        <div class="subject-labs-grid">
+            {% for subject in subjects %}
+            <a href="{{ url_for('learn_interactive', subject=subject) }}" class="subject-lab-card">
+                <div class="slc-icon">
+                    {% if subject == 'math' %}➗{% elif subject == 'english' %}📚{% elif subject == 'hindi' %}🇮🇳{% elif subject == 'bengali' %}🌺
+                    {% elif subject in ['evs','science'] %}🔬{% elif subject == 'sst' %}🌍{% elif subject == 'gk' %}💡{% elif subject == 'computer' %}💻{% else %}⭐{% endif %}
+                </div>
+                <div class="slc-name">{{ subject|title }}</div>
+                <div class="slc-desc">Stories · Games · Puzzles · Lab · Voice · 3D</div>
+                <div class="slc-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- ═══ RECENT ACTIVITY ═══ -->
+        {% if recent %}
+        <div class="section-title-row" style="margin-top:2rem;">
+            <h2>📋 Recent Activity</h2>
+        </div>
+        <div class="activity-feed">
+            {% for r in recent %}
+            <div class="activity-item">
+                <div class="ai-icon">
+                    {% if r.mode == 'storybook' %}📖{% elif r.mode == 'adventure' %}🎮{% elif r.mode == 'puzzle' %}🧩{% elif r.mode == 'experiment' %}🔬{% elif r.mode == 'voice' %}🎤{% elif r.mode == '3d-world' %}🌍{% else %}⭐{% endif %}
+                </div>
+                <div class="ai-info">
+                    <div class="ai-title">{{ r.topic }}</div>
+                    <div class="ai-meta">{{ r.subject|title }} · {{ r.mode|title }}</div>
+                </div>
+                <div class="ai-time">{{ r.completed_at[:10] }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+
+    <div class="cmd-right">
+
+        <!-- ═══ ACHIEVEMENTS ═══ -->
+        <div class="achievements-panel">
+            <div class="section-title-row">
+                <h2>🏆 Achievement Badges</h2>
+                <span style="opacity:0.5;font-size:0.9rem;">{{ achievements|selectattr('earned')|list|length }}/{{ achievements|length }} unlocked</span>
+            </div>
+            <div class="badges-grid">
+                {% for a in achievements %}
+                <div class="badge-card {% if a.earned %}badge-earned{% else %}badge-locked{% endif %}"
+                     style="--bc:{{ a.color }}" title="{{ a.name }}: {{ a.desc }}">
+                    <div class="badge-icon">{{ a.icon }}</div>
+                    <div class="badge-name">{{ a.name }}</div>
+                    {% if not a.earned %}<div class="badge-lock">🔒</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ═══ SUBJECT PROGRESS ═══ -->
+        <div class="progress-panel">
+            <div class="section-title-row"><h2>📊 Subject Mastery</h2></div>
+            {% for subj, pct in progress.items() %}
+            <div class="prog-row">
+                <div class="prog-label">{{ subj|title }}</div>
+                <div class="prog-track">
+                    <div class="prog-fill" style="width:{{ pct }}%;--pc:{% if subj=='math' %}#f87171{% elif subj=='science' %}#34d399{% else %}#60a5fa{% endif %}"></div>
+                </div>
+                <div class="prog-pct">{{ pct }}%</div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <!-- ═══ ACTIVITY HEATMAP ═══ -->
+        <div class="heatmap-panel">
+            <div class="section-title-row">
+                <h2>📅 Learning Activity — Last 30 Days</h2>
+            </div>
+            <div id="heatmap-grid" class="heatmap-grid"></div>
+            <div class="heatmap-legend">
+                <span style="opacity:.4">Less</span>
+                <div class="hm-cell" style="--hm-alpha:0.15"></div>
+                <div class="hm-cell" style="--hm-alpha:0.35"></div>
+                <div class="hm-cell" style="--hm-alpha:0.6"></div>
+                <div class="hm-cell" style="--hm-alpha:1"></div>
+                <span style="opacity:.4">More</span>
+            </div>
+        </div>
+
+        <!-- ═══ LEADERBOARD SHORTCUT ═══ -->
+        <a href="{{ url_for('leaderboard') }}" class="leaderboard-shortcut">
+            <i class="fas fa-trophy" style="color:#fbbf24"></i>
+            <div>
+                <div style="font-weight:800">View Galactic Rankings</div>
+                <div id="lb-position-widget" style="opacity:0.6;font-size:0.85rem;">Loading your rank...</div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+        </a>
+
+
+    </div>
+</div>
+
+</div>
+
+<style>
+.cmd-center { max-width:1300px; margin:0 auto; padding:2rem 1.5rem; }
+.cmd-welcome { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; gap:2rem; flex-wrap:wrap; }
+.cmd-title { font-family:'Bangers',cursive; font-size:clamp(1.8rem,4vw,3rem); line-height:1.1; }
+.cmd-sub { color:rgba(255,255,255,0.6); font-size:1rem; margin-top:0.4rem; }
+.gradient-text { background:linear-gradient(135deg,#f97316,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+/* XP RING */
+.cmd-level-badge { position:relative; width:120px; height:120px; flex-shrink:0; }
+.xp-ring-svg { width:120px; height:120px; }
+.xp-ring-content { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.xp-ring-label { font-size:0.7rem; opacity:0.6; letter-spacing:1px; }
+.xp-ring-value { font-family:'Bangers',cursive; font-size:2rem; color:#f97316; line-height:1; }
+.xp-ring-xp { font-size:0.7rem; opacity:0.7; }
+
+/* STAT CARDS */
+.stat-cards-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:2rem; }
+.stat-card-new { padding:1.5rem; background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.1); border-radius:20px; position:relative; overflow:hidden; transition:transform 0.3s; }
+.stat-card-new::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--sc-a),var(--sc-b)); }
+.stat-card-new:hover { transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+.stat-card-new i { font-size:1.5rem; margin-bottom:0.8rem; background:linear-gradient(135deg,var(--sc-a),var(--sc-b)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.sc-val { font-family:'Bangers',cursive; font-size:2.5rem; line-height:1; }
+.sc-lab { font-size:0.8rem; opacity:0.6; letter-spacing:1px; text-transform:uppercase; margin-top:0.2rem; }
+.sc-bar { height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin:0.7rem 0 0.3rem; }
+.sc-bar-fill { height:100%; background:linear-gradient(90deg,var(--sc-a),var(--sc-b)); border-radius:2px; }
+.sc-hint { font-size:0.75rem; opacity:0.5; }
+
+/* CMD GRID */
+.cmd-grid { display:grid; grid-template-columns:1fr 360px; gap:2rem; }
+@media(max-width:900px){ .cmd-grid{ grid-template-columns:1fr; } }
+.cmd-left, .cmd-right { display:flex; flex-direction:column; gap:1.5rem; }
+
+/* DAILY CHALLENGE */
+.daily-challenge-card { padding:2rem; background:linear-gradient(135deg,rgba(249,115,22,0.12),rgba(168,85,247,0.08)); border:1px solid rgba(249,115,22,0.3); border-radius:24px; }
+.challenge-done { opacity:0.7; }
+.dc-header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1.2rem; }
+.dc-tag { display:inline-block; font-size:0.75rem; font-weight:800; letter-spacing:2px; color:#f97316; margin-bottom:0.5rem; }
+.dc-title { font-family:'Bangers',cursive; font-size:1.5rem; line-height:1.2; }
+.dc-xp { background:linear-gradient(135deg,#f97316,#ef4444); padding:0.4rem 1rem; border-radius:50px; font-weight:900; white-space:nowrap; }
+.dc-input-row { display:flex; gap:0.8rem; }
+.dc-input { flex:1; padding:0.8rem 1.2rem; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15); border-radius:12px; color:#fff; font-size:1rem; font-family:inherit; }
+.dc-input:focus { outline:none; border-color:#f97316; }
+.dc-btn { padding:0.8rem 1.5rem; background:linear-gradient(135deg,#f97316,#ef4444); border:none; border-radius:12px; color:#fff; font-weight:900; cursor:pointer; font-family:inherit; font-size:1rem; }
+.dc-feedback { margin-top:0.8rem; font-size:1rem; font-weight:700; min-height:24px; }
+.dc-done-banner { color:#4ade80; font-weight:700; font-size:1rem; }
+.section-title-row { display:flex; justify-content:space-between; align-items:center; }
+.section-title-row h2 { font-family:'Bangers',cursive; font-size:1.5rem; }
+
+/* SUBJECT LABS */
+.subject-labs-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+.subject-lab-card { display:flex; flex-direction:column; padding:1.5rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:20px; text-decoration:none; color:#fff; transition:all 0.3s; cursor:pointer; position:relative; overflow:hidden; }
+.subject-lab-card:hover { transform:translateY(-6px); background:rgba(255,255,255,0.08); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+.slc-icon { font-size:2.5rem; margin-bottom:0.7rem; }
+.slc-name { font-family:'Bangers',cursive; font-size:1.3rem; text-transform:capitalize; }
+.slc-desc { font-size:0.75rem; opacity:0.5; margin-top:0.3rem; line-height:1.4; }
+.slc-arrow { position:absolute; bottom:1.2rem; right:1.2rem; opacity:0.4; }
+.subject-lab-card:hover .slc-arrow { opacity:1; color:#f97316; }
+
+/* ACTIVITY FEED */
+.activity-feed { display:flex; flex-direction:column; gap:0.7rem; }
+.activity-item { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; background:rgba(255,255,255,0.04); border-radius:14px; border:1px solid rgba(255,255,255,0.07); }
+.ai-icon { font-size:1.5rem; width:40px; text-align:center; flex-shrink:0; }
+.ai-info { flex:1; }
+.ai-title { font-weight:700; font-size:0.95rem; }
+.ai-meta { font-size:0.8rem; opacity:0.5; text-transform:capitalize; }
+.ai-time { font-size:0.75rem; opacity:0.4; white-space:nowrap; }
+
+/* ACHIEVEMENTS */
+.achievements-panel, .progress-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:1.5rem; }
+.badges-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.8rem; margin-top:1rem; }
+.badge-card { position:relative; text-align:center; padding:1rem 0.5rem; background:rgba(255,255,255,0.04); border:2px solid transparent; border-radius:16px; cursor:pointer; transition:all 0.3s; }
+.badge-earned { border-color:var(--bc); background:color-mix(in srgb,var(--bc) 15%,transparent); box-shadow:0 0 20px color-mix(in srgb,var(--bc) 30%,transparent); }
+.badge-locked { opacity:0.4; filter:grayscale(1); }
+.badge-earned:hover { transform:scale(1.08); }
+.badge-icon { font-size:1.8rem; }
+.badge-name { font-size:0.7rem; font-weight:700; letter-spacing:0.5px; margin-top:0.3rem; line-height:1.2; }
+.badge-lock { position:absolute; top:4px; right:6px; font-size:0.7rem; opacity:0.5; }
+
+/* PROGRESS */
+.prog-row { display:flex; align-items:center; gap:1rem; margin-top:1rem; }
+.prog-label { flex-shrink:0; width:70px; font-size:0.85rem; font-weight:700; text-transform:capitalize; }
+.prog-track { flex:1; height:10px; background:rgba(255,255,255,0.08); border-radius:5px; overflow:hidden; }
+.prog-fill { height:100%; background:var(--pc,#f97316); border-radius:5px; transition:width 1.5s cubic-bezier(.4,0,.2,1); }
+.prog-pct { width:36px; text-align:right; font-size:0.8rem; font-weight:700; opacity:0.7; }
+
+/* LEADERBOARD SHORTCUT */
+.leaderboard-shortcut { display:flex; align-items:center; gap:1rem; padding:1.2rem 1.5rem; background:linear-gradient(135deg,rgba(249,115,22,0.12),rgba(168,85,247,0.1)); border:1px solid rgba(249,115,22,0.3); border-radius:20px; text-decoration:none; color:#fff; transition:all 0.3s; }
+.leaderboard-shortcut:hover { background:linear-gradient(135deg,rgba(249,115,22,0.25),rgba(168,85,247,0.2)); transform:translateY(-2px); }
+.leaderboard-shortcut i:first-child { font-size:1.8rem; color:#fbbf24; }
+.leaderboard-shortcut div { flex:1; }
+
+/* ACTIVITY HEATMAP */
+.heatmap-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:1.5rem; margin-bottom:1.5rem; }
+.heatmap-grid { display:flex; gap:4px; flex-wrap:wrap; margin-top:1rem; }
+.hm-cell { width:18px; height:18px; border-radius:4px; background:rgba(16,185,129,var(--hm-alpha,0.08)); transition:transform 0.15s; cursor:default; position:relative; }
+.hm-cell:hover { transform:scale(1.3); z-index:10; }
+.hm-cell::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:#fff; padding:4px 8px; border-radius:6px; font-size:0.7rem; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity 0.2s; }
+.hm-cell:hover::after { opacity:1; }
+.heatmap-legend { display:flex; align-items:center; gap:6px; margin-top:0.8rem; font-size:0.75rem; }
+</style>
+
+<script>
+async function checkDailyChallenge(correctAnswer, xp) {
+    const input = document.getElementById('dc-answer');
+    const fb = document.getElementById('dc-feedback');
+    const val = input.value.trim().toLowerCase();
+    const correct = val === correctAnswer.toLowerCase() || val.includes(correctAnswer.toLowerCase());
+    if (correct) {
+        // Award XP via proper API
+        const resp = await fetch('/api/complete_daily', { method:'POST', headers:{'Content-Type':'application/json'} });
+        const data = await resp.json().catch(()=>({status:'success'}));
+        fb.innerHTML = `<span style="color:#4ade80">✅ Brilliant! +${xp} XP awarded! 🎉</span>`;
+        input.disabled = true;
+        document.querySelector('.dc-btn').disabled = true;
+        // Confetti burst
+        if (typeof launchConfetti === 'function') {
+            const r = input.getBoundingClientRect();
+            launchConfetti(r.left + r.width/2, r.top, 80);
+        }
+        // Toast notification
+        if (typeof showToast === 'function') showToast(`Daily Challenge Complete! +${xp} XP 🏆`, 'achievement', 4000);
+        // Check for new achievements
+        checkNewAchievements();
+        setTimeout(() => location.reload(), 2500);
+    } else {
+        fb.innerHTML = `<span style="color:#f87171">❌ Not quite! Hint: starts with "${correctAnswer.charAt(0).toUpperCase()}"...</span>`;
+        input.style.borderColor = '#f87171';
+        setTimeout(() => { input.style.borderColor=''; fb.textContent=''; }, 2500);
+    }
+}
+
+async function checkNewAchievements() {
+    try {
+        const resp = await fetch('/api/achievements');
+        const achievements = await resp.json();
+        const earned = achievements.filter(a => a.earned);
+        const prev = JSON.parse(localStorage.getItem('eg_achieved') || '[]');
+        earned.forEach(a => {
+            if (!prev.includes(a.id)) {
+                if (typeof showToast === 'function') showToast(`🏆 Achievement Unlocked: ${a.icon} ${a.name}!`, 'achievement', 5000);
+                if (typeof confettiShower === 'function') confettiShower();
+            }
+        });
+        localStorage.setItem('eg_achieved', JSON.stringify(earned.map(a=>a.id)));
+    } catch(e) {}
+}
+
+// Leaderboard position widget
+async function loadLeaderboardPosition() {
+    try {
+        const resp = await fetch('/api/leaderboard_position');
+        const data = await resp.json();
+        const widget = document.getElementById('lb-position-widget');
+        if (widget && data.rank) {
+            widget.innerHTML = `<i class="fas fa-list-ol"></i> You are ranked <strong>#${data.rank}</strong> of ${data.total} cadets`;
+        }
+    } catch(e) {}
+}
+
+// Build activity heatmap
+function buildHeatmap() {
+    const activity = {{ activity | tojson }};
+    const grid = document.getElementById('heatmap-grid');
+    if (!grid) return;
+    const now = new Date();
+    const days = 30;
+    const dayMs = 86400000;
+    for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now - i * dayMs);
+        const key = d.toISOString().slice(0, 10);
+        const cnt = activity[key] || 0;
+        const alpha = cnt === 0 ? 0.08 : Math.min(1, 0.25 + cnt * 0.2);
+        const cell = document.createElement('div');
+        cell.className = 'hm-cell';
+        cell.style.setProperty('--hm-alpha', alpha);
+        const label = d.toLocaleDateString('en-IN', { month:'short', day:'numeric' });
+        cell.setAttribute('data-tip', cnt > 0 ? `${label}: ${cnt} lesson${cnt>1?'s':''}` : label);
+        grid.appendChild(cell);
+    }
+}
+
+// Animate progress bars on load
+window.addEventListener('load', () => {
+    document.querySelectorAll('.prog-fill').forEach(el => {
+        const w = el.style.width; el.style.width='0%';
+        setTimeout(() => el.style.width=w, 300);
+    });
+    loadLeaderboardPosition();
+    checkNewAchievements();
+    buildHeatmap();
+});
+</script>
+
 {% endblock %}

@@ -6,21 +6,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Core Colors */
-  --void-black: #05010d;
-  --cosmic-purple: #7b2ff7;
-  --nebula-cyan: #00d4ff;
-  --supernova-orange: #ff6b35;
-  --starlight-white: #e2fdff;
-  --hologram-green: #00ff87;
-  --warning-red: #ff3366;
+  /* Core Colors - Deepened for realistic space contrast */
+  --void-black: #02000a; /* Darker space */
+  --cosmic-purple: #8b3dff; /* Brighter purple */
+  --nebula-cyan: #00f0ff; /* Neon cyan */
+  --supernova-orange: #ff7700;
+  --starlight-white: #f8ffff;
+  --hologram-green: #00ffa8;
+  --warning-red: #ff2a5f;
   --neon-pink: #ff0055;
-  --border-radius: 12px;
+  --border-radius: 16px;
   
-  /* Glassmorphism */
-  --glass-bg: rgba(20, 10, 35, 0.4);
-  --glass-border: rgba(123, 47, 247, 0.3);
-  --glass-glow: 0 8px 32px 0 rgba(123, 47, 247, 0.2);
+  /* Ultra Pro Max Glassmorphism */
+  --glass-bg: rgba(15, 8, 30, 0.25);
+  --glass-border: rgba(139, 61, 255, 0.4);
+  --glass-glow: 0 15px 35px 0 rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(139, 61, 255, 0.15);
   
   /* Typography */
   --font-heading: 'Orbitron', sans-serif;
@@ -169,22 +169,30 @@ a:hover {
 /* Glass Panel Base Class - EXTREME SCI FI */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
   border: 1px solid var(--glass-border);
+  border-top: 1px solid rgba(255,255,255,0.2);
+  border-left: 1px solid rgba(255,255,255,0.1);
   box-shadow: var(--glass-glow);
   padding: 2.5rem;
   position: relative;
   overflow: hidden;
-  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s ease, border-color 0.6s ease;
   clip-path: polygon(
-    0 20px,
-    20px 0,
+    0 24px,
+    24px 0,
     100% 0,
-    100% calc(100% - 20px),
-    calc(100% - 20px) 100%,
+    100% calc(100% - 24px),
+    calc(100% - 24px) 100%,
     0 100%
   );
+  transform-style: preserve-3d;
+}
+
+.glass-panel:hover {
+  box-shadow: 0 20px 45px 0 rgba(0, 240, 255, 0.2), inset 0 0 30px rgba(0, 240, 255, 0.1);
+  border-color: rgba(0, 240, 255, 0.5);
 }
 
 .glass-panel::after {
@@ -198,15 +206,18 @@ a:hover {
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
 }
 .btn {
-  padding: 0.6rem 1.2rem;
+  padding: 0.8rem 1.8rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: none;
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  transform-style: preserve-3d;
 }
 
 .btn::after {
@@ -216,7 +227,7 @@ a:hover {
   left: 50%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
   transition: transform 0.5s ease, opacity 0.3s ease;
@@ -232,26 +243,29 @@ a:hover {
 .btn-primary {
   background: linear-gradient(135deg, var(--cosmic-purple), var(--nebula-cyan));
   color: white;
-  box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
+  box-shadow: 0 10px 25px rgba(139, 61, 255, 0.5), inset 0 2px 5px rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 15px 35px rgba(0, 240, 255, 0.7), inset 0 2px 10px rgba(255,255,255,0.6);
   color: white;
 }
 
 .btn-secondary {
-  background: transparent;
+  background: rgba(0, 240, 255, 0.05);
   color: var(--starlight-white);
   border: 1px solid var(--nebula-cyan);
-  box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.2);
+  box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.2);
+  backdrop-filter: blur(5px);
 }
 
 .btn-secondary:hover {
-  background: rgba(0, 212, 255, 0.1);
-  box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.4), 0 0 15px rgba(0, 212, 255, 0.4);
-  transform: translateY(-2px);
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: inset 0 0 30px rgba(0, 240, 255, 0.5), 0 0 25px rgba(0, 240, 255, 0.5);
+  transform: translateY(-4px);
+  text-shadow: 0 0 8px var(--nebula-cyan);
 }
 
 .btn-block {
@@ -593,21 +607,17 @@ footer {
 }
 
 .feature-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
+  background: rgba(15, 8, 30, 0.3);
+  backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(139, 61, 255, 0.4);
+  border-top: 1px solid rgba(255,255,255,0.2);
+  border-left: 1px solid rgba(255,255,255,0.1);
   padding: 2.5rem;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   transform-style: preserve-3d;
-  perspective: 1000px;
-  clip-path: polygon(
-    15px 0,
-    100% 0,
-    100% calc(100% - 15px),
-    calc(100% - 15px) 100%,
-    0 100%,
-    0 15px
-  );
+  perspective: 1200px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 20px rgba(139, 61, 255, 0.1);
 }
 
 .feature-card::after {
@@ -615,16 +625,20 @@ footer {
   position: absolute;
   top: 0;
   left: 0;
-  width: 15px;
-  height: 15px;
-  background: var(--supernova-orange);
-  clip-path: polygon(0 0, 100% 0, 0 100%);
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .feature-card:hover {
-  transform: translateY(-10px) rotateX(15deg) rotateY(15deg) scale(1.05);
-  border-color: var(--hologram-green);
-  box-shadow: 0 15px 50px rgba(0, 255, 135, 0.3);
+  border-color: var(--nebula-cyan);
+  box-shadow: 0 25px 60px rgba(0, 240, 255, 0.25), inset 0 0 30px rgba(0, 240, 255, 0.2);
+  background: rgba(15, 8, 30, 0.5);
+  /* The 3D hover is actually handled by the JS magnetic hover, 
+     but we leave a subtle CSS transform fallback here */
+  transform: translateY(-10px);
 }
 
 .feature-icon {

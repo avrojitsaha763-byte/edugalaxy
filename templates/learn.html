@@ -1,197 +1,145 @@
 {% extends "base.html" %}
-
-{% block title %}EduGalaxy - Interactive Learning Hub{% endblock %}
+{% block title %}EduGalaxy — Subject Mission Hub{% endblock %}
 
 {% block content %}
-<div class="learn-container" style="max-width: 800px; margin: 0 auto; padding-top: 2rem;">
-    <div class="learn-header text-center" style="margin-bottom: 3rem;">
-        {% if lesson %}
-            <h1 class="glitch-text" data-text="{{ lesson.title }}" style="color: var(--starlight-white); font-size: 2.5rem;"><i class="fas fa-graduation-cap" style="color: var(--neon-pink);"></i> {{ lesson.title }}</h1>
-            <p style="color: var(--hologram-green); font-size: 1.2rem; margin-bottom: 0.5rem">{{ lesson.intro }}</p>
-            <div style="display: inline-block; padding: 0.5rem 1.5rem; background: rgba(0, 255, 255, 0.1); border: 1px solid var(--nebula-cyan); border-radius: 20px; color: var(--nebula-cyan); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem;">
-                <i class="fas fa-satellite-dish"></i> Target Topic: {{ lesson.syllabus_topic }}
-            </div>
-        {% else %}
-            <h1 class="glitch-text" data-text="Holographic Academy"><i class="fas fa-graduation-cap"></i> Holographic Academy</h1>
-            <p style="color: var(--nebula-cyan); font-size: 1.2rem;">Welcome, Cadet! Select a subject to begin your interactive training based on your local syllabus.</p>
-        {% endif %}
+<div class="hub-universe">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="hub-header">
+    <div class="hub-tag">🎓 YOUR MISSIONS</div>
+    <h1 class="hub-title">Choose Your <span class="gradient-text">Battlefield</span></h1>
+    <p class="hub-sub">{{ user.class_level }} · {{ user.board }} · {{ subjects|length }} subjects unlocked</p>
+  </div>
+
+  <!-- ═══ XP BAR ═══ -->
+  <div class="hub-xp-bar">
+    <div class="hub-xp-info">
+      <span>⚡ {{ user.xp }} XP · Tier {{ user.level }}</span>
+      <span style="opacity:0.5">{{ next_level_xp - user.xp }} XP to Tier {{ user.level + 1 }}</span>
     </div>
-
-    <!-- 3D Animated Progress Bars -->
-    <div class="glass-panel slide-up" style="padding: 2rem; margin-bottom: 2.5rem;">
-        <h2 style="color: var(--starlight-white); margin-bottom: 1.5rem; font-size: 1.3rem; text-align: center;">
-            <i class="fas fa-chart-line" style="color: var(--hologram-green);"></i> Syllabus Completion Tracker
-        </h2>
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <!-- Math Progress -->
-            <div class="progress-item">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="color: var(--neon-pink); font-weight: bold; letter-spacing: 1px;"><i class="fas fa-calculator"></i> Mathematics</span>
-                    <span style="color: var(--starlight-white);">{{ progress.math }}%</span>
-                </div>
-                <div class="progress-bar-3d">
-                    <div class="progress-bar-fill math-fill" style="width: {{ progress.math }}%;"></div>
-                    <div class="progress-bar-glow math-glow" style="width: {{ progress.math }}%;"></div>
-                </div>
-            </div>
-            <!-- Science Progress -->
-            <div class="progress-item">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="color: var(--hologram-green); font-weight: bold; letter-spacing: 1px;"><i class="fas fa-flask"></i> Science & EVS</span>
-                    <span style="color: var(--starlight-white);">{{ progress.science }}%</span>
-                </div>
-                <div class="progress-bar-3d">
-                    <div class="progress-bar-fill science-fill" style="width: {{ progress.science }}%;"></div>
-                    <div class="progress-bar-glow science-glow" style="width: {{ progress.science }}%;"></div>
-                </div>
-            </div>
-            <!-- English Progress -->
-            <div class="progress-item">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="color: var(--nebula-cyan); font-weight: bold; letter-spacing: 1px;"><i class="fas fa-book-open"></i> English Language</span>
-                    <span style="color: var(--starlight-white);">{{ progress.english }}%</span>
-                </div>
-                <div class="progress-bar-3d">
-                    <div class="progress-bar-fill english-fill" style="width: {{ progress.english }}%;"></div>
-                    <div class="progress-bar-glow english-glow" style="width: {{ progress.english }}%;"></div>
-                </div>
-            </div>
-        </div>
+    <div class="hub-xp-track">
+      <div class="hub-xp-fill" style="width:{{ xp_progress }}%"></div>
     </div>
+  </div>
 
-    {% if not lesson %}
-        <!-- Subject Selection -->
-        <div class="glass-panel" style="padding: 3rem; text-align: center;">
-            <h2 style="margin-bottom: 2rem; color: var(--starlight-white);">Choose Your Mission</h2>
-            <form method="POST" action="{{ url_for('learn') }}" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 400px; margin: 0 auto;">
-                <select name="subject" required style="padding: 1rem; border-radius: var(--border-radius); background: rgba(0,0,0,0.5); border: 1px solid var(--cosmic-purple); color: var(--starlight-white); font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem;">
-                    <option value="">Select an area of study...</option>
-                    <option value="Math">Mathematics</option>
-                    <option value="Science">Science & EVS</option>
-                    <option value="English">English Language</option>
-                </select>
-                <button type="submit" class="btn btn-primary btn-large">
-                    <i class="fas fa-play"></i> Initialize Lesson
-                </button>
-            </form>
-            <div style="margin-top: 2rem;">
-                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Return to Command
-                </a>
-            </div>
+  <!-- ═══ SUBJECT CARDS ═══ -->
+  <div class="hub-subjects-grid">
+    {% set subject_meta = {
+      'math':     {'emoji':'➗', 'color':'#f87171', 'color2':'#f97316', 'char':'Naruto', 'img':'naruto.png', 'desc':'Numbers, algebra, geometry & data'},
+      'english':  {'emoji':'📚', 'color':'#60a5fa', 'color2':'#a78bfa', 'char':'Luffy',  'img':'luffy.png',  'desc':'Grammar, stories & comprehension'},
+      'hindi':    {'emoji':'🇮🇳', 'color':'#fb923c', 'color2':'#f87171', 'char':'Tanjiro','img':'tanjiro.png','desc':'व्याकरण, कहानी और लेखन'},
+      'bengali':  {'emoji':'🌺', 'color':'#a78bfa', 'color2':'#60a5fa', 'char':'Ichigo', 'img':'ichigo.png', 'desc':'বাংলা ব্যাকরণ ও রচনা'},
+      'evs':      {'emoji':'🌿', 'color':'#34d399', 'color2':'#22d3ee', 'char':'Goku',   'img':'goku.png',   'desc':'Environment, life & nature'},
+      'science':  {'emoji':'🔬', 'color':'#34d399', 'color2':'#22d3ee', 'char':'Goku',   'img':'goku.png',   'desc':'Physics, chemistry & biology'},
+      'sst':      {'emoji':'🌍', 'color':'#facc15', 'color2':'#fb923c', 'char':'Deku',   'img':'deku.png',   'desc':'History, geography & civics'},
+      'gk':       {'emoji':'💡', 'color':'#facc15', 'color2':'#a78bfa', 'char':'Anya',   'img':'anya.png',   'desc':'World facts & current affairs'},
+      'computer': {'emoji':'💻', 'color':'#22d3ee', 'color2':'#60a5fa', 'char':'Bulma',  'img':'bulma.png',  'desc':'Hardware, software & internet'},
+    } %}
+
+    {% for subject in subjects %}
+    {% set meta = subject_meta.get(subject, {'emoji':'⭐','color':'#f97316','color2':'#a855f7','char':'Naruto','img':'naruto.png','desc':'Explore this subject'}) %}
+    <a href="{{ url_for('learn_interactive', subject=subject) }}" class="hub-card" style="--hc1:{{ meta.color }};--hc2:{{ meta.color2 }}">
+      <div class="hc-bg"></div>
+      <div class="hc-char">
+        <img src="/static/anime/{{ meta.img }}" alt="{{ meta.char }}" loading="lazy">
+      </div>
+      <div class="hc-content">
+        <div class="hc-emoji">{{ meta.emoji }}</div>
+        <div class="hc-name">{{ subject|title }}</div>
+        <div class="hc-desc">{{ meta.desc }}</div>
+        <div class="hc-topics">
+          {% set topics = [] %}
+          {% if syllabus and subject in syllabus %}
+            {% set topic_list = syllabus[subject] %}
+            <div class="hc-topic-count">{{ topic_list|length }} topics</div>
+          {% endif %}
         </div>
-    {% else %}
-        <!-- The Interactive Lesson -->
-        <div class="lesson-content">
-            <!-- Fact 1 Card -->
-            <div class="glass-panel slide-up" style="padding: 2.5rem; margin-bottom: 2rem; border-left: 4px solid var(--neon-pink);">
-                <h3><i class="fas fa-lightbulb" style="color: var(--neon-pink);"></i> Cosmic Fact</h3>
-                <p style="font-size: 1.3rem; line-height: 1.6; color: var(--starlight-white);">{{ lesson.fact_1 }}</p>
-            </div>
+        <div class="hc-char-name">Guide: <strong>{{ meta.char }}</strong></div>
+        <div class="hc-cta">Launch Mission <i class="fas fa-arrow-right"></i></div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
 
-            <!-- Core Concept Card -->
-            <div class="glass-panel slide-up" style="padding: 2.5rem; margin-bottom: 2rem; border-left: 4px solid var(--hologram-green); animation-delay: 0.2s;">
-                <h3><i class="fas fa-atom" style="color: var(--hologram-green);"></i> Core Concept</h3>
-                <p style="font-size: 1.3rem; line-height: 1.6; color: var(--starlight-white);">{{ lesson.core_concept }}</p>
-            </div>
-            
-            <!-- Fact 2 Card -->
-            <div class="glass-panel slide-up" style="padding: 2.5rem; margin-bottom: 3rem; border-left: 4px solid var(--nebula-cyan); animation-delay: 0.4s;">
-                <h3><i class="fas fa-rocket" style="color: var(--nebula-cyan);"></i> Explorer's Note</h3>
-                <p style="font-size: 1.3rem; line-height: 1.6; color: var(--starlight-white);">{{ lesson.fact_2 }}</p>
-            </div>
+  <!-- ═══ MODE LEGEND ═══ -->
+  <div class="mode-legend">
+    <div class="ml-title">🎮 Available in Every Subject</div>
+    <div class="ml-modes">
+      <div class="ml-mode">📖 <span>Storybook</span></div>
+      <div class="ml-mode">🎮 <span>Adventure</span></div>
+      <div class="ml-mode">🧩 <span>Puzzle</span></div>
+      <div class="ml-mode">🔬 <span>Lab</span></div>
+      <div class="ml-mode">🎤 <span>Voice</span></div>
+      <div class="ml-mode">🌍 <span>3D World</span></div>
+    </div>
+  </div>
 
-            <!-- Call to Action / Quiz Transition -->
-            <div class="glass-panel text-center slide-up" style="padding: 3rem; background: rgba(20, 0, 40, 0.6); border: 2px solid var(--cosmic-purple); animation-delay: 0.6s;">
-                <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">{{ lesson.interactive_prompt }}</h3>
-                <form method="POST" action="{{ url_for('quiz') }}" style="margin-top: 2rem;">
-                    <input type="hidden" name="topic" value="{{ lesson.syllabus_topic }}">
-                    <button type="submit" class="btn btn-primary btn-large" style="font-size: 1.2rem; display: inline-flex; align-items: center; gap: 0.5rem; animation: pulseGlow 2s infinite;">
-                        <i class="fas fa-bolt"></i> Test My Knowledge!
-                    </button>
-                </form>
-                <div style="margin-top: 1.5rem;">
-                    <a href="{{ url_for('learn') }}" style="color: var(--starlight-white); text-decoration: underline;">Learn something else</a>
-                </div>
-            </div>
-        </div>
-    {% endif %}
+  <div style="text-align:center;margin-top:2rem">
+    <a href="{{ url_for('dashboard') }}" class="hub-back-btn">
+      <i class="fas fa-home"></i> Back to Command Center
+    </a>
+  </div>
 </div>
 
 <style>
-    .slide-up {
-        opacity: 0;
-        transform: translateY(30px);
-        animation: slideUpFade 0.6s ease forwards;
-    }
-    @keyframes slideUpFade {
-        to { opacity: 1; transform: translateY(0); }
-    }
+.gradient-text { background:linear-gradient(135deg,#f97316,#a855f7,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hub-universe { max-width:1300px; margin:0 auto; padding:3rem 1.5rem 5rem; }
+.hub-header { text-align:center; margin-bottom:2rem; }
+.hub-tag { display:inline-block; padding:0.3rem 1rem; border:1px solid rgba(249,115,22,0.4); border-radius:50px; color:#f97316; font-size:0.75rem; font-weight:800; letter-spacing:3px; margin-bottom:0.8rem; }
+.hub-title { font-family:'Bangers',cursive; font-size:clamp(2.5rem,6vw,4.5rem); margin-bottom:0.5rem; }
+.hub-sub { color:rgba(255,255,255,0.55); font-size:1rem; }
 
-    /* 3D Animated Progress Bar */
-    .progress-bar-3d {
-        position: relative;
-        height: 28px;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 14px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.3);
-        transform: perspective(400px) rotateX(5deg);
-    }
-    .progress-bar-fill {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        border-radius: 14px;
-        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        background-size: 30px 30px;
-        animation: progressStripes 1s linear infinite;
-    }
-    .progress-bar-glow {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        border-radius: 14px;
-        filter: blur(8px);
-        opacity: 0.5;
-        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        animation: progressPulse 2s ease-in-out infinite;
-    }
+/* XP BAR */
+.hub-xp-bar { max-width:600px; margin:0 auto 3rem; }
+.hub-xp-info { display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:0.5rem; }
+.hub-xp-track { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
+.hub-xp-fill { height:100%; background:linear-gradient(90deg,#f97316,#a855f7); border-radius:4px; transition:width 1.5s cubic-bezier(.4,0,.2,1); }
 
-    /* Math: pink/magenta */
-    .math-fill {
-        background: linear-gradient(90deg, #ff006e, #ff47a3, #ff006e);
-        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-        background-size: 30px 30px;
-    }
-    .math-glow { background: linear-gradient(90deg, #ff006e, #ff47a3); }
+/* SUBJECT GRID */
+.hub-subjects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; margin-bottom:3rem; }
 
-    /* Science: green */
-    .science-fill {
-        background: linear-gradient(90deg, #00ff87, #60efff, #00ff87);
-        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-        background-size: 30px 30px;
-    }
-    .science-glow { background: linear-gradient(90deg, #00ff87, #60efff); }
+/* CARD */
+.hub-card { position:relative; display:flex; flex-direction:column; border-radius:24px; overflow:hidden; min-height:280px; text-decoration:none; color:#fff; border:1px solid rgba(255,255,255,0.08); transition:transform 0.3s,box-shadow 0.3s; }
+.hub-card:hover { transform:translateY(-8px) scale(1.02); box-shadow:0 30px 60px rgba(0,0,0,0.4),0 0 40px color-mix(in srgb,var(--hc1) 30%,transparent); }
+.hc-bg { position:absolute; inset:0; background:linear-gradient(135deg,color-mix(in srgb,var(--hc1) 20%,rgba(10,10,30,0.95)),rgba(10,10,30,0.9)); }
+.hc-char { position:absolute; right:-10px; bottom:0; width:130px; height:170px; z-index:1; }
+.hc-char img { width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 0 20px var(--hc1)); transition:transform 0.3s; }
+.hub-card:hover .hc-char img { transform:scale(1.08) translateY(-8px); }
+.hc-content { position:relative; z-index:2; padding:1.5rem; flex:1; display:flex; flex-direction:column; gap:0.4rem; }
+.hc-emoji { font-size:2.5rem; }
+.hc-name { font-family:'Bangers',cursive; font-size:1.8rem; letter-spacing:1px; text-transform:capitalize; line-height:1; }
+.hc-desc { font-size:0.85rem; color:rgba(255,255,255,0.6); line-height:1.4; max-width:160px; }
+.hc-topic-count { display:inline-block; padding:0.2rem 0.7rem; border:1px solid var(--hc1); border-radius:50px; color:var(--hc1); font-size:0.72rem; font-weight:700; margin-top:0.3rem; }
+.hc-char-name { font-size:0.78rem; color:rgba(255,255,255,0.5); margin-top:auto; }
+.hc-cta { display:inline-flex; align-items:center; gap:0.5rem; margin-top:0.5rem; padding:0.5rem 1rem; background:linear-gradient(135deg,var(--hc1),var(--hc2)); border-radius:50px; font-weight:800; font-size:0.85rem; width:fit-content; transition:transform 0.2s; }
+.hub-card:hover .hc-cta { transform:translateX(4px); }
 
-    /* English: cyan */
-    .english-fill {
-        background: linear-gradient(90deg, #00d4ff, #7b61ff, #00d4ff);
-        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-        background-size: 30px 30px;
-    }
-    .english-glow { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
+/* MODE LEGEND */
+.mode-legend { text-align:center; padding:2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:20px; margin-bottom:2rem; }
+.ml-title { font-family:'Bangers',cursive; font-size:1.3rem; margin-bottom:1.2rem; color:rgba(255,255,255,0.8); }
+.ml-modes { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+.ml-mode { display:flex; align-items:center; gap:0.4rem; padding:0.5rem 1.2rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:50px; font-size:0.9rem; transition:all 0.2s; }
+.ml-mode:hover { background:rgba(249,115,22,0.15); border-color:rgba(249,115,22,0.4); }
+.ml-mode span { font-weight:700; }
 
-    @keyframes progressStripes {
-        from { background-position: 30px 0; }
-        to { background-position: 0 0; }
-    }
-    @keyframes progressPulse {
-        0%, 100% { opacity: 0.4; }
-        50% { opacity: 0.7; }
-    }
+/* BACK BUTTON */
+.hub-back-btn { display:inline-flex; align-items:center; gap:0.6rem; padding:0.8rem 2rem; border:2px solid rgba(255,255,255,0.2); border-radius:50px; color:#fff; text-decoration:none; font-weight:700; transition:all 0.3s; }
+.hub-back-btn:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.4); }
+
+/* MOBILE */
+@media(max-width:600px) {
+  .hub-subjects-grid { grid-template-columns:1fr 1fr; gap:1rem; }
+  .hub-card { min-height:200px; }
+  .hc-char { width:90px; height:120px; right:-5px; }
+  .hc-name { font-size:1.3rem; }
+}
 </style>
+
+<script>
+// Animate XP bar on load
+window.addEventListener('load', () => {
+    const fill = document.querySelector('.hub-xp-fill');
+    if (fill) { const w = fill.style.width; fill.style.width='0%'; setTimeout(()=>fill.style.width=w, 300); }
+});
+</script>
 {% endblock %}

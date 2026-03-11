@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}EduGalaxy — Mission Control Profile{% endblock %}
+
+{% block content %}
+<div class="profile-universe">
+
+  <!-- HERO -->
+  <div class="prof-hero">
+    <div class="prof-avatar">{{ user.name[0].upper() }}</div>
+    <div class="prof-info">
+      <h1 class="prof-name">{{ user.name }} <span class="prof-medal">{{ medal }}</span></h1>
+      <p class="prof-meta">{{ user.class_level }} · {{ user.board }} · Member since {{ joined }}</p>
+      <div class="prof-xp-bar">
+        <div class="prof-xp-fill" style="width:{{ xp_progress }}%"></div>
+      </div>
+      <div class="prof-xp-label">{{ user.xp }} XP · Tier {{ user.level }} — {{ next_level_xp - user.xp }} XP to Tier {{ user.level + 1 }}</div>
+    </div>
+  </div>
+
+  <!-- STATS GRID -->
+  <div class="prof-stats-grid">
+    <div class="prof-stat-card" style="--psc:#f97316">
+      <div class="psc-icon">⚡</div>
+      <div class="psc-val">{{ user.xp }}</div>
+      <div class="psc-label">Total XP</div>
+    </div>
+    <div class="prof-stat-card" style="--psc:#a855f7">
+      <div class="psc-icon">🔥</div>
+      <div class="psc-val">{{ user.streak }}</div>
+      <div class="psc-label">Lessons Done</div>
+    </div>
+    <div class="prof-stat-card" style="--psc:#10b981">
+      <div class="psc-icon">📚</div>
+      <div class="psc-val">{{ total_lessons }}</div>
+      <div class="psc-label">Activities Completed</div>
+    </div>
+    <div class="prof-stat-card" style="--psc:#06b6d4">
+      <div class="psc-icon">🌍</div>
+      <div class="psc-val">{{ subjects_studied }}</div>
+      <div class="psc-label">Subjects Explored</div>
+    </div>
+    <div class="prof-stat-card" style="--psc:#fbbf24">
+      <div class="psc-icon">🏆</div>
+      <div class="psc-val">#{{ rank }}</div>
+      <div class="psc-label">Galactic Rank</div>
+    </div>
+    <div class="prof-stat-card" style="--psc:#f43f5e">
+      <div class="psc-icon">🧩</div>
+      <div class="psc-val">{{ badges_earned }}</div>
+      <div class="psc-label">Badges Earned</div>
+    </div>
+  </div>
+
+  <!-- SUBJECT MASTERY RINGS -->
+  <div class="prof-section">
+    <h2 class="prof-section-title">📊 Subject Mastery</h2>
+    <div class="mastery-rings-row">
+      {% set ring_colors = {'math':'#f87171','english':'#60a5fa','science':'#34d399','hindi':'#fb923c','evs':'#4ade80','bengali':'#a78bfa','sst':'#fbbf24','gk':'#facc15','computer':'#22d3ee'} %}
+      {% for subj, pct in subject_progress.items() %}
+      {% set color = ring_colors.get(subj, '#f97316') %}
+      <div class="mastery-ring-card">
+        <svg viewBox="0 0 80 80" class="ring-svg">
+          <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+          <circle cx="40" cy="40" r="32" fill="none" stroke="{{ color }}" stroke-width="8"
+            stroke-dasharray="{{ (pct / 100 * 201.06)|round(1) }} 201.06"
+            stroke-linecap="round" transform="rotate(-90 40 40)"
+            style="filter:drop-shadow(0 0 6px {{ color }})"/>
+          <text x="40" y="46" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">{{ pct }}%</text>
+        </svg>
+        <div class="ring-label" style="color:{{ color }}">{{ subj|title }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS RACK -->
+  <div class="prof-section">
+    <h2 class="prof-section-title">🏅 Achievement Rack</h2>
+    <div class="prof-badges-grid">
+      {% for a in achievements %}
+      <div class="prof-badge {% if a.earned %}prof-badge-earned{% endif %}" style="--bc:{{ a.color }}" title="{{ a.desc }}">
+        <div class="pb-icon">{{ a.icon }}</div>
+        <div class="pb-name">{{ a.name }}</div>
+        {% if not a.earned %}<div class="pb-lock">🔒</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- RECENT ACTIVITY -->
+  <div class="prof-section">
+    <h2 class="prof-section-title">⚡ Recent Activity</h2>
+    <div class="prof-activity">
+      {% for r in recent %}
+      <div class="prof-activity-item">
+        <div class="pai-emoji">{% if r.mode=='storybook' %}📖{% elif r.mode=='adventure' %}🎮{% elif r.mode=='puzzle' %}🧩{% elif r.mode=='experiment' %}🔬{% elif r.mode=='voice' %}🎤{% elif r.mode=='world' %}🌍{% else %}⭐{% endif %}</div>
+        <div class="pai-info">
+          <div class="pai-title">{{ r.topic }}</div>
+          <div class="pai-meta">{{ r.subject|title }} · {{ r.mode|title }} mode</div>
+        </div>
+        <div class="pai-time">{{ r.completed_at[:10] if r.completed_at else 'Recent' }}</div>
+      </div>
+      {% else %}
+      <div style="text-align:center;opacity:0.4;padding:2rem">No activity yet — start learning!</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <a href="{{ url_for('dashboard') }}" class="prof-btn-primary">🏠 Dashboard</a>
+    <a href="{{ url_for('learn') }}" class="prof-btn-secondary">🎓 Start Learning</a>
+    <a href="{{ url_for('leaderboard') }}" class="prof-btn-secondary">🏆 Rankings</a>
+  </div>
+
+</div>
+
+<style>
+.profile-universe { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 5rem; }
+
+/* HERO */
+.prof-hero { display:flex; align-items:center; gap:2rem; padding:2.5rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:28px; margin-bottom:2rem; flex-wrap:wrap; }
+.prof-avatar { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#f97316,#a855f7); display:flex; align-items:center; justify-content:center; font-family:'Bangers',cursive; font-size:3rem; flex-shrink:0; box-shadow:0 0 40px rgba(249,115,22,0.4); }
+.prof-info { flex:1; min-width:200px; }
+.prof-name { font-family:'Bangers',cursive; font-size:2.2rem; display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap; }
+.prof-medal { font-size:1.4rem; }
+.prof-meta { color:rgba(255,255,255,0.55); margin:0.3rem 0 0.8rem; }
+.prof-xp-bar { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; margin-bottom:0.4rem; }
+.prof-xp-fill { height:100%; background:linear-gradient(90deg,#f97316,#a855f7); border-radius:4px; transition:width 1.5s cubic-bezier(.4,0,.2,1); }
+.prof-xp-label { font-size:0.82rem; color:rgba(255,255,255,0.5); }
+
+/* STATS GRID */
+.prof-stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-bottom:2rem; }
+.prof-stat-card { text-align:center; padding:1.5rem 1rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:20px; transition:transform 0.3s; }
+.prof-stat-card:hover { transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.2); }
+.psc-icon { font-size:2rem; margin-bottom:0.5rem; }
+.psc-val { font-family:'Bangers',cursive; font-size:2.2rem; color:var(--psc); }
+.psc-label { font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:0.2rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+
+/* SECTION */
+.prof-section { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:1.5rem; margin-bottom:1.5rem; }
+.prof-section-title { font-family:'Bangers',cursive; font-size:1.5rem; margin-bottom:1.2rem; }
+
+/* MASTERY RINGS */
+.mastery-rings-row { display:flex; flex-wrap:wrap; gap:1.5rem; }
+.mastery-ring-card { text-align:center; }
+.ring-svg { width:80px; height:80px; }
+.ring-label { font-size:0.78rem; font-weight:700; margin-top:0.3rem; text-transform:capitalize; }
+
+/* BADGES */
+.prof-badges-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:0.8rem; }
+.prof-badge { position:relative; text-align:center; padding:1rem 0.5rem 0.8rem; background:rgba(255,255,255,0.04); border:2px solid rgba(255,255,255,0.1); border-radius:16px; transition:all 0.3s; }
+.prof-badge-earned { border-color:var(--bc); background:rgba(255,255,255,0.08); box-shadow:0 0 20px rgba(0,0,0,0.2); }
+.prof-badge-earned:hover { transform:scale(1.08); }
+.pb-icon { font-size:2rem; }
+.pb-name { font-size:0.68rem; font-weight:800; letter-spacing:0.5px; margin-top:0.3rem; }
+.pb-lock { position:absolute; top:4px; right:6px; font-size:0.65rem; opacity:0.5; }
+
+/* ACTIVITY */
+.prof-activity { display:flex; flex-direction:column; gap:0.6rem; }
+.prof-activity-item { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.04); border-radius:14px; }
+.pai-emoji { font-size:1.5rem; width:40px; text-align:center; flex-shrink:0; }
+.pai-info { flex:1; }
+.pai-title { font-weight:700; font-size:0.9rem; }
+.pai-meta { font-size:0.75rem; opacity:0.5; text-transform:capitalize; }
+.pai-time { font-size:0.75rem; opacity:0.4; white-space:nowrap; }
+
+/* BUTTONS */
+.prof-btn-primary,.prof-btn-secondary { padding:0.8rem 2rem; border-radius:50px; font-weight:800; text-decoration:none; font-size:0.95rem; transition:all 0.3s; }
+.prof-btn-primary { background:linear-gradient(135deg,#f97316,#a855f7); color:#fff; }
+.prof-btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(249,115,22,0.4); }
+.prof-btn-secondary { border:2px solid rgba(255,255,255,0.25); color:#fff; }
+.prof-btn-secondary:hover { background:rgba(255,255,255,0.1); }
+
+/* MOBILE */
+@media(max-width:600px) {
+  .prof-hero { flex-direction:column; text-align:center; }
+  .prof-stats-grid { grid-template-columns:repeat(2,1fr); }
+  .mastery-rings-row { justify-content:center; }
+}
+</style>
+<script>
+window.addEventListener('load',()=>{
+  const fill=document.querySelector('.prof-xp-fill');
+  if(fill){const w=fill.style.width;fill.style.width='0%';setTimeout(()=>fill.style.width=w,300);}
+  document.querySelectorAll('.ring-svg circle:nth-child(2)').forEach(c=>{
+    const dash=c.getAttribute('stroke-dasharray');
+    c.setAttribute('stroke-dasharray','0 201.06');
+    setTimeout(()=>{ c.style.transition='stroke-dasharray 1.5s ease'; c.setAttribute('stroke-dasharray',dash); },500);
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{
+  "name": "EduGalaxy — Anime Learning Adventure",
+  "short_name": "EduGalaxy",
+  "description": "The world's first anime-powered interactive learning platform for kids.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05010d",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "kids", "games"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Home",
+      "url": "/dashboard",
+      "icons": [{"src": "/static/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Learn",
+      "short_name": "Learn",
+      "url": "/learn",
+      "icons": [{"src": "/static/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Rankings",
+      "short_name": "Rank",
+      "url": "/leaderboard",
+      "icons": [{"src": "/static/icon-192.png", "sizes": "192x192"}]
+    }
+  ]
+}
