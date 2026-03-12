@@ -16,125 +16,126 @@ import re
 app = Flask(__name__)
 app.secret_key = 'edugalaxy_secret_key_2024'
 
-# --- COMPREHENSIVE MULTI-BOARD SYLLABUS DATABASE ---
+# --- COMPREHENSIVE MULTI-BOARD SYLLABUS DATABASE (2025-26 Curriculum) ---
 SYLLABUS_DB = {
     'CBSE': {
         '1': {
-            'english': ['Alphabet and Phonics', 'Vowels and Consonants', 'Two-letter and Three-letter Words', 'Use of A / An', 'Naming Words (Nouns)', 'Action Words (Verbs)', 'Simple Sentences', 'Rhymes and Short Stories'],
-            'hindi': ['स्वर और व्यंजन', 'मात्राएँ', 'दो और तीन अक्षर वाले शब्द', 'शब्द और वाक्य', 'संज्ञा (basic)', 'चित्र देखकर शब्द लिखना', 'छोटी कविताएँ'],
-            'math': ['Numbers 1–100', 'Addition', 'Subtraction', 'Shapes', 'Patterns', 'Measurement (long/short, heavy/light)', 'Time (day/night)']
+            'english': ['A Happy Child', 'Three Little Pigs', 'After a Bath', 'The Bubble, the Straw and the Shoe', 'One Little Kitten', 'Lalu and Peelu', 'Once I Saw a Little Bird', 'Mittu and the Yellow Mango', 'Merry-Go-Round', 'Circle', 'If I Were an Apple', 'Our Tree', 'A Kite', 'Sundari', 'A Little Turtle', 'The Tiger and the Mosquito', 'Alphabet and phonics', 'Vowels and consonants', 'Blending sounds', 'Two-letter words', 'Three-letter words', 'Naming words', 'Action words', 'Use of A / An', 'Simple sentences', 'Rhymes and short stories', 'Picture reading'],
+            'hindi': ['झूला', 'आम की टोकरी', 'आम का पेड़', 'पत्ते ही पत्ते', 'पकौड़ी', 'छुक-छुक गाड़ी', 'रसोईघर', 'चूहों की सभा', 'बंदर और गिलहरी', 'पतंग', 'स्वर', 'व्यंजन', 'मात्राएँ', 'दो अक्षर के शब्द', 'तीन अक्षर के शब्द', 'शब्द निर्माण', 'सरल वाक्य', 'कविता'],
+            'math': ['Shapes and Space', 'Numbers 1–9', 'Addition', 'Subtraction', 'Numbers 10–20', 'Time', 'Measurement', 'Numbers 21–50', 'Data Handling', 'Patterns', 'Numbers 1–100', 'Comparing numbers', 'Shapes and patterns', 'Measurement (long/short, heavy/light)', 'Time (day/night)', 'Money (basic idea)']
         },
         '2': {
-            'english': ['Nouns', 'Pronouns', 'Verbs', 'Adjectives', 'Articles', 'Prepositions', 'Sentence Formation', 'Comprehension'],
-            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'लिंग', 'वचन', 'वाक्य निर्माण', 'छोटी कहानी'],
-            'math': ['Numbers up to 1000', 'Addition and Subtraction', 'Multiplication (basic)', 'Shapes', 'Measurement', 'Time and Money'],
-            'evs': ['My Family', 'My Body', 'Food and Health', 'Plants', 'Animals', 'Water', 'Transport']
+            'english': ['First Day at School', 'Haldi’s Adventure', 'I Am Lucky', 'I Want', 'A Smile', 'The Wind and the Sun', 'Rain', 'Storm in the Garden', 'Zoo Manners', 'Funny Bunny', 'Mr Nobody', 'Curlylocks and the Three Bears', 'Nouns', 'Pronouns', 'Verbs', 'Adjectives', 'Articles (a, an, the)', 'Prepositions (in, on, under)', 'Sentence formation', 'Reading comprehension', 'Paragraph writing'],
+            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'लिंग', 'वचन', 'वाक्य रचना', 'कहानी और कविता'],
+            'math': ['What is Long What is Round', 'Counting in Groups', 'How Much Can You Carry', 'Counting in Tens', 'Patterns', 'Footprints', 'Jugs and Mugs', 'Tens and Ones', 'My Funday', 'Add Our Points', 'Lines and Lines', 'Give and Take', 'The Longest Step', 'Numbers up to 1000', 'Addition and subtraction', 'Introduction to multiplication', 'Measurement (length, weight, capacity)', 'Time', 'Money', 'Data handling'],
+            'evs': ['My family', 'My body', 'Food we eat', 'Clothes', 'Houses', 'Plants', 'Animals', 'Water and air', 'Transport', 'Festivals and seasons']
         },
         '3': {
-            'english': ['Parts of Speech', 'Tenses (basic)', 'Adjectives', 'Prepositions', 'Paragraph Writing', 'Story Writing'],
-            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'विशेषण', 'लिंग और वचन', 'अनुচ্ছেদ लेखन'],
-            'math': ['Numbers up to 10,000', 'Addition and Subtraction', 'Multiplication', 'Division', 'Fractions', 'Measurement', 'Time and Money'],
-            'evs': ['Family and Friends', 'Food and Nutrition', 'Water', 'Plants', 'Animals', 'Transport and Communication'],
-            'gk': ['Animals and Birds', 'Famous People', 'Countries and Flags', 'Basic Science Facts', 'Sports']
+            'english': ['Good Morning', 'The Magic Garden', 'Bird Talk', 'Nina and the Baby Sparrows', 'Little by Little', 'The Enormous Turnip', 'Sea Song', 'A Little Fish Story', 'The Balloon Man', 'The Yellow Butterfly', 'Nouns (types)', 'Pronouns', 'Verbs and tenses', 'Adjectives', 'Prepositions', 'Conjunctions', 'Paragraph writing', 'Story writing', 'Reading comprehension'],
+            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'विशेषण', 'लिंग और वचन', 'वाक्य निर्माण', 'अनुच्छेद लेखन'],
+            'math': ['Where to Look From', 'Fun with Numbers', 'Give and Take', 'Long and Short', 'Shapes and Designs', 'Time Goes On', 'Who is Heavier', 'How Many Times', 'Play with Patterns', 'Jugs and Mugs', 'Can We Share', 'Smart Charts', 'Numbers up to 10,000', 'Addition and subtraction', 'Multiplication', 'Division', 'Fractions', 'Measurement', 'Time and money', 'Geometry'],
+            'evs': ['Family and relationships', 'Food and cooking', 'Water', 'Plants', 'Animals', 'Work and occupations', 'Transport', 'Communication'],
+            'gk': ['Animals and birds', 'Countries and flags', 'Famous personalities', 'Science facts', 'Sports']
         },
         '4': {
-            'english': ['Nouns and Kinds of Nouns', 'Pronouns', 'Tenses', 'Adverbs', 'Prepositions', 'Letter Writing'],
-            'hindi': ['संज्ञा और सर्वनाम', 'क्रिया और काल', 'विशेषण', 'लिंग और वचन', 'अनुच्छेद लेखन', 'पत्र लेखन'],
-            'math': ['Large Numbers', 'Multiplication and Division', 'Fractions', 'Geometry', 'Measurement', 'Data Handling'],
-            'evs': ['Plants and Animals', 'Food and Digestion', 'Air and Water', 'Natural Resources'],
-            'sst': ['Our Earth', 'Our Country India', 'Maps and Directions', 'Environment'],
-            'gk': ['Important Days', 'Famous Personalities', 'Science and Inventions', 'Geography Facts'],
-            'computer': ['Introduction to Computers', 'Input and Output Devices', 'Paint Program', 'Word Processing', 'Internet Basics']
+            'english': ['Wake Up', 'Neha’s Alarm Clock', 'Noses', 'The Little Fir Tree', 'Run', 'Nasruddin’s Aim', 'Why', 'Alice in Wonderland', 'Don’t Be Afraid of the Dark', 'Helen Keller', 'Kinds of Nouns (Proper, Common, Collective)', 'Pronouns (Personal, Possessive)', 'Verbs and continuous tenses', 'Adverbs of time and place', 'Prepositions of position', 'Conjunctions (and, but, because)', 'Formal and informal letter writing', 'Descriptive paragraph writing'],
+            'hindi': ['संज्ञा के भेद (व्यक्तिवाचक, जातिवाचक, भाववाचक)', 'सर्वनाम के प्रकार', 'क्रिया और काल (वर्तमान, भूत, भविष्य)', 'विशेषण और उसके भेद', 'लिंग और वचन परिवर्तन के नियम', 'लोकोक्तियाँ और मुहावरे', 'रचनात्मक अनुच्छेद लेखन'],
+            'math': ['Operations on Large numbers up to Lakhs', 'Advanced Multiplication Techniques', 'Long Division Methods', 'Equivalent Fractions and Addition/Subtraction of Fractions', 'Geometry: Lines, Rays, Angles, and Polygons', 'Measurement Conversions: Length, Mass, Capacity', 'Data handling: Tally Marks and Pictographs'],
+            'evs': ['Plants: Structure, Function, and Adaptation', 'Animals: Habitats and Behaviors', 'Human Body: Food, Digestion, and Nutrition', 'Air, Water, and Weather Cycles', 'Our Environment and Ecosystems', 'Natural Resources: Renewable and Non-renewable'],
+            'sst': ['The Earth, Globe, and Latitudes/Longitudes', 'Reading Maps and Directions', 'India: Physical Features and the 28 States', 'Environment Protection and Pollution Control'],
+            'gk': ['Important National and International Days', 'Famous Historical Personalities', 'Great Inventions and Discoveries', 'World Geography Facts'],
+            'computer': ['Introduction to Computers and Generations', 'Input, Output, and Storage Devices', 'Advanced Paint Program Tools', 'Word Processor: Formatting and Editing', 'Internet Basics and Web Browsers']
         },
         '5': {
-            'english': ['Parts of Speech Revision', 'Tenses', 'Articles', 'Adverbs', 'Conjunctions', 'Story Writing'],
-            'hindi': ['संज्ञा और भेद', 'सर्वनाम', 'क्रिया और काल', 'मुহাवরে', 'अनुच्छेद लेखन', 'पत्र लेखन'],
-            'math': ['Large Numbers', 'Fractions', 'Decimals', 'Geometry', 'Measurement', 'Data Handling'],
-            'evs': ['Plants', 'Animals', 'Environment', 'Natural Resources'],
-            'sst': ['Earth and Solar System', 'States of India', 'Early Civilizations', 'Environment Protection'],
-            'gk': ['World Geography', 'Space', 'Famous Scientists', 'Sports and Awards'],
-            'computer': ['Hardware and Software', 'Operating System', 'Word Processor', 'Presentation Software', 'Internet Safety']
+            'english': ['Ice-Cream Man', 'Wonderful Waste', 'Teamwork', 'Flying Together', 'My Shadow', 'Robinson Crusoe', 'Crying', 'My Elder Brother', 'The Lazy Frog', 'Rip Van Winkle', 'Comprehensive Parts of Speech Revision', 'Perfect and Continuous Tenses', 'Adverbs of Manner, Degree, and Frequency', 'Coordinating and Subordinating Conjunctions', 'Prepositions of Time and Movement', 'Formal Letter and Email Writing', 'Creative Story Writing and Plot Formatting'],
+            'hindi': ['संज्ञा और उसके सभी विस्तृत भेद', 'सर्वनाम के छह प्रकार और उनका प्रयोग', 'क्रिया और काल के सभी उपभेद', 'मुहावरों का वाक्यों में सटीक प्रयोग', 'गहन रचनात्मक अनुच्छेद लेखन', 'औपचारिक और अनौपचारिक पत्र लेखन की कला'],
+            'math': ['Operations on Large numbers up to Crores', 'Multiplication and Division of Fractions', 'Decimals, Percentages, and their Applications', 'Advanced Geometry: Angles, Triangles, Circles, and Symmetry', 'Measurement: Area, Perimeter, and Volume Calculations', 'Data handling: Bar Graphs and Pie Charts'],
+            'evs': ['Flora and Fauna: Interdependence of Plants and Animals', 'Conservation of Natural Resources and Fossil Fuels', 'Global Environment Issues and Solutions', 'Human Body Systems: Respiratory, Circulatory, and Nervous'],
+            'sst': ['The Earth and our Solar System', 'The Early Human Civilizations: Indus Valley, Mesopotamia', 'India: Our Glorious Culture, Heritage, and Constitution', 'Conservation of Our Environment and Ecology'],
+            'gk': ['World Geography and Continents', 'Space, Planets, and Universe', 'Famous Scientists and their Contributions', 'Global Sports and Tournaments'],
+            'computer': ['Computer Hardware, Software, and Architecture', 'Understanding Operating Systems (Windows/Linux)', 'Word Processing: Tables, Mail Merge', 'Presentation Software: Slides, Animations, Transitions', 'Internet Safety, Netiquette, and Cyber Security']
         }
     },
     'ICSE': {
         '1': {
-            'english': ['Alphabet and Phonics', 'Naming Words', 'Action Words', 'Simple Sentences', 'Rhymes and Stories'],
+            'english': ['Alphabet and phonics', 'Naming words', 'Action words', 'Use of A / An', 'Simple sentences', 'Rhymes and stories'],
             'math': ['Numbers', 'Addition', 'Subtraction', 'Shapes', 'Measurement'],
-            'evs': ['Myself', 'My Family', 'Plants', 'Animals', 'Food']
+            'evs': ['Myself', 'My family', 'Plants', 'Animals', 'Food']
         },
         '2': {
-            'english': ['Nouns', 'Pronouns', 'Verbs', 'Adjectives', 'Sentence Formation'],
-            'math': ['Numbers up to 1000', 'Addition and Subtraction', 'Multiplication', 'Shapes'],
-            'evs': ['Body Parts', 'Food', 'Plants', 'Animals'],
-            'gk': ['Animals', 'Countries', 'Sports']
+            'english': ['Nouns', 'Pronouns', 'Verbs', 'Adjectives', 'Sentences'],
+            'math': ['Numbers up to 1000', 'Addition', 'Subtraction', 'Multiplication'],
+            'evs': ['Body parts', 'Food', 'Plants', 'Animals'],
+            'gk': ['Animals and birds', 'Countries', 'Sports']
         },
         '3': {
-            'english': ['Parts of Speech', 'Tenses', 'Adverbs', 'Composition Writing', 'Letter Writing'],
-            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'विशेषण', 'अनुच्छेद लेखन'],
-            'math': ['Numbers', 'Multiplication and Division', 'Fractions', 'Geometry', 'Measurement'],
-            'evs': ['Plants', 'Animals', 'Human Body', 'Environment'],
-            'sst': ['Earth and Maps', 'Early History', 'India'],
-            'gk': ['Science Facts', 'World Knowledge', 'Current Events'],
-            'computer': ['Computer Basics', 'Paint', 'Word Processing', 'Internet']
+            'english': ['Parts of speech', 'Tenses', 'Adverbs', 'Composition', 'Letter writing'],
+            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'विशेषण', 'अनुच्छेद'],
+            'math': ['Numbers', 'Multiplication and division', 'Fractions', 'Geometry', 'Measurement'],
+            'evs': ['Plants', 'Animals', 'Human body', 'Environment'],
+            'sst': ['Earth and maps', 'History basics', 'India'],
+            'gk': ['World knowledge', 'Science facts', 'Current affairs'],
+            'computer': ['Computer basics', 'Paint', 'Word processing', 'Internet']
         },
         '4': {
-            'english': ['Parts of Speech', 'Tenses', 'Adverbs', 'Composition Writing', 'Letter Writing'],
-            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'विशेषण', 'अनुच्छेद लेखन'],
-            'math': ['Numbers', 'Multiplication and Division', 'Fractions', 'Geometry', 'Measurement'],
-            'evs': ['Plants', 'Animals', 'Human Body', 'Environment'],
-            'sst': ['Earth and Maps', 'Early History', 'India'],
-            'gk': ['Science Facts', 'World Knowledge', 'Current Events'],
-            'computer': ['Computer Basics', 'Paint', 'Word Processing', 'Internet']
+            'english': ['Comprehensive Parts of Speech (Noun, Pronoun, Verb, Adjective, Adverb)', 'Tenses: Present, Past, Future', 'Adverbs of Time, Place, Manner', 'Structured Composition Writing', 'Formal and Informal Letter Writing'],
+            'hindi': ['संज्ञा और उसके भेद', 'सर्वनाम के प्रकार', 'सकर्मक और अकर्मक क्रिया', 'विशेषण की विशेषताएँ', 'रचनात्मक अनुच्छेद लेखन'],
+            'math': ['Advanced Numbers and Operations', 'Multiplication and Long Division', 'Introduction to Fractions and Equivalents', 'Geometry: Lines, Angles, Polygons', 'Measurement: Length, Mass, Capacity'],
+            'evs': ['Plants: Photosynthesis and Parts', 'Animals: Habitats, Herbivores, Carnivores', 'Human Body: Organ Systems Overview', 'Environment: Ecosystems and Conservation'],
+            'sst': ['Earth, Maps, Latitudes, and Longitudes', 'History basics: Early Man and Tools', 'India: Physical and Political Divisions'],
+            'gk': ['World knowledge: Continents and Oceans', 'Science facts: Solar System and Energy', 'Current affairs and Important Events'],
+            'computer': ['Computer Component basics (Hardware/Software)', 'Advanced Paint Tools', 'Word processing: Formatting text', 'Internet: Browsers and Searches']
         },
         '5': {
-            'english': ['Parts of Speech', 'Tenses', 'Adverbs', 'Composition Writing', 'Letter Writing'],
-            'hindi': ['संज्ञा', 'सर्वनाम', 'क्रिया', 'विशेषण', 'अनुच्छेद लेखन'],
-            'math': ['Numbers', 'Multiplication and Division', 'Fractions', 'Geometry', 'Measurement'],
-            'evs': ['Plants', 'Animals', 'Human Body', 'Environment'],
-            'sst': ['Earth and Maps', 'Early History', 'India'],
-            'gk': ['Science Facts', 'World Knowledge', 'Current Events'],
-            'computer': ['Computer Basics', 'Paint', 'Word Processing', 'Internet']
+            'english': ['Detailed Study of Parts of Speech and Conjunctions', 'Perfect and Continuous Tenses', 'Adverbs of Frequency and Degree', 'Advanced Composition and Essay Writing', 'Official Letter Writing and Emails'],
+            'hindi': ['संज्ञा, सर्वनाम, विशेषण और क्रिया का विस्तृत व्याकरण', 'काल के सभी भेद', 'मुहावरे और लोकोक्तियाँ', 'विस्तृत अनुच्छेद और निबंध लेखन', 'पत्र लेखन'],
+            'math': ['Large Numbers, HCF, and LCM', 'Multiplication and Division Check Methods', 'Operations on Fractions and Decimals', 'Geometry: Properties of Triangles and Circles', 'Measurement: Area, Perimeter, and Volume'],
+            'evs': ['Plants: Reproduction and Dispersal of Seeds', 'Animals: Interdependence and Food Chains', 'Human Body: Skeletal and Muscular Systems', 'Environment: Pollution, Global Warming, and Solutions'],
+            'sst': ['Earth structure, Maps, and Map Reading', 'History: The Ancient Civilizations', 'India: Government, Constitution, and Culture'],
+            'gk': ['World knowledge: Capitals, Currencies, and Landmarks', 'Science facts: Human Body and Physics basics', 'Current affairs affecting the World'],
+            'computer': ['Computer Architecture basics', 'Flowcharts and Algorithms', 'Word processing: Advanced formatting', 'Internet Protocols and Cybersecurity']
         }
     },
     'WBSE': {
         '1': {
-            'bengali': ['বর্ণমালা', 'স্বরবর্ণ', 'ব্যঞ্জনবর্ণ', 'সহজ শব্দ', 'ছড়া'],
-            'math': ['সংখ্যা', 'যোগ', 'বিয়োগ', 'আকার'],
+            'bengali': ['বর্ণমালা', 'স্বরবর্ণ', 'ব্যঞ্জনবর্ণ', 'শব্দ গঠন', 'ছড়া'],
+            'math': ['সংখ্যা', 'যোগ', 'বিয়োগ', 'আকার'],
             'evs': ['আমার পরিবার', 'গাছপালা', 'প্রাণী']
         },
         '2': {
-            'bengali': ['শব্দ গঠন', 'বাক্য গঠন', 'ছোট গল্প'],
+            'bengali': ['শব্দ গঠন', 'বাক্য গঠন', 'গল্প'],
             'math': ['সংখ্যা', 'যোগ ও বিয়োগ', 'গুণ'],
             'evs': ['গাছ', 'প্রাণী', 'জল'],
             'gk': ['পশু', 'পাখি', 'দেশ']
         },
         '3': {
-            'bengali': ['বিশেষ্য', 'সর্বনাম', 'ক্রিয়া', 'অনুচ্ছেদ লেখা'],
+            'bengali': ['বিশেষ্য', 'সর্বনাম', 'ক্রিয়া'],
             'english': ['Nouns', 'Verbs', 'Sentences'],
             'math': ['Numbers', 'Multiplication', 'Division'],
             'evs': ['Environment', 'Plants', 'Animals'],
-            'gk': ['Famous People', 'Countries']
+            'gk': ['Countries', 'Famous people']
         },
         '4': {
-            'bengali': ['পদ পরিচয়', 'বাক্য রচনা', 'অনুচ্ছেদ লেখা', 'পত্র লেখা'],
-            'english': ['Parts of Speech', 'Tenses', 'Composition'],
-            'math': ['Fractions', 'Decimals', 'Geometry'],
-            'evs': ['Nature', 'Animals', 'Environment'],
-            'sst': ['India', 'Maps', 'History Basics'],
-            'gk': ['Science Facts', 'Geography'],
-            'computer': ['Computer Basics', 'Paint', 'Word Processor', 'Internet']
+            'bengali': ['পদ পরিচয় (বিশেষ্য, বিশেষণ, সর্বনাম, অব্যয়, ক্রিয়া)', 'সঠিক বাক্য রচনা ও গঠনশৈলী', 'বোধ পরীক্ষণ ও অনুচ্ছেদ লেখা'],
+            'english': ['Parts of speech: Identification and Usage', 'Tenses: Simple and Continuous Forms', 'Guided Composition and Paragraph Writing'],
+            'math': ['Fractions: Addition and Subtraction', 'Decimals: Introduction and Place Value', 'Geometry: Basic 2D Shapes and Angles'],
+            'evs': ['Nature: Ecosystems and Weather', 'Animals: Diversity and Habitats', 'Environment: Pollution and Waste Management'],
+            'sst': ['Geography of India: Mountains, Rivers, Plains', 'Reading Maps correctly', 'History basics: Independence Movement Overview'],
+            'gk': ['Science facts: Basic Physics and Biology', 'Geography: Continents and Oceans'],
+            'computer': ['Computer basics and working principles', 'MS Paint Drawing Options', 'Word processor text styling', 'Introduction to the Internet']
         },
         '5': {
-            'bengali': ['পদ পরিচয়', 'বাক্য রচনা', 'অনুচ্ছেদ লেখা', 'পত্র লেখা'],
-            'english': ['Parts of Speech', 'Tenses', 'Composition'],
-            'math': ['Fractions', 'Decimals', 'Geometry'],
-            'evs': ['Nature', 'Animals', 'Environment'],
-            'sst': ['India', 'Maps', 'History Basics'],
-            'gk': ['Science Facts', 'Geography'],
-            'computer': ['Computer Basics', 'Paint', 'Word Processor', 'Internet']
+            'bengali': ['বিস্তারিত পদ পরিচয় এবং সমাস', 'জটিল ও যৌগিক বাক্য রচনা', 'বিশ্লেষণমূলক অনুচ্ছেদ ও প্রবন্ধ লেখা'],
+            'english': ['Parts of speech in complex sentences', 'Tenses: Perfect and Perfect Continuous', 'Creative Composition, Essays, and Letters'],
+            'math': ['Fractions: Multiplication and Division', 'Decimals: Advanced Operations and Percentages', 'Geometry: Triangles, Circles, and Symmetry'],
+            'evs': ['Nature: Conservation and Natural Resources', 'Animals: Food Web and Adaptations', 'Environment: Global Warming and Sustainability'],
+            'sst': ['India: Government and Constitution Structure', 'Advanced Maps and Topography', 'History: Ancient Empires and Heritage'],
+            'gk': ['Advanced Science facts and Space', 'World Geography and Political Boundaries'],
+            'computer': ['Computer Memory and Generations', 'Multimedia and PowerPoint basics', 'Word processor Mail Merge', 'Internet Email and E-safety']
         }
     }
 }
+
 
 
 # Database configuration
@@ -480,30 +481,44 @@ def get_lesson_content():
     options = CHAR_POOL.get(subject, CHAR_POOL['math'])
     char = random.choice(options)
     
-    # Procedural content generation based on subject and topic
-    story_text = f"{char['name']} is here to help you master {topic}! "
-    audio_text = f"Hi kids! I am {char['name']}. {char['catchphrase']} Let's learn about {topic} together! "
-    
-    if 'math' in subject:
-        num1 = random.randint(1, 10)
-        num2 = random.randint(1, 10)
-        story_text += f"{char['name']} needs to solve a Ninja Scroll equation: {num1} + {num2}. Can you help him find the answer? It's {num1+num2}!"
-        audio_text += f"We have a math puzzle! What is {num1} plus {num2}?"
-        game_data = {'type': 'math', 'q': f"{num1} + {num2}", 'a': num1+num2}
-    elif 'english' in subject or 'hindi' in subject or 'bengali' in subject:
-        story_text += f"To find the One Piece, {char['name']} must learn the secret word: {topic}. Say it loud to sail forward!"
-        audio_text += f"Let's practice our words. The topic is {topic}. Repeat after me: {topic}."
-        game_data = {'type': 'word', 'word': topic}
-    elif 'science' in subject or 'evs' in subject:
-        story_text += f"{char['name']} is training to use the power of {topic}! He needs to understand how the universe works to get stronger."
-        audio_text += f"Welcome to the training ground! We are investigating {topic} today. Feel the energy!"
-        game_data = {'type': 'science', 'target': topic}
-    else:
-        story_text += f"Exploring {topic} helps {char['name']} become a better hero. Every bit of knowledge is a step closer to victory!"
-        audio_text += f"Let's explore {topic}. It's going to be Plus Ultra!"
-        game_data = {'type': 'general', 'topic': topic}
+    t_low = topic.lower()
 
-    # ─── Puzzle Data ────────────────────────────────────────────────
+    # ─── STORYBOOK (Paginated) ──────────────────────────────────────
+    story_pages = []
+    if 'math' in subject:
+        story_pages.append({"text": f"Welcome to the Math Dojo! Today {char['name']} is going to teach you all about {topic}.", "audio": f"Welcome to the Math Dojo! Today I will teach you about {topic}."})
+        story_pages.append({"text": f"Did you know? Mathematics is the language of the universe. {topic} helps us solve real-world problems every single day!", "audio": f"Did you know? Mathematics is the language of the universe. {topic} helps us solve real problems!"})
+        story_pages.append({"text": f"Let's look at an example. If you have 3 apples and you get 2 more, you use math to know you have 5! The concept of {topic} is just as powerful.", "audio": f"For example, if you have 3 apples and get 2 more, you have 5. {topic} is just as powerful!"})
+        story_pages.append({"text": f"Now, let's practice! {char['catchphrase']} Always remember to double-check your work.", "audio": f"Now let's practice! {char['catchphrase']} Remember to double check your work."})
+    elif 'english' in subject or 'hindi' in subject or 'bengali' in subject:
+        story_pages.append({"text": f"Ahoy! {char['name']} is ready to explore the magic of words with you. Our treasure today is: {topic}.", "audio": f"Ahoy! I am ready to explore words with you. Today we learn {topic}."})
+        story_pages.append({"text": f"Language helps us communicate our feelings and stories. A solid grasp of {topic} will make you a master storyteller!", "audio": f"Language helps us communicate. Learning {topic} makes you a master storyteller!"})
+        story_pages.append({"text": f"For instance, every sentence needs structure. Understanding {topic} is like finding the map to the One Piece of grammar.", "audio": f"Every sentence needs structure. {topic} is the map to grammar."})
+        story_pages.append({"text": f"Repeat out loud: '{topic}'! {char['catchphrase']} You're doing great.", "audio": f"Repeat out loud: {topic}. {char['catchphrase']} You're doing great."})
+    elif 'science' in subject or 'evs' in subject:
+        story_pages.append({"text": f"Get ready to power up! {char['name']} is here to guide you through the wonders of {topic}.", "audio": f"Get ready to power up! I will guide you through {topic}."})
+        story_pages.append({"text": f"Science explains how everything around us works, from the smallest atom to the biggest star.", "audio": "Science explains how everything around us works."})
+        story_pages.append({"text": f"When we study {topic}, we can predict what will happen in nature and even create new inventions!", "audio": f"Studying {topic} lets us predict nature and invent new things!"})
+        story_pages.append({"text": f"Keep observing the world! {char['catchphrase']} Your curiosity is your greatest superpower.", "audio": f"Keep observing! {char['catchphrase']} Curiosity is your superpower."})
+    else:
+        story_pages.append({"text": f"{char['name']} says hello! Today's grand adventure is all about {topic}.", "audio": f"Hello! Today's adventure is {topic}."})
+        story_pages.append({"text": f"Learning about {topic} helps us understand our world, our history, and our society better.", "audio": f"Learning {topic} helps us understand the world better."})
+        story_pages.append({"text": f"Every fact you learn makes your brain stronger. So let's dive into {topic} together!", "audio": f"Every fact makes your brain stronger. Let's dive into {topic}!"})
+        story_pages.append({"text": f"Fantastic! {char['catchphrase']} Let's keep moving forward!", "audio": f"Fantastic! {char['catchphrase']} Let's keep moving forward!"})
+
+
+    # ─── ADVENTURE GAME ─────────────────────────────────────────────
+    if 'math' in subject:
+        num1 = random.randint(1, 10); num2 = random.randint(1, 10)
+        game_data = {'type': 'math_catch', 'target': 'numbers', 'equation': f'{num1} + {num2} = ?', 'correct': str(num1+num2), 'wrong': [str(num1+num2+1), str(num1+num2-1), str(num1+num2+2)]}
+    elif 'english' in subject:
+        game_data = {'type': 'word_catch', 'target': 'letters', 'word': topic.split()[0].upper(), 'wrong': ['Z','X','Q', 'W']}
+    elif 'science' in subject or 'evs' in subject:
+        game_data = {'type': 'dodger', 'target': 'energy', 'avoid': 'pollution', 'topic': topic}
+    else:
+        game_data = {'type': 'collect', 'itemName': topic.split()[0], 'topic': topic}
+
+    # ─── PUZZLE DATA ────────────────────────────────────────────────
     if 'math' in subject:
         num1 = random.randint(2, 9); num2 = random.randint(2, 9)
         op = random.choice(['+', '-', '×'])
@@ -534,68 +549,95 @@ def get_lesson_content():
         p_question = f"Which word is today's topic?"
         p_type = "general"
 
-    # ─── Voice Sentence ─────────────────────────────────────────────
-    voice_map = {
-        'math':     f"The answer is {p_answer}. Mathematics is my superpower!",
-        'english':  f"I am reading about {topic}. Reading opens new worlds!",
-        'hindi':    f"हिंदी पढ़ना बहुत मज़ेदार है। आज का विषय है: {topic}।",
-        'bengali':  f"বাংলা শেখা মজার। আজকের বিষয় হলো: {topic}।",
-        'science':  f"Science is amazing! Today we explore {topic}.",
-        'evs':      f"Let us protect our earth. Today we learn about {topic}.",
-        'sst':      f"History and geography teach us who we are. Topic: {topic}.",
-        'gk':       f"General knowledge makes you amazing. Did you know about {topic}?",
-        'computer': f"Computers are super smart. I am learning about {topic}.",
-    }
-    voice_sentence = voice_map.get(subject, f"Today I am learning about {topic}. It is so exciting!")
-
-    # ─── Experiment Type & Steps ─────────────────────────────────────
-    t_low = topic.lower()
+    # ─── EXPERIMENT Type & Steps ─────────────────────────────────────
     if any(k in t_low for k in ['water', 'rain', 'evapor', 'cloud']):
         exp_type = 'water_cycle'
-        exp_steps = ['Water evaporates from the ocean','Water vapour rises and cools','Clouds form in the sky','Rain falls back to earth']
-    elif any(k in t_low for k in ['plant', 'seed', 'grow', 'leaf', 'tree']):
+        exp_steps = ['Apply heat to the ocean to Evaporate', 'Cool the vapour to Condense into Clouds', 'Let it rain! (Precipitation)', 'Collect the water back.']
+    elif any(k in t_low for k in ['plant', 'seed', 'grow', 'leaf', 'tree', 'photosynthesis']):
         exp_type = 'plant_growth'
-        exp_steps = ['Plant a seed in soil','Water it every day','Sunlight helps the seedling grow','The plant blooms!']
+        exp_steps = ['Plant seed in soil', 'Drag water can to soil', 'Drag sun to shine light', 'Watch the flower bloom!']
     elif any(k in t_low for k in ['magnet', 'attract', 'repel']):
         exp_type = 'magnetism'
-        exp_steps = ['Hold two magnets close','Feel the attraction force','Flip one magnet — repulsion!','Draw the invisible field lines']
-    elif any(k in t_low for k in ['light', 'shadow', 'mirror', 'reflect']):
-        exp_type = 'light_shadow'
-        exp_steps = ['Shine a torch on an object','Observe the shadow cast','Change the angle of light','The shadow moves with the light!']
-    elif any(k in t_low for k in ['air', 'wind', 'atmospher', 'pressure']):
-        exp_type = 'air_pressure'
-        exp_steps = ['Blow air into a balloon','Feel the pressure inside','Release the balloon — it flies!','Air moves from high to low pressure']
+        exp_steps = ['Place Magnet A', 'Drag Magnet B (North) close to A (South) -> Attract', 'Flip Magnet B (South) close to A (South) -> Repel', 'Observe magnetic fields.']
+    elif 'math' in subject:
+        exp_type = 'math_balance'
+        exp_steps = ['Place 5 weights on the left scale', 'Place weights on right scale until balanced', 'Balance achieved!', 'Equation solved.']
     else:
         exp_type = 'chemical_reaction'
-        exp_steps = ['Mix baking soda and vinegar','Watch the bubbles form','CO₂ gas is released!','The chemical reaction is complete']
+        exp_steps = ['Drag Flask A (Vinegar)', 'Pour Baking Soda into Flask A', 'Watch the chemical reaction!', 'Observe the CO2 Gas.']
+
+    # ─── ORAL VOICE TEST ────────────────────────────────────────────
+    voice_map = {
+        'math':     f"Let's practice! What is 5 plus 5? Please say: The answer is 10.",
+        'english':  f"Can you say this tongue twister? She sells seashells by the seashore.",
+        'hindi':    f"कृपया कहें: मुझे {topic} पढ़ना पसंद है।",
+        'bengali':  f"দয়া করে বলুন: আমি {topic} ভালোবাসি।",
+        'science':  f"What gas do we breathe? Please say: Oxygen.",
+        'evs':      f"How can we help the Earth? Please say: Plant more trees.",
+        'sst':      f"What is the capital of India? Please say: New Delhi.",
+        'gk':       f"Who is known as the Father of the Nation? Please say: Mahatma Gandhi.",
+        'computer': f"What is the brain of the computer? Please say: The C P U.",
+    }
+    voice_question = voice_map.get(subject, f"Please say: I am learning about {topic}.")
+    
+    # Simple expected keyword matcher
+    expected_words = []
+    if 'math' in subject: expected_words = ['10', 'ten']
+    elif 'english' in subject: expected_words = ['seashells', 'seashore']
+    elif 'hindi' in subject: expected_words = ['पसंद']
+    elif 'science' in subject: expected_words = ['oxygen']
+    elif 'evs' in subject: expected_words = ['trees', 'plant']
+    elif 'sst' in subject: expected_words = ['delhi']
+    elif 'gk' in subject: expected_words = ['gandhi']
+    elif 'computer' in subject: expected_words = ['cpu', 'processor']
+    else: expected_words = [topic.split()[0].lower(), 'learning']
+
+
+    # ─── 3D WORLD ASSESSMENT ────────────────────────────────────────
+    three_d_test = {
+        'mcq': [
+            {'q': f"Which of the following belongs to {topic}?", 'options': [f"Concept of {topic}", "Something unrelated", "Another wrong answer"], 'ans': 0},
+            {'q': f"Why is {topic} important?", 'options': ["It is not important", "It helps us understand the world", "To waste time"], 'ans': 1}
+        ],
+        'subjective': {
+            'q': f"Explain in your own words what you learned about {topic} today."
+        }
+    }
+
 
     content = {
         'character': char,
+        'topic': topic,
+        'subject': subject,
         'storybook': {
-            'text': story_text,
-            'audio_text': audio_text
+            'pages': story_pages
         },
         'adventure': {
-            'objective': f"Collect items for {char['name']} while learning {topic}!",
+            'objective': f"Play the game for {topic}!",
             'game_data': game_data,
             'xp_reward': 50
         },
         'puzzle': {
-            'type':     p_type,
+            'p_type':     p_type,
             'question': p_question,
             'items':    p_items,
             'answer':   p_answer,
+            'xp_reward': 40
         },
         'experiment': {
-            'name':         f"{topic} Simulation",
+            'name':         f"{topic} Interactive Lab",
             'type':         exp_type,
-            'instructions': f"Help {char['name']} run the {topic} experiment step by step!",
+            'instructions': f"Perform the experiment by following the interactive steps!",
             'steps':        exp_steps,
+            'xp_reward': 60
         },
         'voice': {
-            'sentence': voice_sentence,
-            'hint':     f"It is about {topic}",
-        }
+            'sentence': voice_question,
+            'expected_words': expected_words,
+            'hint':     f"Speak clearly into the microphone.",
+            'xp_reward': 30
+        },
+        'assessment': three_d_test
     }
 
     return json.dumps(content)
