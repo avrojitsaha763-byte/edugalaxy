@@ -88,13 +88,19 @@ function initAdvancedWebGL() {
         composer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Boot Sequence Removal
-    setTimeout(() => {
+    // Boot Sequence Removal - Robust
+    const clearBoot = () => {
         const boot = document.getElementById('boot-sequence');
         if (boot) {
-            gsap.to(boot, {opacity: 0, duration: 1, onComplete: () => boot.remove()});
+            if (typeof gsap !== 'undefined') {
+                gsap.to(boot, {opacity: 0, duration: 1, onComplete: () => boot.remove()});
+            } else {
+                boot.remove();
+            }
         }
-    }, 2500);
+    };
+    setTimeout(clearBoot, 2500);
+    window.addEventListener('load', () => setTimeout(clearBoot, 4000)); // Fallback
 
     // Run Render Loop
     animateWebGL();

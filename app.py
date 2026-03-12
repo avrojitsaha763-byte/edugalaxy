@@ -346,6 +346,10 @@ def dashboard():
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
     user = cursor.fetchone()
+    if not user:
+        session.clear()
+        conn.close()
+        return redirect(url_for('login'))
 
     # Progress
     cursor.execute('SELECT subject, COUNT(*) as cnt FROM learning_progress WHERE user_id=? GROUP BY subject', (session['user_id'],))
@@ -411,6 +415,10 @@ def learn_interactive():
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
     user = cursor.fetchone()
+    if not user:
+        session.clear()
+        conn.close()
+        return redirect(url_for('login'))
     conn.close()
 
     board = user['board']
@@ -692,6 +700,10 @@ def learn():
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
     user = cursor.fetchone()
+    if not user:
+        session.clear()
+        conn.close()
+        return redirect(url_for('login'))
     conn.close()
 
     board = user['board']
