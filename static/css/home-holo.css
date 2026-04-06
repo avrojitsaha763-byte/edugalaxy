@@ -1,0 +1,142 @@
+/* home-holo.css - EduGalaxy Holographic UI System */
+
+:root {
+    --holo-primary: #00f3ff;
+    --holo-secondary: #9d4edd;
+    --holo-accent: #39ff14;
+    --holo-glass: rgba(10, 25, 47, 0.75);
+    --holo-border: rgba(0, 243, 255, 0.4);
+    --holo-glow: 0 0 20px rgba(0, 243, 255, 0.6);
+}
+
+/* ── HOLOGRAPHIC CONTAINER ── */
+.holo-panel {
+    background: var(--holo-glass);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--holo-border);
+    border-radius: 16px;
+    box-shadow: var(--holo-glow), inset 0 0 30px rgba(0, 243, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.holo-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        var(--holo-border) 1px,
+        transparent 1px
+    );
+    background-size: 100% 4px;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ── HUD SCANLINES ── */
+.holo-panel::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(
+        transparent 50%,
+        rgba(0, 243, 255, 0.05) 50%
+    );
+    background-size: 100% 4px;
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+    z-index: 10;
+}
+
+@keyframes scanline {
+    from { background-position: 0 0; }
+    to { background-position: 0 100%; }
+}
+
+/* ── FLICKER EFFECT ── */
+.holo-flicker {
+    animation: flicker 4s infinite step-end;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.95; }
+    98% { opacity: 0.95; }
+    99% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+/* ── GLOWING TEXT ── */
+.holo-text {
+    color: var(--holo-primary);
+    text-shadow: 0 0 8px var(--holo-primary), 0 0 15px rgba(0, 243, 255, 0.4);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+}
+
+/* ── INTERACTIVE HOVER ── */
+.holo-panel:hover {
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.8);
+    transform: scale(1.02) translateY(-5px);
+    border-color: var(--holo-primary);
+}
+
+/* ── BUTTON RIPPLE ── */
+.holo-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--holo-primary);
+    color: #000;
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--holo-primary);
+    transition: all 0.3s ease;
+}
+
+.holo-btn:hover {
+    box-shadow: 0 0 30px var(--holo-primary), 0 0 50px rgba(0, 243, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.holo-btn::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 300%; height: 300%;
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s ease-out;
+}
+
+.holo-btn:active::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+}
+
+/* ── 3D CANVAS CONTAINER ── */
+#canvas-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    background: radial-gradient(circle at center, #0a192f 0%, #010208 100%);
+}
+
+/* ── LOGO STYLING ── */
+.holo-logo {
+    max-width: 180px;
+    height: auto;
+    filter: drop-shadow(0 0 12px var(--holo-primary));
+    animation: pulse-logo 3s ease-in-out infinite;
+}
+
+@keyframes pulse-logo {
+    0%, 100% { filter: drop-shadow(0 0 8px var(--holo-primary)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 20px var(--holo-primary)); transform: scale(1.05); }
+}

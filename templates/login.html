@@ -1,97 +1,241 @@
-{% extends "base.html" %}
-{% block title %}EduGalaxy — Authentication Portal{% endblock %}
+{% extends 'base.html' %}
+{% block title %}EduGalaxy — Identity Scan{% endblock %}
 {% block content %}
-<div class="auth-universe" id="login-universe">
-    <!-- Holographic 3D wrapper handled by script.js -->
-    
-    <div class="auth-card-premium holo-terminal">
-        <!-- Logo -->
-        <div class="auth-logo">
-            <i class="fas fa-microchip"></i> CYBER-PORTAL
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home-holo.css') }}">
+<style>
+/* ════════════════════════════════════════
+   LOGIN — HYPERSPACE WARP SPLIT SCREEN
+════════════════════════════════════════ */
+body { background: #000 !important; overflow: hidden; }
+
+/* Full screen split below the nav */
+.auth-root {
+    position: fixed;
+    top: 68px; left: 0; right: 0; bottom: 0;
+    display: flex;
+    z-index: 10;
+}
+
+/* ── LEFT PANEL ── */
+.auth-panel {
+    width: 440px;
+    min-width: 340px;
+    background: rgba(0, 3, 10, 0.88);
+    backdrop-filter: blur(30px);
+    border-right: 1px solid rgba(0,243,255,0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+    z-index: 20;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Scan line sweep on panel */
+.panel-scan {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #00f3ff, transparent);
+    box-shadow: 0 0 12px #00f3ff;
+    animation: scanSweep 4s linear infinite;
+}
+@keyframes scanSweep {
+    0% { top: 0; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+/* ── RIGHT VIEWPORT: WARP BACKGROUND ── */
+.auth-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Main warp image */
+.auth-viewport::before {
+    content: '';
+    position: absolute;
+    inset: -5%;
+    background: url('/static/images/bg_login_cinematic.png') center center / cover no-repeat;
+    animation: warpZoom 8s ease-in-out infinite alternate;
+    filter: brightness(0.85) saturate(1.4);
+}
+@keyframes warpZoom {
+    0%   { transform: scale(1.08) translate(0, 0); }
+    50%  { transform: scale(1.12) translate(-1%, 0.5%); }
+    100% { transform: scale(1.1) translate(1%, -0.5%); }
+}
+
+/* Speed motion blur overlay */
+.auth-viewport::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.7) 100%);
+    z-index: 1;
+}
+
+/* Cockpit frame elements */
+.cockpit-frame {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+.hud-bracket {
+    position: absolute;
+    width: 40px; height: 40px;
+    border: 2px solid rgba(0,243,255,0.7);
+}
+.hud-tl { top: 15px; left: 15px; border-right: 0; border-bottom: 0; }
+.hud-tr { top: 15px; right: 15px; border-left: 0; border-bottom: 0; }
+.hud-bl { bottom: 15px; left: 15px; border-right: 0; border-top: 0; }
+.hud-br { bottom: 15px; right: 15px; border-left: 0; border-top: 0; }
+
+/* Center crosshair */
+.hud-crosshair {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    border: 1px solid rgba(0,243,255,0.3);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+.hud-crosshair::before, .hud-crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(0,243,255,0.5);
+}
+.hud-crosshair::before { width: 1px; height: 20px; top: -25px; left: 50%; }
+.hud-crosshair::after  { width: 20px; height: 1px; left: -25px; top: 50%; }
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(0,243,255,0.4); opacity: 0.7; }
+    50% { box-shadow: 0 0 20px rgba(0,243,255,0.8); opacity: 1; }
+}
+
+/* Speed lines */
+.speed-lines {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: repeating-conic-gradient(
+        from 0deg at 50% 50%,
+        transparent 0deg,
+        rgba(255,255,255,0.015) 0.3deg,
+        transparent 0.6deg
+    );
+}
+
+/* Warp label */
+.warp-label {
+    position: absolute;
+    top: 20px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    color: rgba(0,243,255,0.8);
+    letter-spacing: 4px;
+    border: 1px solid rgba(0,243,255,0.3);
+    padding: 5px 16px;
+    border-radius: 20px;
+    background: rgba(0,243,255,0.06);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    text-shadow: 0 0 10px #00f3ff;
+    white-space: nowrap;
+}
+
+/* Cockpit readouts */
+.cockpit-readouts {
+    position: absolute;
+    bottom: 25px; right: 25px;
+    text-align: right;
+    z-index: 10;
+}
+.cockpit-readouts p {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.62rem;
+    color: rgba(0,243,255,0.75);
+    letter-spacing: 2px;
+    margin: 4px 0;
+    text-shadow: 0 0 8px #00f3ff;
+}
+
+/* Form styles */
+.auth-form { display: flex; flex-direction: column; gap: 1.5rem; }
+.auth-form input {
+    width: 100%; padding: 1rem 1.4rem;
+    background: rgba(0,243,255,0.05);
+    border: 1px solid rgba(0,243,255,0.25);
+    border-radius: 8px; color: #fff;
+    font-family: 'Rajdhani', sans-serif; font-size: 1rem;
+    outline: none; transition: all 0.3s;
+}
+.auth-form input:focus {
+    border-color: #00f3ff;
+    box-shadow: 0 0 15px rgba(0,243,255,0.25);
+    background: rgba(0,243,255,0.08);
+}
+</style>
+
+<div class="auth-root">
+    <!-- ══ LEFT: LOGIN PANEL ══ -->
+    <div class="auth-panel">
+        <div class="panel-scan"></div>
+        <div style="display:inline-block; background: rgba(0,243,255,0.08); border:1px solid rgba(0,243,255,0.4); padding: 0.4rem 1.2rem; border-radius: 20px; font-family:var(--font-heading); font-size:0.68rem; color: #00f3ff; letter-spacing:2px; margin-bottom:2rem;">
+            🔴 NEURAL SYNC ACTIVE
         </div>
-        <h2 class="auth-heading">Auth Sequence Initiated</h2>
-        <p class="auth-sub">Decrypting user credentials... Please enter data.</p>
-
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for cat, msg in messages %}
-            <div class="auth-flash {{ cat }}">{{ msg }}</div>
-            {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        <form method="POST" action="{{ url_for('login') }}" class="auth-form-premium">
-            <div class="afp-group">
-                <label><i class="fas fa-envelope"></i> Email Address</label>
-                <input type="email" name="email" required placeholder="cadet@edugalaxy.net" id="lg-email" autocomplete="email">
+        <h1 class="holo-text" style="font-size: 2.4rem; margin-bottom: 0.5rem; line-height: 1.1;">IDENTITY SCAN</h1>
+        <p style="color: var(--text-muted); font-family: var(--font-heading); font-size: 0.78rem; letter-spacing: 1px; margin-bottom: 2.5rem;">⚡ SCANNING GALACTIC FINGERPRINT...</p>
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+            <div>
+                <label style="display:block; font-family:var(--font-heading); font-size:0.68rem; color:#00f3ff; letter-spacing:2px; margin-bottom:0.7rem;">NEURAL ID (EMAIL)</label>
+                <input type="email" name="email" placeholder="pilot@edugalaxy.com" required>
             </div>
-            <div class="afp-group">
-                <label><i class="fas fa-key"></i> Password</label>
-                <div class="pw-wrap">
-                    <input type="password" name="password" required placeholder="••••••••" id="lg-pw" autocomplete="current-password">
-                    <button type="button" class="pw-toggle" onclick="togglePw('lg-pw',this)"><i class="fas fa-eye"></i></button>
-                </div>
+            <div>
+                <label style="display:block; font-family:var(--font-heading); font-size:0.68rem; color:#00f3ff; letter-spacing:2px; margin-bottom:0.7rem;">ACCESS CODE (PASSWORD)</label>
+                <input type="password" name="password" placeholder="••••••••••••" required>
             </div>
-            <button type="submit" class="auth-submit-btn">
-                <i class="fas fa-rocket"></i> Launch Into Learning
-                <span class="btn-glow"></span>
-            </button>
+            <button type="submit" class="holo-btn" style="width:100%; margin-top:0.5rem; font-size:1rem; letter-spacing:3px; padding:1rem; font-family:var(--font-heading);">⚡ ESTABLISH CONNECTION</button>
         </form>
+        <div style="margin-top:2.5rem; text-align:center; font-size:0.9rem; color:var(--text-muted);">
+            New recruit? <a href="{{ url_for('signup') }}" style="color:#00f3ff; font-weight:bold; text-decoration:none; border-bottom:1px solid #00f3ff;">ENLIST HERE →</a>
+        </div>
+    </div>
 
-        <div class="auth-divider">or</div>
-        <p class="auth-switch">New to EduGalaxy? <a href="{{ url_for('signup') }}">Join the Academy →</a></p>
+    <!-- ══ RIGHT: WARP VIEWPORT ══ -->
+    <div class="auth-viewport">
+        <div class="speed-lines"></div>
+        <div class="cockpit-frame">
+            <div class="hud-bracket hud-tl"></div>
+            <div class="hud-bracket hud-tr"></div>
+            <div class="hud-bracket hud-bl"></div>
+            <div class="hud-bracket hud-br"></div>
+            <div class="hud-crosshair"></div>
+            <div class="warp-label">⚡ HYPERSPACE JUMP IN PROGRESS</div>
+            <div class="cockpit-readouts">
+                <p>COORDS: X-774 / Y-992 / Z-∞</p>
+                <p>WARP FACTOR: 9.4</p>
+                <p>DESTINATION: EDUGALAXY HUB</p>
+                <p>ETA: <span id="eta-counter">08:32</span></p>
+            </div>
+        </div>
     </div>
 </div>
 
-<style>
-.auth-universe { min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
-
-.holo-terminal { 
-    position:relative; z-index:2; width:100%; max-width:440px; padding:2.5rem; 
-    background:rgba(0,30,20,0.6); 
-    backdrop-filter:blur(25px); 
-    border:1px solid rgba(0,255,168,0.4); 
-    border-radius:15px; 
-    box-shadow:0 0 50px rgba(0,255,168,0.2), inset 0 0 20px rgba(0,255,168,0.1); 
-    transform-style: preserve-3d;
-}
-.holo-terminal::before {
-    content:''; position:absolute; inset:0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,168,0.05) 3px, rgba(0,255,168,0.05) 4px);
-    pointer-events:none; z-index:10; border-radius:15px;
-}
-
-.auth-logo { font-family:'Courier New', monospace; font-weight:bold; font-size:1.5rem; letter-spacing:2px; color:#00ffa8; margin-bottom:1.5rem; text-shadow:0 0 10px #00ffa8; }
-.auth-logo i { margin-right:8px; }
-.auth-heading { font-family:'Orbitron',sans-serif; font-size:1.8rem; margin-bottom:0.5rem; color:#fff; }
-.auth-sub { color:rgba(255,255,255,0.55); font-size:0.95rem; margin-bottom:2rem; }
-.auth-flash { padding:0.8rem 1.2rem; border-radius:10px; font-weight:600; margin-bottom:1rem; font-size:0.9rem; }
-.auth-flash.success { background:rgba(34,197,94,0.2); border:1px solid rgba(34,197,94,0.4); color:#4ade80; }
-.auth-flash.error { background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
-
-.auth-form-premium { display:flex; flex-direction:column; gap:1.2rem; position:relative; z-index:11;}
-.afp-group label { display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-family:'Courier New', monospace; font-weight:bold; color:#00ffa8; margin-bottom:0.5rem; letter-spacing:1px; }
-.afp-group input { width:100%; padding:0.9rem 1.2rem; background:rgba(0,255,168,0.05); border:1px solid rgba(0,255,168,0.3); border-radius:8px; color:#fff; font-size:1rem; font-family:inherit; transition:all 0.3s; }
-.afp-group input:focus { outline:none; border-color:#00ffa8; background:rgba(0,255,168,0.1); box-shadow:0 0 15px rgba(0,255,168,0.3); }
-.pw-wrap { position:relative; }
-.pw-toggle { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#00ffa8; cursor:pointer; font-size:1rem; }
-.auth-submit-btn { position:relative; padding:1rem; background:transparent; border:1px solid #00ffa8; border-radius:8px; color:#00ffa8; font-size:1.1rem; font-weight:bold; cursor:pointer; font-family:'Orbitron',sans-serif; letter-spacing:2px; text-transform:uppercase; overflow:hidden; transition:all 0.3s; }
-.auth-submit-btn:hover { background:rgba(0,255,168,0.2); box-shadow:0 0 20px rgba(0,255,168,0.5); transform:scale(1.02); }
-.btn-glow { position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(0,255,168,0.4),transparent); transform:translateX(-100%); animation:scan 3s infinite; }
-@keyframes scan { 100%{transform:translateX(100%);} }
-.auth-divider { text-align:center; color:rgba(255,255,255,0.3); margin:1.5rem 0 0.5rem; font-size:0.85rem; position:relative; }
-.auth-divider::before,.auth-divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:rgba(255,255,255,0.1); }
-.auth-divider::before { left:0; } .auth-divider::after { right:0; }
-.auth-switch { text-align:center; color:rgba(255,255,255,0.55); font-size:0.95rem; }
-.auth-switch a { color:#f97316; font-weight:700; text-decoration:none; }
-.auth-switch a:hover { text-decoration:underline; }
-</style>
 <script>
-function togglePw(id, btn) {
-    const inp = document.getElementById(id);
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-    btn.innerHTML = inp.type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-}
+(function() {
+    let s = 8 * 60 + 32;
+    const el = document.getElementById('eta-counter');
+    if (!el) return;
+    setInterval(() => {
+        s = Math.max(0, s - 1);
+        el.textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+    }, 1000);
+})();
 </script>
 {% endblock %}

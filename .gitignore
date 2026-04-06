@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtualenvs
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*~
+
+# OS generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+*.pyc
+__pycache__/
+instance/
+.pytest_cache/
+.DS_Store
+*.db
+*.mp4
+*.avi
+*.mov
+*.zip
+*.rar
+Syllabus/**/*.mp4
+Syllabus/**/*.avi
+Syllabus/**/*.mov
+Syllabus/**/*.zip
+Syllabus/**/*.rar
+Syllabus/**/*.mp3
+Syllabus/**/*.wav
+mlcov/
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Databases? No, include as per task
+# *.db
+# Syllabus PDFs included
+
+# Temp files
+*.tmp
+*.temp
+
+# Large media files - ignore to avoid repo bloat
+**/*.mp4
+Syllabus/**/*.mp4

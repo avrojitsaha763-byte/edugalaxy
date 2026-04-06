@@ -1,1624 +1,334 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ subject.title() }} - EduGalaxy Adventure</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        :root {
-            --char-color: #f97316;
-            --bg: #0e0a1e;
-            --surface: rgba(255,255,255,0.06);
-            --border: rgba(255,255,255,0.15);
-            --glow: rgba(249,115,22,0.4);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: var(--bg);
-            color: #fff;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        /* PARTICLE CANVAS */
-        #particles { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+{% extends "base.html" %}
+{% block title %}{{ subject.title() }} — Holo-Deck Training Bay{% endblock %}
 
-        .page-wrap { position: relative; z-index:1; max-width: 1280px; margin: 0 auto; padding: 1rem 1.5rem; }
+{% block content %}
+<style>
+/* ═══ HOLO-DECK TRAINING BAY ═══ */
+.interactive-container {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 1.5rem;
+    height: 88vh;
+    margin: 1rem 2rem;
+    font-family: var(--font-body);
+}
 
-        /* ═══════ TOP BAR ═══════ */
-        .top-bar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0.8rem 1.5rem; margin-bottom: 1.5rem;
-            background: var(--surface); backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 20px;
-        }
-        .top-bar h1 { font-family: 'Bangers', cursive; font-size: 1.8rem; letter-spacing: 2px; color: var(--char-color); text-shadow: 0 0 20px var(--glow); }
-        .xp-badge { background: linear-gradient(135deg,#f59e0b,#ef4444); padding: 0.5rem 1.2rem; border-radius: 50px; font-weight: 900; font-size: 1.1rem; }
-        .back-btn { background: none; border: 2px solid var(--border); color: #fff; padding: 0.5rem 1rem; border-radius: 12px; cursor: pointer; transition: 0.2s; }
-        .back-btn:hover { background: var(--char-color); border-color: var(--char-color); }
+/* Sidebar */
+.chapter-sidebar {
+    display: flex; flex-direction: column;
+    overflow: hidden; padding: 1.5rem !important;
+    background: rgba(5,15,35,0.9) !important;
+    border: 1px solid rgba(0,243,255,0.25) !important;
+}
+.sidebar-meta {
+    font-size: 0.8rem; color: var(--neon-blue);
+    margin-bottom: 1rem; padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0,243,255,0.2);
+    font-family: var(--font-heading); letter-spacing: 1px;
+}
+.chapter-list {
+    flex-grow: 1; overflow-y: auto; padding-right: 5px;
+    list-style: none; padding-left: 0;
+}
+.chapter-list::-webkit-scrollbar { width: 3px; }
+.chapter-list::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 10px; }
+.chapter-btn {
+    width: 100%; text-align: left; padding: 0.9rem 1rem;
+    margin-bottom: 0.6rem;
+    background: rgba(0,20,40,0.6);
+    border: 1px solid rgba(0,243,255,0.1);
+    color: var(--text-muted); transition: all 0.25s;
+    border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; gap: 0.8rem;
+}
+.chapter-btn:hover {
+    border-color: var(--neon-blue); color: var(--neon-blue);
+    background: rgba(0,243,255,0.05); transform: translateX(4px);
+}
+.chapter-btn.active {
+    background: rgba(0,243,255,0.1); border-color: var(--neon-blue);
+    color: #fff; border-left: 3px solid var(--neon-blue);
+    box-shadow: 0 0 12px rgba(0,243,255,0.2);
+}
+.chap-num {
+    color: var(--neon-blue); font-family: var(--font-heading);
+    font-size: 0.7rem; opacity: 0.8; flex-shrink: 0;
+}
+.chap-title { font-size: 0.85rem; line-height: 1.3; }
 
-        /* ═══════ CHARACTER STAGE ═══════ */
-        .character-stage {
-            display: flex; align-items: flex-end; justify-content: center;
-            gap: 1rem; padding: 1rem; margin-bottom: 1.5rem; min-height: 320px;
-            position: relative;
-        }
-        .char-card {
-            position: relative; cursor: pointer; transition: transform 0.3s;
-        }
-        .char-card:hover { transform: scale(1.05); }
-        .char-sprite {
-            width: 200px; height: 280px;
-            background-size: contain; background-repeat: no-repeat; background-position: bottom center;
-            filter: drop-shadow(0 0 20px var(--char-color));
-            animation: float 3s ease-in-out infinite;
-        }
-        .char-sprite.talking { animation: talk 0.15s ease alternate infinite, float 3s ease-in-out infinite; }
-        .char-sprite.active-char { filter: drop-shadow(0 0 40px var(--char-color)) brightness(1.2); }
-        .char-name-badge {
-            position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
-            background: var(--char-color); color: #fff; font-weight: 900; font-size: 0.85rem;
-            padding: 4px 14px; border-radius: 20px; white-space: nowrap;
-            box-shadow: 0 4px 15px var(--glow);
-        }
-        .speech-bubble {
-            position: absolute; top: -110px; left: 50%; transform: translateX(-50%);
-            background: #fff; color: #1e1b4b; padding: 0.8rem 1.2rem;
-            border-radius: 18px; font-weight: 700; font-size: 0.85rem;
-            max-width: 220px; text-align: center; opacity: 0;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            transition: opacity 0.4s;
-            pointer-events: none;
-        }
-        .speech-bubble::after {
-            content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
-            border: 10px solid transparent; border-top-color: #fff; border-bottom: none;
-        }
-        .speech-bubble.visible { opacity: 1; }
+/* Viewer Pane */
+.viewer-pane {
+    padding: 0 !important; display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100%; overflow: hidden;
+    background: rgba(5,15,35,0.9) !important;
+    border: 1px solid rgba(0,243,255,0.25) !important;
+    box-shadow: 0 0 40px rgba(0,243,255,0.2) !important;
+}
+.viewer-header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(90deg, rgba(0,243,255,0.08), rgba(0,0,0,0.7), rgba(157,78,221,0.06));
+    border-bottom: 1px solid rgba(0,243,255,0.2);
+    display: flex; justify-content: space-between; align-items: center; z-index: 10;
+    flex-wrap: wrap; gap: 0.8rem;
+}
+.viewer-header h2 {
+    font-size: 1rem; color: var(--neon-blue);
+    text-shadow: 0 0 10px rgba(0,243,255,0.4); letter-spacing: 2px;
+    max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mode-toggles { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.viewer-body-container {
+    position: relative; overflow: hidden; background: #000;
+    display: flex; flex-direction: column;
+}
+.viewer-content { display: none; height: 100%; width: 100%; flex-direction: column; overflow: hidden; }
+.viewer-content.active { display: flex; }
 
-        /* ═══════ MODE TABS ═══════ */
-        .mode-tabs {
-            display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem; scrollbar-width: none;
-        }
-        .mode-tab {
-            flex-shrink: 0; padding: 0.7rem 1.4rem; border-radius: 50px;
-            background: var(--surface); border: 1px solid var(--border);
-            color: #ccc; font-weight: 700; cursor: pointer; transition: all 0.3s;
-            font-family: 'Nunito', sans-serif; font-size: 0.9rem;
-        }
-        .mode-tab:hover { color: #fff; border-color: var(--char-color); }
-        .mode-tab.active {
-            background: var(--char-color); border-color: var(--char-color);
-            color: #fff; box-shadow: 0 4px 20px var(--glow);
-        }
+/* PDF Area */
+.pdf-canvas-wrapper {
+    flex: 1; overflow: auto; display: flex;
+    justify-content: center; align-items: flex-start;
+    padding: 1.5rem;
+    background: radial-gradient(circle, #0d1b2a 0%, #000 100%);
+}
+#pdf-canvas {
+    box-shadow: 0 0 40px rgba(0,0,0,0.7);
+    border: 1px solid rgba(0,243,255,0.15); max-width: 100%;
+}
 
-        /* ═══════ CONTENT ARENA ═══════ */
-        .content-arena {
-            background: var(--surface); backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 28px;
-            min-height: 460px; padding: 2rem; position: relative; overflow: hidden;
-        }
-        .content-arena::before {
-            content: ''; position: absolute; top: -50%; right: -20%;
-            width: 500px; height: 500px; border-radius: 50%;
-            background: radial-gradient(circle, var(--glow), transparent 70%);
-            pointer-events: none;
-        }
-        /* ═══════ STORY CARD ═══════ */
-        .story-card {
-            display: flex; gap: 2rem; align-items: flex-start;
-        }
-        .story-text-body {
-            flex: 1; font-size: 1.3rem; line-height: 1.8;
-            background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 20px;
-            border-left: 5px solid var(--char-color);
-        }
-        .catchphrase {
-            margin-top: 1.5rem; font-size: 1.1rem; font-style: italic;
-            color: var(--char-color); font-weight: 700;
-        }
-        .voice-btn {
-            display: inline-flex; align-items: center; gap: 0.6rem;
-            margin-top: 1.2rem; padding: 0.8rem 2rem; border-radius: 50px;
-            background: var(--char-color); color: #fff; font-weight: 900;
-            font-size: 1rem; border: none; cursor: pointer;
-            box-shadow: 0 4px 20px var(--glow); transition: 0.2s; font-family: 'Nunito', sans-serif;
-        }
-        .voice-btn:hover { transform: scale(1.05); }
-        .voice-btn.speaking { animation: pulse-glow 0.6s ease infinite alternate; }
+/* Video / Holo-Theater */
+.video-frame {
+    width: 100%; height: 100%; display: flex;
+    align-items: center; justify-content: center;
+    background: #000; position: relative;
+}
+/* Holo-theater scan-line on video */
+.video-frame::after {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,243,255,0.012) 3px, rgba(0,243,255,0.012) 4px
+    );
+    pointer-events: none; z-index: 10;
+}
+#video-container { width: 100%; height: 100%; }
+video, iframe { width: 100%; height: 100%; border: none; }
 
-        /* ═══════ ADVENTURE GAME ═══════ */
-        #gameCanvas {
-            width: 100%; max-width: 800px; border-radius: 18px;
-            border: 3px solid var(--char-color);
-            box-shadow: 0 0 40px var(--glow); display: block; margin: 0 auto;
-        }
-        .game-hud {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 1rem; padding: 0.8rem 1.5rem;
-            background: rgba(0,0,0,0.4); border-radius: 14px;
-        }
+/* Controls Footer */
+.pdf-controls {
+    padding: 1.2rem 1.5rem; display: flex;
+    justify-content: center; align-items: center; gap: 2rem;
+    background: rgba(0,0,0,0.85);
+    border-top: 1px solid rgba(0,243,255,0.2); z-index: 10; min-height: 56px;
+}
+.page-indicator { color: var(--neon-blue); font-family: var(--font-heading); font-size: 0.85rem; }
 
-        /* ═══════ PUZZLE ═══════ */
-        .puzzle-items-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 2rem; }
-        .drag-chip {
-            padding: 0.8rem 1.6rem; border-radius: 50px; font-weight: 900;
-            font-size: 1.1rem; background: linear-gradient(135deg, var(--char-color), #a855f7);
-            cursor: grab; user-select: none; border: none; color: #fff;
-            box-shadow: 0 4px 15px var(--glow); transition: transform 0.2s;
-        }
-        .drag-chip:active { cursor: grabbing; transform: scale(1.1); }
-        .drop-zone {
-            min-width: 280px; min-height: 120px;
-            border: 3px dashed var(--char-color); border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; color: #aaa; transition: all 0.3s; margin: 0 auto;
-        }
-        .drop-zone.drag-over { background: rgba(249,115,22,0.15); color: #fff; transform: scale(1.02); }
-        .drop-zone.success { background: rgba(74,222,128,0.2); border-color: #4ade80; color: #4ade80; }
+/* Corner HUD label */
+.holodeck-label {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    font-family: var(--font-heading); font-size: 0.6rem; letter-spacing: 3px;
+    color: rgba(0,243,255,0.5); pointer-events: none; z-index: 20;
+    white-space: nowrap;
+}
 
-        /* ═══════ EXPERIMENT ═══════ */
-        .lab-grid { display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem; align-items: start; }
-        #experimentCanvas { width: 100%; border-radius: 16px; background: radial-gradient(circle at center, #1e3a5f, #0a0a1a); }
-        .lab-panel { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 1.5rem; }
-        .run-btn {
-            width: 100%; padding: 1rem; border-radius: 14px; border: none;
-            background: var(--char-color); color: #fff; font-weight: 900; font-size: 1rem;
-            cursor: pointer; margin-top: 1.2rem; font-family: 'Nunito', sans-serif;
-            box-shadow: 0 4px 20px var(--glow); transition: 0.2s;
-        }
-        .run-btn:hover { transform: translateY(-2px); }
+@media (max-width: 800px) {
+    .interactive-container { grid-template-columns: 1fr; height: auto; }
+    .chapter-sidebar { height: 220px; }
+    .viewer-pane { height: 70vh; }
+}
+</style>
 
-        /* ═══════ VOICE ═══════ */
-        .voice-stage { text-align: center; padding: 2rem; }
-        .mic-orb {
-            width: 160px; height: 160px; border-radius: 50%;
-            background: radial-gradient(circle, var(--char-color), #7c3aed);
-            display: flex; align-items: center; justify-content: center;
-            margin: 2rem auto; cursor: pointer; font-size: 3rem;
-            box-shadow: 0 0 60px var(--glow); transition: all 0.3s;
-        }
-        .mic-orb:hover { transform: scale(1.1); box-shadow: 0 0 80px var(--glow); }
-        .mic-orb.listening { animation: mic-pulse 1s ease infinite; }
-        .sentence-box {
-            font-size: 1.8rem; font-weight: 900; padding: 1.5rem 2rem;
-            border-radius: 20px; background: rgba(255,255,255,0.08);
-            border-left: 6px solid var(--char-color); max-width: 700px; margin: 0 auto;
-        }
-        .feedback-msg { font-size: 1.2rem; font-weight: 700; margin-top: 1.5rem; }
-        .feedback-msg.correct { color: #4ade80; }
-        .feedback-msg.wrong { color: #f87171; }
+<div class="interactive-container">
+    <!-- LEFT PANEL: Chapter Selector -->
+    <aside class="glass-panel chapter-sidebar">
+        <h3 class="neon-blue" style="font-size:0.9rem; margin-bottom:0.3rem;">📡 MISSION SECTOR: {{ subject.upper() }}</h3>
+        <p class="sidebar-meta">CLASS {{ user.class_level.split()[-1] }} // {{ chapters|length }} CHAPTERS LOADED</p>
+        <ul class="chapter-list">
+            {% for chapter in chapters %}
+            <li>
+                <button class="chapter-btn {% if loop.index == 1 %}active{% endif %}"
+                        id="btn-chap-{{ loop.index0 }}" data-index="{{ loop.index0 }}">
+                    <span class="chap-num">{{ '%02d'|format(loop.index) }}</span>
+                    <span class="chap-title">{{ chapter.title }}</span>
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+        <div style="padding-top: 1rem; border-top: 1px solid rgba(0,243,255,0.15); margin-top: auto;">
+            <a href="{{ url_for('learn') }}" class="btn btn-secondary" style="width:100%; text-align:center; font-size:0.75rem; padding:0.6rem;">← ALL SECTORS</a>
+        </div>
+    </aside>
 
-        /* ═══════ TOPIC STRIP ═══════ */
-        .topic-strip {
-            display: flex; gap: 0.6rem; overflow-x: auto; padding: 0.8rem 0;
-            margin-top: 1.5rem; scrollbar-width: none;
-        }
-        .topic-chip {
-            flex-shrink: 0; padding: 0.5rem 1.2rem; border-radius: 50px;
-            background: var(--surface); border: 1px solid var(--border);
-            color: #ccc; font-weight: 700; cursor: pointer; transition: 0.2s;
-            font-family: 'Nunito', sans-serif; font-size: 0.85rem;
-        }
-        .topic-chip:hover, .topic-chip.active { background: var(--char-color); color: #fff; border-color: var(--char-color); }
+    <!-- MAIN PANEL: Content Viewer -->
+    <main class="viewer-pane glass-panel" style="position:relative;">
+        <div class="holodeck-label">HOLO-DECK TRAINING BAY ██ SECTOR: {{ subject.upper() }}</div>
+        
+        <div class="viewer-header">
+            <h2 id="viewer-title">INITIALIZING TRANSMISSION...</h2>
+            <div class="mode-toggles">
+                <button id="btn-mode-pdf" class="btn btn-primary btn-sm active" onclick="switchViewerMode('pdf')" style="font-size:0.75rem; padding:0.5rem 1rem;">📖 STORYBOOK</button>
+                <button id="btn-mode-video" class="btn btn-secondary btn-sm" onclick="switchViewerMode('video')" style="font-size:0.75rem; padding:0.5rem 1rem;">🎬 HOLO-VIDEO</button>
+                <button id="btn-mode-games" class="btn btn-sm" onclick="openGameArcade()" style="background:var(--neon-yellow); color:#000; border:none; font-weight:700; font-size:0.75rem; padding:0.5rem 1rem; border-radius:6px;">🎮 BATTLE SIM</button>
+            </div>
+        </div>
+        
+        <div class="viewer-body-container">
+            <!-- PDF View -->
+            <div id="view-pdf" class="viewer-content active">
+                <div class="pdf-canvas-wrapper">
+                    <canvas id="pdf-canvas"></canvas>
+                </div>
+            </div>
 
-        /* ═══════ ANIMATIONS ═══════ */
-        @keyframes float {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-18px); }
-        }
-        @keyframes talk {
-            from { transform: scaleY(1) translateY(0); }
-            to   { transform: scaleY(1.04) translateY(-2px); }
-        }
-        @keyframes pulse-glow {
-            from { box-shadow: 0 4px 20px var(--glow); }
-            to   { box-shadow: 0 4px 50px var(--char-color); }
-        }
-        @keyframes mic-pulse {
-            0%,100% { box-shadow: 0 0 60px var(--glow); }
-            50% { box-shadow: 0 0 100px var(--char-color), 0 0 160px var(--glow); }
-        }
-        @keyframes slide-in {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .slide-in { animation: slide-in 0.5s ease forwards; }
-
-        /* ═══════ XP POPUP ═══════ */
-        .xp-popup {
-            position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            color: #fff; font-family: 'Bangers', cursive; font-size: 3rem;
-            padding: 1rem 3rem; border-radius: 20px; z-index: 9999;
-            box-shadow: 0 0 60px rgba(245,158,11,0.6); display: none;
-        }
-
-        /* Loading spinner */
-        .loader { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 400px; gap: 1rem; }
-        .loader i { font-size: 3rem; color: var(--char-color); }
-        .glass-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
-    </style>
-</head>
-<body>
-<canvas id="particles"></canvas>
-
-<div class="page-wrap">
-    <!-- TOP BAR -->
-    <div class="top-bar">
-        <button class="back-btn" onclick="window.location.href='{{ url_for('learn') }}'">
-            <i class="fas fa-arrow-left"></i> Back
-        </button>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem">
-            <h1 id="page-title" style="font-family:'Bangers',cursive;font-size:1.6rem;letter-spacing:2px;color:var(--char-color);text-shadow:0 0 20px var(--glow)">⚡ {{ subject.title() }} Adventure</h1>
-            <div id="session-xp-bar" style="display:flex;align-items:center;gap:0.6rem;font-size:0.78rem;opacity:0.7">
-                <span>Session XP:</span>
-                <span id="session-xp-val" style="color:#fbbf24;font-weight:900">+0</span>
-                <div style="width:100px;height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">
-                    <div id="session-xp-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:3px;transition:width 0.6s ease"></div>
+            <!-- Video View -->
+            <div id="view-video" class="viewer-content">
+                <div class="video-frame">
+                    <div id="video-container"></div>
+                    <div id="video-fallback" style="display:none; text-align:center; color:var(--neon-red); padding:2rem; position:absolute; width:100%;">
+                        <span style="font-size:4rem; display:block; margin-bottom:1rem;">📡</span>
+                        <h3>SIGNAL LOST / ENCRYPTED</h3>
+                        <p>No video data for this sector. Use Storybook.</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div style="display:flex;align-items:center;gap:0.6rem">
-            <button class="back-btn" id="hint-btn" onclick="fetchHint()" title="Get a hint!">
-                💡 Hint
-            </button>
-            <div class="xp-badge"><i class="fas fa-star"></i> <span id="xp-display">{{ user.xp }}</span> XP</div>
+
+        <!-- Shared Controls -->
+        <div id="shared-controls" class="pdf-controls">
+            <div id="pdf-btns" style="display:flex; align-items:center; gap:1.5rem;">
+                <button class="btn btn-secondary btn-sm" onclick="changePage(-1)" style="font-size:0.8rem;">◀ PREV</button>
+                <span class="page-indicator"><span id="page-num">1</span> / <span id="page-count">--</span></span>
+                <button class="btn btn-secondary btn-sm" onclick="changePage(1)" style="font-size:0.8rem;">NEXT ▶</button>
+            </div>
+            <div id="video-parts-picker" style="display:none; align-items:center; gap:1rem;">
+                <span class="page-indicator">🎞️ VIDEO PARTS:</span>
+                <div id="parts-list" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+            </div>
         </div>
-    </div>
-
-
-    <!-- CHARACTER STAGE -->
-    <div class="character-stage" id="char-stage">
-        <!-- Characters injected here by JS -->
-        <div class="loader"><i class="fas fa-spinner fa-spin"></i><p>Summoning Heroes...</p></div>
-    </div>
-
-    <!-- MODE TABS -->
-    <div class="mode-tabs">
-        <div class="mode-tab active" onclick="switchMode('storybook')" id="tab-storybook">📖 Storybook</div>
-        <div class="mode-tab" onclick="switchMode('adventure')" id="tab-adventure">🎮 Adventure</div>
-        <div class="mode-tab" onclick="switchMode('puzzle')" id="tab-puzzle">🧩 Puzzle</div>
-        <div class="mode-tab" onclick="switchMode('experiment')" id="tab-experiment">🔬 Lab</div>
-        <div class="mode-tab" onclick="switchMode('voice')" id="tab-voice">🎤 Voice</div>
-        <div class="mode-tab" onclick="switchMode('3d-world')" id="tab-3d-world">🌍 3D World</div>
-        <div class="mode-tab" onclick="switchMode('sandbox')" id="tab-sandbox">🎨 Sandbox</div>
-    </div>
-
-    <!-- CONTENT ARENA -->
-    <div class="content-arena" id="content-arena">
-        <div class="loader"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div>
-    </div>
-
-    <!-- TOPIC STRIP -->
-    <div class="topic-strip" id="topic-strip">
-        {% for t in topics %}
-        <div class="topic-chip" onclick="loadTopic('{{ t }}')" data-topic="{{ t }}">{{ t }}</div>
-        {% endfor %}
-    </div>
+    </main>
 </div>
 
-<!-- XP POPUP -->
-<div class="xp-popup" id="xp-popup">🌟 +<span id="xp-amount">50</span> XP!</div>
-
-<!-- ADVENTURE CANVAS (kept hidden, moved in) -->
-<canvas id="gameCanvas" width="800" height="420" style="display:none;"></canvas>
-
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
-// ═══════════════════════════════════════════
-//  CHARACTER DATA (Voice Profiles)
-// ═══════════════════════════════════════════
-const CHAR_VOICES = {
-    naruto:  { pitch: 1.4, rate: 1.1, voice_name: 'en-US' },
-    luffy:   { pitch: 1.3, rate: 1.2, voice_name: 'en-US' },
-    goku:    { pitch: 0.9, rate: 0.95, voice_name: 'en-US' },
-    deku:    { pitch: 1.2, rate: 1.0, voice_name: 'en-US' },
-    tanjiro: { pitch: 1.0, rate: 0.95, voice_name: 'en-US' },
-    ichigo:  { pitch: 0.85, rate: 0.9, voice_name: 'en-US' },
-    sakura:  { pitch: 1.5, rate: 1.1, voice_name: 'en-US' },
-    nami:    { pitch: 1.6, rate: 1.15, voice_name: 'en-US' },
-    nezuko:  { pitch: 1.7, rate: 0.9, voice_name: 'en-US' },
-    anya:    { pitch: 1.7, rate: 1.2, voice_name: 'en-US' },
-    boruto:  { pitch: 1.35, rate: 1.1, voice_name: 'en-US' },
-    hinata:  { pitch: 1.55, rate: 0.9, voice_name: 'en-US' },
-    bulma:   { pitch: 1.5, rate: 1.05, voice_name: 'en-US' },
-    chopper: { pitch: 1.65, rate: 1.15, voice_name: 'en-US' },
-};
-
-// ═══════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════
-let currentMode = 'storybook';
-let currentTopic = '{{ topics[0] }}';
-let lessonData = null;
-let activeCharKey = null;
-let gameActive = false, gameLoop = null, score = 0;
-const TARGET_SCORE = 5;
-let player = { x: 60, y: 320, w: 48, h: 48, speed: 6 };
-let gameItems = [];
-let keys = {};
-
-// ═══════════════════════════════════════════
-//  PARTICLE BACKGROUND
-// ═══════════════════════════════════════════
-(function initParticles() {
-    const c = document.getElementById('particles');
-    const ctx = c.getContext('2d');
-    let W = c.width = window.innerWidth;
-    let H = c.height = window.innerHeight;
-    const dots = Array.from({length: 80}, () => ({
-        x: Math.random()*W, y: Math.random()*H,
-        r: Math.random()*1.8+0.4, vx: (Math.random()-0.5)*0.3,
-        vy: (Math.random()-0.5)*0.3, a: Math.random()
-    }));
-    function draw() {
-        ctx.clearRect(0,0,W,H);
-        dots.forEach(d => {
-            d.x+=d.vx; d.y+=d.vy;
-            if(d.x<0)d.x=W; if(d.x>W)d.x=0;
-            if(d.y<0)d.y=H; if(d.y>H)d.y=0;
-            ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-            ctx.fillStyle = `rgba(249,115,22,${d.a*0.5})`;
-            ctx.fill();
-        });
-        requestAnimationFrame(draw);
-    }
-    draw();
-    window.addEventListener('resize', () => { W=c.width=window.innerWidth; H=c.height=window.innerHeight; });
-})();
-
-// ═══════════════════════════════════════════
-//  SPEAK — Character Voice
-// ═══════════════════════════════════════════
-function speakAs(text, charKey, onDone) {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const v = CHAR_VOICES[charKey] || { pitch: 1.1, rate: 1.0 };
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.pitch = v.pitch;
-    utt.rate = v.rate;
-    utt.lang = v.voice_name || 'en-US';
-
-    // Pick a female voice if char is female
-    const femaleChars = ['sakura','nami','nezuko','anya','hinata','bulma'];
-    const isFemale = femaleChars.includes(charKey);
-    const voices = window.speechSynthesis.getVoices();
-    const match = voices.find(v => isFemale ? v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google UK English Female') : v.name.includes('Male') || v.name.includes('Daniel') || v.name.includes('Google US English'));
-    if (match) utt.voice = match;
-
-    // Animate sprite while talking
-    const sprite = document.querySelector(`.char-sprite[data-char="${charKey}"]`);
-    if (sprite) sprite.classList.add('talking');
-    showBubble(charKey, text.substring(0, 60) + (text.length > 60 ? '...' : ''));
-
-    utt.onend = () => {
-        if (sprite) sprite.classList.remove('talking');
-        const bubble = document.querySelector(`.speech-bubble[data-char="${charKey}"]`);
-        if (bubble) bubble.classList.remove('visible');
-        if (onDone) onDone();
-    };
-    window.speechSynthesis.speak(utt);
-}
-
-function showBubble(charKey, text) {
-    const bubble = document.querySelector(`.speech-bubble[data-char="${charKey}"]`);
-    if (!bubble) return;
-    bubble.textContent = text;
-    bubble.classList.add('visible');
-    setTimeout(() => bubble.classList.remove('visible'), 4000);
-}
-
-// ═══════════════════════════════════════════
-//  LOAD TOPIC — fetches from backend
-// ═══════════════════════════════════════════
-async function loadTopic(topic) {
-    currentTopic = topic;
-    // Update chip styles
-    document.querySelectorAll('.topic-chip').forEach(c => {
-        c.classList.toggle('active', c.dataset.topic === topic);
-    });
-    await switchMode(currentMode);
-}
-
-// ═══════════════════════════════════════════
-//  SWITCH MODE
-// ═══════════════════════════════════════════
-async function switchMode(mode) {
-    currentMode = mode;
-    gameActive = false;
-    if (gameLoop) { cancelAnimationFrame(gameLoop); gameLoop = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-
-    // Tab UI
-    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-    const tab = document.getElementById(`tab-${mode}`);
-    if (tab) tab.classList.add('active');
-
-    // Show loader
-    const arena = document.getElementById('content-arena');
-    arena.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div>';
-
-    try {
-        const res = await fetch(`/api/lesson_content?subject={{ subject }}&topic=${encodeURIComponent(currentTopic)}&mode=${mode}`);
-        lessonData = await res.json();
-
-        // Apply character theme color
-        const col = lessonData.character.color || '#f97316';
-        document.documentElement.style.setProperty('--char-color', col);
-        document.documentElement.style.setProperty('--glow', col + '66');
-        activeCharKey = lessonData.character.image.replace('.png', '');
-
-        // Build character stage
-        buildCharStage(lessonData.character);
-
-        // Render mode
-        arena.innerHTML = '';
-        arena.classList.remove('slide-in');
-        void arena.offsetWidth;
-        arena.classList.add('slide-in');
-
-        if (mode === 'storybook') renderStorybook();
-        else if (mode === 'adventure') renderAdventure();
-        else if (mode === 'puzzle') renderPuzzle();
-        else if (mode === 'experiment') renderExperiment();
-        else if (mode === 'voice') renderVoice();
-        else if (mode === '3d-world') renderThreeWorld();
-        else if (mode === 'sandbox') renderSandbox();
-
-    } catch(e) {
-        console.error(e);
-        arena.innerHTML = '<p style="color:#f87171; text-align:center; padding:3rem;">Failed to load — check your connection!</p>';
-    }
-}
-
-// ═══════════════════════════════════════════
-//  BUILD CHARACTER STAGE
-// ═══════════════════════════════════════════
-function buildCharStage(char) {
-    const stage = document.getElementById('char-stage');
-    const key = char.image.replace('.png', '');
-    // Only rebuild if character changed
-    if (stage.querySelector(`[data-char="${key}"]`)) return;
-
-    const delay = 0;
-    const card = document.createElement('div');
-    card.className = 'char-card';
-    card.style.animationDelay = `${delay}s`;
-    card.innerHTML = `
-        <div class="speech-bubble" data-char="${key}"></div>
-        <div class="char-sprite active-char" data-char="${key}"
-             style="background-image:url('/static/anime/${char.image}');"
-             onclick="charSpeak('${key}', '${char.catchphrase.replace(/'/g, "\\'")}')">
-        </div>
-        <div class="char-name-badge">${char.name}</div>
-    `;
-    stage.innerHTML = '';
-    stage.appendChild(card);
-    gsap.from(card, { y: 60, opacity: 0, duration: 0.7, ease: 'back.out(1.7)' });
-}
-
-function charSpeak(key, phrase) {
-    speakAs(phrase, key);
-    const sprite = document.querySelector(`.char-sprite[data-char="${key}"]`);
-    if (sprite) {
-        gsap.to(sprite, { scale: 1.15, duration: 0.1, yoyo: true, repeat: 5 });
-    }
-}
-
-// ═══════════════════════════════════════════
-//  STORYBOOK MODE
-// ═══════════════════════════════════════════
-function renderStorybook() {
-    const arena = document.getElementById('content-arena');
-    const char = lessonData.character;
-    const pages = lessonData.storybook.pages || [];
-    currentStoryPage = 0;
-
-    arena.innerHTML = `
-        <div class="story-card" style="flex-direction: column; align-items: stretch;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                <h2 style="font-family:'Bangers',cursive;font-size:1.8rem;color:var(--char-color);">📖 Chapter: ${currentTopic}</h2>
-                <div style="font-weight:bold; opacity:0.7; font-size:1.2rem;" id="story-page-indicator">Page 1 of ${pages.length}</div>
-            </div>
-            <div class="story-text-body" id="story-text" style="min-height: 200px; position: relative; border-left: 6px solid var(--char-color);">
-                <p id="story-paragraph" style="font-size:1.4rem; line-height:1.8; transition: opacity 0.3s;"></p>
-                <div class="catchphrase">"${char.catchphrase}"</div>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 1.5rem; align-items: center;">
-                <button class="voice-btn" style="background:#4b5563; padding: 0.8rem 1.5rem;" onclick="prevStoryPage()" id="prev-page-btn" disabled>
-                    <i class="fas fa-arrow-left"></i> Previous
-                </button>
-                <button class="voice-btn" id="speak-btn" onclick="speakCurrentPage()" style="margin: 0;">
-                    <i class="fas fa-volume-up"></i> Read Page
-                </button>
-                <button class="voice-btn" style="background:var(--char-color); padding: 0.8rem 1.5rem;" onclick="nextStoryPage()" id="next-page-btn">
-                    Next <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-    `;
-    updateStoryPageUI();
-    setTimeout(() => speakCurrentPage(), 800);
-}
-
-function updateStoryPageUI() {
-    const pages = lessonData.storybook.pages || [];
-    if (!pages.length) return;
-    document.getElementById('story-page-indicator').textContent = `Page ${currentStoryPage + 1} of ${pages.length}`;
-    const p = document.getElementById('story-paragraph');
-    p.style.opacity = 0;
-    setTimeout(() => {
-        const safeTopic = currentTopic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(`(${safeTopic})`, 'gi');
-        p.innerHTML = pages[currentStoryPage].text.replace(regex, `<strong style="color:var(--char-color)">$1</strong>`);
-        p.style.opacity = 1;
-    }, 150);
-    
-    const prevBtn = document.getElementById('prev-page-btn');
-    if (prevBtn) {
-        prevBtn.disabled = currentStoryPage === 0;
-        prevBtn.style.opacity = currentStoryPage === 0 ? '0.5' : '1';
-    }
-    
-    const nextBtn = document.getElementById('next-page-btn');
-    if (nextBtn) {
-        if (currentStoryPage === pages.length - 1) {
-            nextBtn.innerHTML = `<i class="fas fa-check"></i> Complete!`;
-            nextBtn.onclick = () => { 
-                speakAs("Great job finishing the chapter! Let's play a game!", activeCharKey); 
-                awardXP(30); 
-                setTimeout(()=>switchMode('adventure'), 2000);
-            };
-        } else {
-            nextBtn.innerHTML = `Next <i class="fas fa-arrow-right"></i>`;
-            nextBtn.onclick = nextStoryPage;
-        }
-    }
-}
-
-function prevStoryPage() {
-    if (currentStoryPage > 0) {
-        currentStoryPage--;
-        updateStoryPageUI();
-        speakCurrentPage();
-    }
-}
-
-function nextStoryPage() {
-    if (currentStoryPage < lessonData.storybook.pages.length - 1) {
-        currentStoryPage++;
-        updateStoryPageUI();
-        speakCurrentPage();
-    }
-}
-
-function speakCurrentPage() {
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    const btn = document.getElementById('speak-btn');
-    if (btn) { btn.classList.add('speaking'); btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Reading...'; }
-    const page = lessonData.storybook.pages[currentStoryPage];
-    const text = page.audio || page.text;
-    speakAs(text, activeCharKey, () => {
-        if (btn) { btn.classList.remove('speaking'); btn.innerHTML = `<i class="fas fa-volume-up"></i> Replay`; }
-    });
-}
-
-// ═══════════════════════════════════════════
-//  ADVENTURE GAME
-// ═══════════════════════════════════════════
-function renderAdventure() {
-    const arena = document.getElementById('content-arena');
-    const gd = lessonData.adventure?.game_data || {};
-    let instructions = "Collect all 🌟 to win XP!";
-    if (gd.type === 'math_catch') instructions = `Solve the equation! Catch the correct answer: <strong>${gd.equation}</strong>`;
-    if (gd.type === 'word_catch') instructions = `Catch the correct letter: <strong>${gd.word}</strong>. Avoid the others!`;
-    if (gd.type === 'dodger') instructions = `Dodge the ☠️ traps and collect the ⚡ ${gd.topic} energy!`;
-
-    arena.innerHTML = `
-        <div class="game-hud">
-            <span style="font-family:'Bangers',cursive;font-size:1.4rem;color:var(--char-color)">🎮 ${currentTopic} Quest</span>
-            <span id="score-hud" style="font-weight:900;">Score: 0/${TARGET_SCORE}</span>
-            <span style="font-size:0.9rem;opacity:0.7;">Arrow keys to move</span>
-        </div>
-        <canvas id="gameCanvas" width="800" height="380" style="display:block;"></canvas>
-        <p style="text-align:center;margin-top:1rem;opacity:0.9;font-size:1.1rem;">${instructions}</p>
-    `;
-    startGame();
-}
-
-function startGame() {
-    const canvas = document.getElementById('gameCanvas');
-    if (!canvas) return;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    const chapterData = {{ chapters | tojson | safe }};
+    let currentChapterIndex = 0;
+    let pdfDoc = null, pageNum = 1, pageRendering = false, pageNumPending = null;
+    const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = Math.min(800, canvas.parentElement.clientWidth - 40);
-    gameActive = true; score = 0; gameItems = [];
-    player.x = 60; player.y = canvas.height - 80;
-    player.speed = 7;
 
-    const gd = lessonData.adventure?.game_data || {};
-    for (let i=0; i<TARGET_SCORE + 3; i++) {
-        let isCorrect = i < TARGET_SCORE;
-        let textLabel = '🌟';
-        
-        if (gd.type === 'math_catch') {
-            textLabel = isCorrect ? gd.correct : gd.wrong[i % gd.wrong.length];
-        } else if (gd.type === 'word_catch') {
-            textLabel = isCorrect ? gd.word : gd.wrong[i % gd.wrong.length];
-        } else if (gd.type === 'dodger') {
-            textLabel = isCorrect ? '⚡' : '☠️';
-        }
-
-        gameItems.push({
-            x: 100 + Math.random()*(canvas.width-150),
-            y: 40 + Math.random()*(canvas.height-140),
-            collected: false, 
-            label: textLabel,
-            isCorrect: isCorrect,
-            dy: Math.random() * 2 + 1
+    function init() {
+        if (chapterData.length > 0) loadChapter(0);
+        document.querySelectorAll('.chapter-btn').forEach(btn => {
+            btn.onclick = () => loadChapter(parseInt(btn.dataset.index));
         });
     }
-
-    function loop() {
-        if (!gameActive) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw grid bg
-        ctx.fillStyle = '#0d1b2a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-        for (let x=0; x<canvas.width; x+=40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
-        for (let y=0; y<canvas.height; y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
-
-        // Move player
-        const s = player.speed;
-        if (keys['ArrowUp']    || keys['w']) player.y = Math.max(0, player.y - s);
-        if (keys['ArrowDown']  || keys['s']) player.y = Math.min(canvas.height - player.h, player.y + s);
-        if (keys['ArrowLeft']  || keys['a']) player.x = Math.max(0, player.x - s);
-        if (keys['ArrowRight'] || keys['d']) player.x = Math.min(canvas.width - player.w, player.x + s);
-
-        // Draw player
-        const col = getComputedStyle(document.documentElement).getPropertyValue('--char-color').trim() || '#f97316';
-        ctx.shadowColor = col; ctx.shadowBlur = 20;
-        ctx.fillStyle = col;
-        ctx.beginPath();
-        ctx.roundRect(player.x, player.y, player.w, player.h, 10);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(player.x + 10, player.y + 10, 8, 8);
-        ctx.fillRect(player.x + player.w - 18, player.y + 10, 8, 8);
-
-        // Draw stars
-        gameItems.forEach(item => {
-            if (item.collected) return;
-            
-            if (gd.type === 'math_catch' || gd.type === 'word_catch' || gd.type === 'dodger') {
-                item.y += item.dy;
-                if (item.y > canvas.height) {
-                    item.y = -30;
-                    item.x = 40 + Math.random()*(canvas.width - 80);
-                }
+    function openGameArcade() {
+        window.location.href = `/games/${encodeURIComponent("{{ subject }}")}/${currentChapterIndex}`;
+    }
+    function switchViewerMode(mode) {
+        document.getElementById('btn-mode-pdf').classList.toggle('active', mode === 'pdf');
+        document.getElementById('btn-mode-video').classList.toggle('active', mode === 'video');
+        const pdfBtns = document.getElementById('pdf-btns');
+        const videoPicker = document.getElementById('video-parts-picker');
+        const videoElement = document.querySelector('#video-container video');
+        if (mode === 'pdf') {
+            document.getElementById('view-pdf').classList.add('active');
+            document.getElementById('view-video').classList.remove('active');
+            pdfBtns.style.display = 'flex'; videoPicker.style.display = 'none';
+            if (videoElement) videoElement.pause();
+        } else {
+            document.getElementById('view-pdf').classList.remove('active');
+            document.getElementById('view-video').classList.add('active');
+            pdfBtns.style.display = 'none';
+            const chapter = chapterData[currentChapterIndex];
+            if (chapter.videos && chapter.videos.length > 1) videoPicker.style.display = 'flex';
+            if (videoElement) videoElement.play();
+        }
+    }
+    function loadChapter(index) {
+        currentChapterIndex = index;
+        const chapter = chapterData[index];
+        document.querySelectorAll('.chapter-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById(`btn-chap-${index}`);
+        if (activeBtn) activeBtn.classList.add('active');
+        document.getElementById('viewer-title').innerText = chapter.title.toUpperCase();
+        const videoContainer = document.getElementById('video-container');
+        const fallback = document.getElementById('video-fallback');
+        const picker = document.getElementById('video-parts-picker');
+        const partsList = document.getElementById('parts-list');
+        fallback.style.display = 'none'; videoContainer.style.display = 'block';
+        picker.style.display = 'none'; partsList.innerHTML = '';
+        if (chapter.videos && chapter.videos.length > 0) {
+            if (chapter.videos.length > 1) {
+                picker.style.display = 'flex';
+                chapter.videos.forEach((vid, vIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-secondary btn-sm';
+                    btn.style.fontSize = '0.75rem'; btn.style.padding = '0.4rem 0.8rem';
+                    btn.innerText = `PT ${vIdx + 1}`;
+                    btn.onclick = () => loadVideoPart(vIdx);
+                    partsList.appendChild(btn);
+                });
             }
-
-            ctx.shadowColor = item.isCorrect ? '#4ade80' : '#f87171'; 
-            ctx.shadowBlur = 15;
-            ctx.font = 'bold 24px Nunito';
-            ctx.fillStyle = '#fff';
-            if (item.label === '🌟' || item.label === '⚡' || item.label === '☠️') {
-                ctx.font = '28px serif';
-            }
-            ctx.textAlign = 'center';
-            ctx.fillText(item.label, item.x + 15, item.y + 25);
-            ctx.shadowBlur = 0;
-            ctx.textAlign = 'left';
-
-            // collision
-            if (player.x < item.x+30 && player.x+player.w > item.x-10 &&
-                player.y < item.y+30 && player.y+player.h > item.y-10) {
-                
-                if (item.isCorrect || gd.type === 'collect') {
-                    item.collected = true;
-                    score++;
-                    document.getElementById('score-hud').textContent = `Score: ${score}/${TARGET_SCORE}`;
-                    playBeep(800 + score*100, 0.2);
-                    
-                    if (score >= TARGET_SCORE) {
-                        gameActive = false;
-                        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-                        ctx.fillRect(0,0,canvas.width,canvas.height);
-                        ctx.font = 'bold 3rem Bangers';
-                        ctx.fillStyle = '#facc15';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('STAGE CLEARED!', canvas.width/2, canvas.height/2);
-                        ctx.textAlign = 'left';
-                        speakAs(`Amazing! You really know your stuff!`, activeCharKey);
-                        awardXP(60);
-                        setTimeout(()=>switchMode('puzzle'), 2500);
-                        return;
-                    }
-                } else {
-                    item.collected = true;
-                    player.y += 20; // pushback
-                    ctx.fillStyle = 'rgba(239,68,68,0.3)';
-                    ctx.fillRect(0,0,canvas.width,canvas.height);
-                    playBeep(200, 0.3);
-                }
-            }
+            loadVideoPart(0);
+        } else {
+            videoContainer.innerHTML = ''; videoContainer.style.display = 'none';
+            fallback.style.display = 'block';
+        }
+        if (chapter.pdf_url) loadPDF(chapter.pdf_url);
+    }
+    function loadVideoPart(partIndex) {
+        const chapter = chapterData[currentChapterIndex];
+        const video = chapter.videos[partIndex];
+        const videoContainer = document.getElementById('video-container');
+        document.querySelectorAll('#parts-list button').forEach((btn, idx) =>
+            btn.classList.toggle('btn-primary', idx === partIndex));
+        if (video.is_local) {
+            videoContainer.innerHTML = `<video controls style="object-fit:contain;">
+                <source src="${video.url}" type="video/mp4">
+            </video>`;
+        } else {
+            videoContainer.innerHTML = `<iframe src="${video.url}" allowfullscreen></iframe>`;
+        }
+        if (document.getElementById('view-video').classList.contains('active')) {
+            const v = videoContainer.querySelector('video');
+            if (v) v.play();
+        }
+    }
+    function loadPDF(url) {
+        if (!url) return;
+        document.getElementById('page-count').textContent = '...';
+        pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
+            pdfDoc = pdfDoc_;
+            document.getElementById('page-count').textContent = pdfDoc.numPages;
+            pageNum = 1; renderPage(pageNum);
+        }).catch(err => {
+            console.error('PDF Load Error:', err);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ff003c'; ctx.font = '16px Arial';
+            ctx.fillText('DATA TRANSMISSION ERROR: Storybook Unavailable.', 20, 50);
         });
-
-        if (gd.type === 'math_catch') {
-            ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 20px Nunito';
-            ctx.fillText(`Solve: ${gd.equation}`, 10, 25);
-        } else {
-            ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '14px Nunito';
-            ctx.fillText(`Topic: ${currentTopic}`, 10, 20);
-        }
-        
-        gameLoop = requestAnimationFrame(loop);
     }
-    gameLoop = requestAnimationFrame(loop);
-}
-
-// ═══════════════════════════════════════════
-//  PUZZLE MODE (DYNAMIC)
-// ═══════════════════════════════════════════
-function renderPuzzle() {
-    const arena = document.getElementById('content-arena');
-    const pd = lessonData.puzzle || {};
-    
-    // Fallback data if needed
-    const items = pd.items || ['Cat', 'Dog', 'Fish', 'Bird'];
-    const answer = pd.answer || items[0];
-    const question = pd.question || 'Drag the correct answer!';
-    const type = pd.p_type || 'math';
-    
-    let instructions = question;
-    if (type === 'crossword') instructions = "Can you decode this word puzzle? " + question;
-    if (type === 'hindi_letters') instructions = "Match the letters correctly! " + question;
-    
-    arena.innerHTML = `
-        <h2 style="font-family:'Bangers',cursive;font-size:2rem;color:var(--char-color);margin-bottom:0.5rem;">🧩 Brain Puzzle</h2>
-        <div style="font-size:1.3rem;font-weight:700;margin-bottom:1.5rem;padding:1rem 1.5rem;background:rgba(255,255,255,0.07);border-radius:14px;border-left:4px solid var(--char-color)">
-            ${instructions}
-        </div>
-        <div class="puzzle-items-row" id="puzzle-items" style="display:flex; justify-content:center; flex-wrap:wrap; gap:1rem; min-height:80px;"></div>
-        <div style="text-align:center;margin:2rem 0 1rem;font-weight:700;font-size:1.2rem;opacity:0.8;">↓ Drop correct piece here ↓</div>
-        <div class="drop-zone" id="drop-zone" style="min-height:80px; width:200px; margin:0 auto; display:flex; align-items:center; justify-content:center; border:3px dashed rgba(255,255,255,0.4); border-radius:16px; font-size:1.5rem; transition:0.3s; background:rgba(0,0,0,0.2);">TARGET</div>
-        <p id="puzzle-msg" style="text-align:center;margin-top:1.5rem;font-size:1.3rem; min-height:40px;"></p>
-        
-        <div style="text-align:center; margin-top:2rem;">
-            <button onclick="switchMode('experiment')" style="display:none;" id="next-puzzle-btn" class="voice-btn">
-                Next Challenge <i class="fas fa-arrow-right"></i>
-            </button>
-        </div>
-    `;
-    const cont = document.getElementById('puzzle-items');
-    
-    // Shuffle items
-    const shuffled = [...items].sort(() => Math.random() - 0.5);
-    shuffled.forEach(item => {
-        const chip = document.createElement('div');
-        chip.className = 'drag-chip'; 
-        chip.draggable = true; 
-        chip.textContent = item;
-        chip.style.cssText = `padding: 1rem 2rem; background: var(--char-color); font-size: 1.2rem; font-weight: bold; border-radius: 12px; cursor: grab; box-shadow: 0 4px 15px rgba(0,0,0,0.3);`;
-        
-        chip.addEventListener('dragstart', e => { 
-            e.dataTransfer.setData('text', item); 
-            chip.style.opacity = '0.4'; 
-        });
-        chip.addEventListener('dragend', () => { chip.style.opacity = '1'; });
-        // Touch drag fallback
-        chip.addEventListener('touchstart', () => { chip._touchVal = item; }, {passive:true});
-        cont.appendChild(chip);
-    });
-    
-    const zone = document.getElementById('drop-zone');
-    zone.ondragover = e => { e.preventDefault(); zone.style.borderColor = '#4ade80'; zone.style.background = 'rgba(74, 222, 128, 0.1)'; };
-    zone.ondragleave = () => { zone.style.borderColor = 'rgba(255,255,255,0.4)'; zone.style.background = 'rgba(0,0,0,0.2)'; };
-    zone.ondrop = e => {
-        e.preventDefault();
-        zone.style.borderColor = 'rgba(255,255,255,0.4)';
-        zone.style.background = 'rgba(0,0,0,0.2)';
-        const val = e.dataTransfer.getData('text');
-        checkAnswer(val, answer, zone);
-    };
-    
-    // Touch drop fallback
-    zone.addEventListener('touchend', e => {
-        const chip = document.querySelector('.drag-chip[_touchVal]');
-        if (chip) checkAnswer(chip._touchVal, answer, zone);
-    });
-}
-
-function checkAnswer(val, answer, zone) {
-    const msg = document.getElementById('puzzle-msg');
-    const correct = val.toString().trim().toLowerCase() === answer.toString().trim().toLowerCase();
-    zone.innerHTML = `<strong>${val}</strong>`;
-    
-    if (correct) {
-        zone.style.borderColor = '#4ade80';
-        zone.style.background = 'rgba(74, 222, 128, 0.2)';
-        msg.innerHTML = '✅ <span style="color:#4ade80">CORRECT! Amazing Piece! 🎉</span>';
-        speakAs(`Yes! ${val} is correct! You solved the puzzle!`, activeCharKey);
-        playBeep(880, 0.15); setTimeout(() => playBeep(1100, 0.15), 180); setTimeout(() => playBeep(1400, 0.2), 360);
-        
-        document.getElementById('next-puzzle-btn').style.display = 'inline-flex';
-        // Hide puzzle chips
-        document.getElementById('puzzle-items').style.opacity = '0';
-        setTimeout(() => awardXP(40), 1200);
-    } else {
-        zone.style.borderColor = '#f87171';
-        zone.style.background = 'rgba(248, 113, 113, 0.2)';
-        msg.innerHTML = `❌ <span style="color:#f87171">Not quite! Think carefully!</span>`;
-        speakAs(`Hmm, that's not it! Give it another try!`, activeCharKey);
-        playBeep(220, 0.3);
-        setTimeout(() => { 
-            zone.innerHTML = 'TARGET'; 
-            zone.style.borderColor = 'rgba(255,255,255,0.4)'; 
-            zone.style.background = 'rgba(0,0,0,0.2)';
-        }, 2000);
-    }
-}
-
-// ═══════════════════════════════════════════
-//  EXPERIMENT MODE (DYNAMIC STEPS)
-// ═══════════════════════════════════════════
-function renderExperiment() {
-    const arena = document.getElementById('content-arena');
-    const exp = lessonData.experiment || { name: 'Mystery Lab', instructions: 'Press Run!', steps: [], type: 'chemical_reaction' };
-    const stepsHTML = (exp.steps||[]).map((s,i)=>`<div class="exp-step" id="step-${i}" style="padding:0.6rem 1rem; border-radius:8px; opacity:0.4; transition:all 0.5s; background:rgba(255,255,255,0.05); margin-bottom:0.5rem; border-left:4px solid transparent;">${i+1}. ${s}</div>`).join('');
-    
-    arena.innerHTML = `
-        <div class="lab-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start;">
-            <div style="background:#0d1b2a; border-radius:16px; overflow:hidden; border:2px solid var(--char-color); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                <canvas id="experimentCanvas" width="480" height="380" style="width:100%; display:block;"></canvas>
-            </div>
-            <div class="lab-panel" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
-                <div>
-                    <h3 style="font-family:'Bangers',cursive;font-size:2rem;color:var(--char-color); text-transform:uppercase;">🔬 ${exp.name}</h3>
-                    <p style="margin-top:0.5rem;line-height:1.6;font-size:1.1rem; opacity:0.9;">${exp.instructions}</p>
-                    
-                    <div style="margin-top:1.5rem;">
-                        <div style="font-weight:800;margin-bottom:0.8rem;font-size:1.1rem;color:var(--char-color);">LAB PROTOCOL:</div>
-                        <div id="exp-steps" style="font-size:1rem;">${stepsHTML}</div>
-                    </div>
-                </div>
-                
-                <div style="margin-top:2rem;">
-                    <div id="exp-observation" style="font-weight:bold; color:#4ade80; min-height:50px; font-size:1.1rem; margin-bottom:1rem;"></div>
-                    <button class="run-btn" id="run-exp-btn" onclick="runExperiment()" style="width:100%; padding: 1rem; font-size: 1.2rem; background: var(--char-color); border:none; border-radius:12px; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase; letter-spacing:1px; box-shadow: 0 4px 15px var(--glow); transition: 0.3s;">
-                        <i class="fas fa-play-circle"></i> Commence Experiment
-                    </button>
-                    <button class="run-btn" id="next-exp-btn" onclick="switchMode('voice')" style="display:none; width:100%; padding: 1rem; font-size: 1.2rem; background: #3b82f6; border:none; border-radius:12px; color:#fff; font-weight:bold; cursor:pointer; text-transform:uppercase; letter-spacing:1px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); margin-top:1rem;">
-                        Got it! Next Mode <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    drawLabReady();
-}
-
-function drawLabReady() {
-    const canvas = document.getElementById('experimentCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,480,380);
-    ctx.fillStyle = '#0d1b2a'; ctx.fillRect(0,0,480,380);
-    ctx.font = '80px serif'; ctx.textAlign = 'center'; ctx.fillText('🧪', 240, 180);
-    ctx.font = '20px Nunito'; ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillText('Awaiting Authorization...', 240, 240);
-    ctx.textAlign = 'left';
-}
-
-function runExperiment() {
-    const btn = document.getElementById('run-exp-btn');
-    if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.innerHTML = '<i class="fas fa-cogs fa-spin"></i> Processing...'; }
-
-    const canvas = document.getElementById('experimentCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const expType = lessonData.experiment?.type || 'chemical_reaction';
-    const steps = lessonData.experiment?.steps || [];
-    const col = getComputedStyle(document.documentElement).getPropertyValue('--char-color').trim() || '#f97316';
-    
-    let t = 0, stepIdx = 0;
-    
-    const anim = setInterval(() => {
-        t++;
-        ctx.clearRect(0,0,W,H);
-        ctx.fillStyle = '#071428'; ctx.fillRect(0,0,W,H);
-
-        // Core visual simulations based on expType logic
-        if (expType === 'water_cycle') {
-            ctx.fillStyle = '#1e40af'; ctx.fillRect(0, H*0.7, W, H*0.3); // Ocean
-            ctx.beginPath(); ctx.arc(60,60,30,0,Math.PI*2); ctx.fillStyle='#fbbf24'; ctx.fill(); // Sun
-            for(let i=0;i<8;i++) { const dy=(t*2+i*30)%160; ctx.beginPath(); ctx.arc(80+i*40, H*0.7-dy, 5,0,Math.PI*2); ctx.fillStyle=`rgba(147,197,253,${0.8-dy/160})`; ctx.fill(); } // Evaporation
-            if(t>30){ ctx.beginPath(); ctx.arc(220,80,35,0,Math.PI*2); ctx.arc(260,65,40,0,Math.PI*2); ctx.arc(300,80,30,0,Math.PI*2); ctx.fillStyle='#e2e8f0'; ctx.fill(); } // Cloud
-            if(t>50){ for(let i=0;i<10;i++){ const ry=(t*4+i*20)%200; ctx.fillStyle='#93c5fd'; ctx.fillRect(200+i*12, 130+ry, 3, 12); } } // Rain
-        } else if (expType === 'plant_growth') {
-            ctx.fillStyle='#78350f'; ctx.fillRect(0,H*0.75,W,H*0.25);
-            const stemH = Math.min(t*3, H*0.6);
-            ctx.strokeStyle='#16a34a'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(W/2,H*0.75); ctx.lineTo(W/2,H*0.75-stemH); ctx.stroke();
-            if(stemH>60){ ctx.fillStyle='#22c55e'; ctx.beginPath(); ctx.ellipse(W/2-30,H*0.75-stemH*0.5,25,14,Math.PI/4,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(W/2+30,H*0.75-stemH*0.6,25,14,-Math.PI/4,0,Math.PI*2); ctx.fill(); }
-            if(t>60){ ctx.font='60px serif'; ctx.textAlign='center'; ctx.fillText('🌸',W/2+2,H*0.75-stemH-30); ctx.textAlign='left'; }
-            ctx.beginPath(); ctx.arc(W-70,70,40,0,Math.PI*2); ctx.fillStyle='#fbbf24'; ctx.fill();
-        } else if (expType === 'magnetism') {
-            const d = t > 40 ? Math.max(30,100-t) : 100;
-            ctx.fillStyle='#ef4444'; ctx.fillRect(W/2-d-60,H/2-20,60,40); ctx.fillStyle='#fff'; ctx.font='bold 20px Nunito'; ctx.textAlign='center'; ctx.fillText('N',W/2-d-30,H/2+7);
-            ctx.fillStyle='#3b82f6'; ctx.fillRect(W/2+d,H/2-20,60,40); ctx.fillStyle='#fff'; ctx.fillText('S',W/2+d+30,H/2+7);
-            for(let i=0;i<6;i++){ const fy=H/2-50+i*20; ctx.strokeStyle=`rgba(250,204,21,0.5)`; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W/2-d,fy); ctx.bezierCurveTo(W/2-d+30,fy-20,W/2+d-30,fy-20,W/2+d,fy); ctx.stroke(); }
-            ctx.textAlign='left';
-        } else if (expType === 'light_shadow') {
-            ctx.beginPath(); ctx.arc(60,H/2,25,0,Math.PI*2); ctx.fillStyle='#fbbf24'; ctx.shadowColor='#fbbf24'; ctx.shadowBlur=30; ctx.fill(); ctx.shadowBlur=0;
-            const objX = 220; ctx.fillStyle='#6366f1'; ctx.fillRect(objX,H/2-40,40,80);
-            const angle = (t%120)/120 * Math.PI * 0.8 - Math.PI*0.4;
-            ctx.fillStyle='rgba(0,0,0,0.5)';
-            ctx.beginPath(); ctx.moveTo(objX+40,H/2-40); ctx.moveTo(objX+40,H/2+40);
-            const sLen = 200; ctx.lineTo(objX+40+Math.cos(angle)*sLen, H/2+Math.sin(angle)*sLen+80); ctx.lineTo(objX+40+Math.cos(angle)*sLen, H/2+Math.sin(angle)*sLen-80); ctx.closePath(); ctx.fill();
-        } else if (expType === 'math_balance') {
-            ctx.strokeStyle='#fff'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(W/2, H*0.8); ctx.lineTo(W/2, H*0.5); ctx.stroke();
-            const tilt = Math.max(0, 0.5 - t*0.01) * Math.PI/4; 
-            ctx.save(); ctx.translate(W/2, H*0.5); ctx.rotate(tilt);
-            ctx.beginPath(); ctx.moveTo(-100, 0); ctx.lineTo(100, 0); ctx.stroke();
-            ctx.fillStyle='#ef4444'; ctx.fillRect(-110, 0, 20, 40); ctx.fillStyle='#3b82f6'; ctx.fillRect(90, 0, 20, 40);
-            ctx.restore();
-            ctx.fillStyle='#fff'; ctx.font='20px Nunito'; ctx.textAlign='center'; ctx.fillText('Balancing...', W/2, H*0.9); ctx.textAlign='left';
-        } else {
-            // Generic chemical flash
-            ctx.fillStyle='rgba(34,197,94,0.6)'; ctx.beginPath(); ctx.arc(W/3,H/2,50,0,Math.PI*2); ctx.fill(); ctx.font='40px serif'; ctx.textAlign='center'; ctx.fillText('🧪',W/3,H/2+15);
-            ctx.fillStyle='rgba(239,68,68,0.6)'; ctx.beginPath(); ctx.arc(2*W/3,H/2,50,0,Math.PI*2); ctx.fill(); ctx.fillText('⚗️',2*W/3,H/2+15);
-            for(let i=0;i<20;i++){ const bx=W/2+(Math.sin(i*1.3)*80); const by=H/2-80-((t*4+i*20)%240); ctx.beginPath(); ctx.arc(bx,by,5+Math.sin(i)*4,0,Math.PI*2); ctx.fillStyle=`rgba(250,204,21,${0.8-(by/(H/2))*.5})`; ctx.fill(); }
-            if(t>60){ ctx.fillStyle=col; ctx.font='bold 24px Nunito'; ctx.fillText('💥 Reaction Complete!',W/2,60); }
-            ctx.textAlign='left';
-        }
-        
-        // Progress steps dynamically
-        if(t%25===0 && stepIdx < steps.length){ 
-            const el=document.getElementById(`step-${stepIdx}`); 
-            if(el){
-                el.style.opacity='1';
-                el.style.background='rgba(255,255,255,0.15)';
-                el.style.borderColor = col;
-                el.style.fontWeight='bold';
-            } 
-            stepIdx++; 
-        }
-
-        if(t>=120){ clearInterval(anim); }
-    }, 50);
-
-    const obs = document.getElementById('exp-observation');
-    if(obs) obs.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Analyzing data metrics...';
-    
-    setTimeout(() => {
-        if(obs) obs.innerHTML = `✅ <strong>Conclusion:</strong> ${lessonData.experiment?.instructions || 'Hypothesis confirmed!'}`;
-        speakAs(`Fascinating! The experiment was a success!`, activeCharKey);
-        playBeep(523,0.15); setTimeout(()=>playBeep(659,0.15),200); setTimeout(()=>playBeep(784,0.3),400);
-        awardXP(50);
-        const nextBtn = document.getElementById('next-exp-btn');
-        if (nextBtn) { nextBtn.style.display = 'block'; }
-    }, 6000);
-}
-
-// ═══════════════════════════════════════════
-//  VOICE MODE (ORAL TEST)
-// ═══════════════════════════════════════════
-function renderVoice() {
-    const arena = document.getElementById('content-arena');
-    const vd = lessonData.voice || {};
-    const sentence = vd.sentence || vd.voice_question || `Please read the chapter about ${currentTopic}.`;
-    const hint = vd.hint || '';
-    const wordsToCatch = vd.expected_words || [];
-
-    arena.innerHTML = `
-        <div class="voice-stage" style="text-align:center;">
-            <h2 style="font-family:'Bangers',cursive;font-size:2.5rem;color:var(--char-color); margin-bottom:1rem;">🎤 Oral Exam</h2>
-            <p style="font-size:1.2rem; opacity:0.8;">${lessonData.character?.name||'Your teacher'} wants to hear your answer!</p>
-            
-            <div class="sentence-box" id="target-sentence" style="font-size:1.5rem; font-weight:bold; background:rgba(0,0,0,0.3); padding:2rem; border-radius:16px; margin:2rem auto; border:2px solid var(--char-color); max-width:80%; line-height:1.6;">${sentence}</div>
-            
-            ${hint ? `<p style="opacity:0.6;font-size:1.1rem;margin-top:0.5rem;"><i class="fas fa-lightbulb" style="color:#fbbf24;"></i> Hint: ${hint}</p>` : ''}
-            
-            <div style="margin:2rem 0;">
-                <div class="mic-orb" id="mic-orb" onclick="startListening()" style="width:100px; height:100px; font-size:3rem; margin:0 auto; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--char-color), #f43f5e); border-radius:50%; cursor:pointer; box-shadow:0 0 30px var(--glow); transition:all 0.3s; animation: pulse 2s infinite;">🎙️</div>
-                <p style="opacity:0.8;margin-top:1rem; font-weight:bold;">Tap the microphone and speak loud and clear</p>
-            </div>
-            
-            <div class="feedback-msg" id="voice-feedback" style="font-size:1.4rem; font-weight:bold; min-height:50px;"></div>
-            
-            <button onclick="switchMode('3d-world')" style="display:none; margin:2rem auto;" id="next-voice-btn" class="voice-btn">
-                Enter the 3D Classroom <i class="fas fa-cube"></i>
-            </button>
-        </div>
-    `;
-    setTimeout(() => speakAs(sentence, activeCharKey), 800);
-}
-
-let recognition = null;
-function startListening() {
-    const orb = document.getElementById('mic-orb');
-    const feedback = document.getElementById('voice-feedback');
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-        feedback.innerHTML = '<span style="color:#f87171">Speech recognition is not supported in this browser. Try Chrome!</span>'; return;
-    }
-    
-    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US'; 
-    recognition.interimResults = false;
-    
-    orb.style.animation = 'none';
-    orb.classList.add('listening'); 
-    orb.innerHTML = '<i class="fas fa-ellipsis-h fa-beat" style="font-size:2rem;color:#fff;"></i>';
-    feedback.textContent = 'Listening intently... 👂'; 
-    feedback.className = 'feedback-msg';
-
-    recognition.onresult = e => {
-        const heard = e.results[0][0].transcript.toLowerCase().trim();
-        orb.classList.remove('listening'); 
-        orb.innerHTML = '🎙️';
-        orb.style.animation = 'pulse 2s infinite';
-        
-        const vd = lessonData.voice || {};
-        const expected = vd.expected_words || [];
-        
-        // Match logic
-        let match = false;
-        if (expected.length > 0) {
-            match = expected.some(w => heard.includes(w.toLowerCase()));
-        } else {
-            // Fallback: Just grab a few words from the target sentence
-            const targetWords = (vd.sentence || '').toLowerCase().replace(/[^a-z ]/g, '').split(' ').filter(w=>w.length>3);
-            match = targetWords.some(w => heard.includes(w));
-        }
-
-        if (match || heard.length > 5) { // Lenient for kids
-            feedback.style.color = '#4ade80';
-            feedback.innerHTML = `✅ Excellent! You said: <br><span style="color:#fff">"${heard}"</span>`;
-            speakAs(`Perfect pronunciation! You get a gold star!`, activeCharKey);
-            playBeep(1000, 0.3); setTimeout(()=>playBeep(1200, 0.4), 200);
-            awardXP(50);
-            document.getElementById('next-voice-btn').style.display = 'inline-flex';
-        } else {
-            feedback.style.color = '#fbbf24';
-            feedback.innerHTML = `🤔 I heard: "${heard}" <br>Let's try that again!`;
-            speakAs("Good try, but let's speak a little clearer!", activeCharKey);
-            playBeep(300, 0.3);
-        }
-    };
-    recognition.onerror = e => { 
-        orb.classList.remove('listening'); 
-        orb.innerHTML = '🎙️'; 
-        orb.style.animation = 'pulse 2s infinite';
-        feedback.textContent = `Mic Error: ${e.error}. Try again!`; 
-    };
-    recognition.onend = () => { 
-        if(orb.classList.contains('listening')) {
-            orb.classList.remove('listening'); 
-            orb.innerHTML = '🎙️';
-            orb.style.animation = 'pulse 2s infinite';
-            feedback.textContent = "Didn't catch that. Tap mic again!";
-        }
-    };
-    recognition.start();
-}
-
-// ═══════════════════════════════════════════
-//  AUDIO HELPER (Web Audio API beep)
-// ═══════════════════════════════════════════
-function playBeep(freq, duration=0.2) {
-    try {
-        const ac = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ac.createOscillator();
-        const gain = ac.createGain();
-        osc.connect(gain); gain.connect(ac.destination);
-        osc.type = 'sine'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.3, ac.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + duration);
-        osc.start(); osc.stop(ac.currentTime + duration);
-    } catch(e) {}
-}
-
-// ═══════════════════════════════════════════
-//  XP AWARD — with confetti + toast + achievement check
-// ═══════════════════════════════════════════
-async function awardXP(amt) {
-    // Show GSAP popup
-    const pop = document.getElementById('xp-popup');
-    document.getElementById('xp-amount').textContent = amt;
-    pop.style.display = 'block';
-    gsap.fromTo(pop, { y: -30, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1.1, duration: 0.5, ease: 'back.out' });
-    setTimeout(() => gsap.to(pop, { opacity: 0, y: -40, duration: 0.5, onComplete: () => pop.style.display='none' }), 2500);
-
-    // 🎊 Confetti burst from top-center
-    launchConfettiLocal(window.innerWidth / 2, 80, 70);
-
-    // 🔔 Toast notification
-    showToastLocal(`+${amt} XP earned! Keep going! ⚡`, 'xp');
-
-    // 📊 Update session XP tracker bar
-    updateSessionXP(amt);
-
-    try {
-        const res = await fetch('/complete_topic', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic: currentTopic, mode: currentMode, xp: amt })
-        });
-        const data = await res.json();
-        if (data.new_xp !== undefined) {
-            const xpEl = document.getElementById('xp-display');
-            if (xpEl) { xpEl.textContent = data.new_xp; }
-        }
-        // Check for newly unlocked achievements
-        checkAchievementsLocal();
-    } catch(e) {}
-}
-
-// ── Session XP Tracker ──────────────────────────────────────────────
-let sessionXP = 0;
-const SESSION_XP_GOAL = 100;
-function updateSessionXP(amt) {
-    sessionXP += amt;
-    const pct = Math.min(100, (sessionXP / SESSION_XP_GOAL) * 100);
-    const fill = document.getElementById('session-xp-fill');
-    const val = document.getElementById('session-xp-val');
-    if (fill) fill.style.width = pct + '%';
-    if (val) val.textContent = '+' + sessionXP;
-    // Level up celebration when goal hit
-    if (sessionXP >= SESSION_XP_GOAL) {
-        showToastLocal('🌟 Session Goal Reached! You\'re amazing!', 'achievement');
-        launchConfettiLocal(window.innerWidth*0.25, window.innerHeight*0.2, 80);
-        launchConfettiLocal(window.innerWidth*0.75, window.innerHeight*0.2, 80);
-        sessionXP = 0;
-        if (fill) fill.style.width = '0%';
-    }
-}
-
-// ── Hint Button ──────────────────────────────────────────────────────
-async function fetchHint() {
-    const btn = document.getElementById('hint-btn');
-    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
-    try {
-        const res = await fetch(`/api/hint?subject={{ subject }}&topic=${encodeURIComponent(currentTopic)}`);
-        const data = await res.json();
-        showToastLocal(`💡 Hint: ${data.hint}`, 'success');
-    } catch(e) {
-        showToastLocal('💡 You can do it! Take it step by step!', 'success');
-    } finally {
-        if (btn) { btn.textContent = '💡 Hint'; btn.disabled = false; }
-    }
-}
-
-
-// ── Local Confetti (self-contained for this page) ──────────────────────
-function launchConfettiLocal(x, y, count = 60) {
-    const cols = ['#f97316','#a855f7','#06b6d4','#10b981','#fbbf24','#f43f5e','#fff'];
-    for (let i = 0; i < count; i++) {
-        const el = document.createElement('div');
-        el.style.cssText = `position:fixed;z-index:99999;pointer-events:none;left:${x}px;top:${y}px;
-            width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;
-            background:${cols[Math.floor(Math.random()*cols.length)]};
-            border-radius:${Math.random()>0.5?'50%':'2px'};`;
-        document.body.appendChild(el);
-        const angle = Math.random() * Math.PI * 2;
-        let vx = Math.cos(angle)*(Math.random()*6+3);
-        let vy = Math.sin(angle)*(Math.random()*6+3) - 4;
-        let px = x, py = y, grav = 0.3, life = 1;
-        (function tick() {
-            px += vx; py += vy + grav; grav += 0.12; life -= 0.02;
-            el.style.left = px+'px'; el.style.top = py+'px';
-            el.style.opacity = life;
-            if (life > 0) requestAnimationFrame(tick); else el.remove();
-        })();
-    }
-}
-
-// ── Local Toast ─────────────────────────────────────────────────────────
-function showToastLocal(msg, type = 'xp') {
-    let c = document.getElementById('li-toast-container');
-    if (!c) {
-        c = document.createElement('div');
-        c.id = 'li-toast-container';
-        c.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:100000;display:flex;flex-direction:column;align-items:flex-end;gap:8px;';
-        document.body.appendChild(c);
-    }
-    const t = document.createElement('div');
-    const colors = {xp:'rgba(249,115,22,0.95)', achievement:'rgba(168,85,247,0.95)', success:'rgba(16,185,129,0.95)'};
-    const icons = {xp:'⚡', achievement:'🏆', success:'✅'};
-    t.innerHTML = `<span style="font-size:1.2rem">${icons[type]||'✅'}</span><span>${msg}</span>`;
-    t.style.cssText = `display:flex;align-items:center;gap:10px;padding:12px 18px;
-        background:${colors[type]||colors.xp};backdrop-filter:blur(20px);border-radius:14px;
-        color:#fff;font-weight:800;font-size:0.9rem;box-shadow:0 8px 32px rgba(0,0,0,0.4);
-        transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);max-width:280px;`;
-    c.appendChild(t);
-    requestAnimationFrame(() => t.style.transform = 'translateX(0)');
-    setTimeout(() => { t.style.transform='translateX(120%)'; setTimeout(()=>t.remove(), 400); }, 3000);
-}
-
-// ── Achievement unlock checker ───────────────────────────────────────────
-async function checkAchievementsLocal() {
-    try {
-        const resp = await fetch('/api/achievements');
-        const list = await resp.json();
-        const earned = list.filter(a => a.earned);
-        const prev = JSON.parse(localStorage.getItem('eg_achieved') || '[]');
-        let newUnlocks = [];
-        earned.forEach(a => { if (!prev.includes(a.id)) newUnlocks.push(a); });
-        if (newUnlocks.length > 0) {
-            localStorage.setItem('eg_achieved', JSON.stringify(earned.map(a=>a.id)));
-            newUnlocks.forEach((a, i) => {
-                setTimeout(() => {
-                    showToastLocal(`🏆 Achievement Unlocked: ${a.icon} ${a.name}!`, 'achievement');
-                    launchConfettiLocal(window.innerWidth*0.3, window.innerHeight*0.3, 60);
-                    launchConfettiLocal(window.innerWidth*0.7, window.innerHeight*0.3, 60);
-                }, i * 1200);
+    function renderPage(num) {
+        pageRendering = true;
+        pdfDoc.getPage(num).then(page => {
+            const viewport = page.getViewport({ scale: 1.5 });
+            canvas.height = viewport.height; canvas.width = viewport.width;
+            page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+                pageRendering = false;
+                if (pageNumPending !== null) { renderPage(pageNumPending); pageNumPending = null; }
             });
-        } else {
-            localStorage.setItem('eg_achieved', JSON.stringify(earned.map(a=>a.id)));
-        }
-    } catch(e) {}
-}
-
-// ═══════════════════════════════════════════
-//  KEYBOARD
-// ═══════════════════════════════════════════
-window.addEventListener('keydown', e => { keys[e.key] = true; if(['ArrowUp','ArrowDown'].includes(e.key)) e.preventDefault(); });
-window.addEventListener('keyup', e  => { keys[e.key] = false; });
-
-// ═══════════════════════════════════════════
-//  3D LEARNING ISLAND & ASSESSMENT (Three.js)
-// ═══════════════════════════════════════════
-function renderThreeWorld() {
-    const arena = document.getElementById('content-arena');
-    const assessData = lessonData.assessment || {};
-    
-    // Fallbacks
-    const mcq = assessData.mcq || {
-        question: "What did we learn today?",
-        options: ["Everything!", "Nothing.", "A little bit."],
-        correct: 0
-    };
-    const subjective = assessData.subjective || "Describe what you learned in one sentence.";
-
-    arena.innerHTML = `
-        <div style="text-align:center;margin-bottom:1rem;">
-            <h2 style="font-family:'Bangers',cursive;font-size:2.5rem;color:var(--char-color); text-shadow: 2px 2px 5px rgba(0,0,0,0.5);">🌍 3D Learning Island</h2>
-            <p style="opacity:0.8; font-size:1.1rem;">Explore the knowledge island! Drag to rotate, scroll to zoom.</p>
-        </div>
-        
-        <div style="position:relative;">
-            <div id="three-mount" style="width:100%;height:450px;border-radius:20px;overflow:hidden;border:3px solid var(--char-color);box-shadow:0 0 40px var(--glow);"></div>
-            
-            <!-- Assessment Overlay -->
-            <div id="assessment-overlay" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(10, 10, 46, 0.95); padding:2rem; border-radius:16px; border:2px solid #3b82f6; width:80%; box-shadow:0 0 30px rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:10; display:none;">
-                <h3 style="color:#60a5fa; font-size:1.8rem; margin-bottom:1rem; border-bottom:1px solid #3b82f6; padding-bottom:0.5rem;">Final Quiz! 📝</h3>
-                
-                <!-- MCQ Section -->
-                <div id="mcq-section">
-                    <p style="font-size:1.2rem; margin-bottom:1rem;">${mcq.question}</p>
-                    <div id="mcq-options" style="display:flex; flex-direction:column; gap:0.5rem;">
-                        ${mcq.options.map((opt, i) => `
-                            <button onclick="checkMCQ(${i}, ${mcq.correct})" style="padding:1rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; text-align:left; cursor:pointer; font-size:1.1rem; transition:0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">${opt}</button>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <!-- Subjective Section (Hidden Initially) -->
-                <div id="subjective-section" style="display:none;">
-                    <p style="font-size:1.2rem; margin-bottom:1rem;">${subjective}</p>
-                    <textarea id="subjective-input" rows="3" style="width:100%; padding:1rem; border-radius:8px; border:none; background:rgba(255,255,255,0.9); color:#000; font-family:'Nunito',sans-serif; font-size:1.1rem; resize:none;" placeholder="Type your answer here..."></textarea>
-                    <button onclick="submitSubjective()" style="margin-top:1rem; width:100%; padding: 1rem; font-size: 1.2rem; background: #16a34a; border:none; border-radius:12px; color:#fff; font-weight:bold; cursor:pointer;">Submit Answer</button>
-                </div>
-                
-                <p id="quiz-msg" style="margin-top:1rem; font-weight:bold; text-align:center; min-height:24px;"></p>
-            </div>
-            
-            <!-- Certificate Overlay -->
-            <div id="certificate-overlay" style="position:absolute; inset:0; background:rgba(0,0,0,0.8); display:none; flex-direction:column; align-items:center; justify-content:center; z-index:20; border-radius:20px;">
-                <div style="background:linear-gradient(to bottom right, #fef08a, #f59e0b); padding:3rem; border-radius:16px; border:8px double #b45309; text-align:center; color:#78350f; max-width:80%; box-shadow:0 0 50px #f59e0b;">
-                    <h1 style="font-family:'Bangers',cursive; font-size:3.5rem; margin-bottom:1rem;">🏆 Certificate of Excellence 🏆</h1>
-                    <p style="font-size:1.4rem; font-family:'Nunito',sans-serif; font-weight:bold;">This is awarded to</p>
-                    <h2 style="font-size:2.5rem; margin:1rem 0; color:#451a03; border-bottom:2px solid #78350f; padding-bottom:0.5rem; display:inline-block;">A Brilliant Mind</h2>
-                    <p style="font-size:1.2rem;">For outstanding performance in</p>
-                    <h3 style="font-size:1.8rem; margin-top:0.5rem;">${currentTopic}</h3>
-                    <div style="margin-top:2rem; font-size:3rem;">🌟🌟🌟</div>
-                </div>
-                <button onclick="location.reload()" style="margin-top:2rem; padding: 1rem 2rem; font-size: 1.2rem; background: #3b82f6; border:none; border-radius:12px; color:#fff; font-weight:bold; cursor:pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">Return to Dashboard</button>
-            </div>
-            
-        </div>
-        
-        <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap;" id="island-facts"></div>
-        
-        <div style="text-align:center; margin-top:1.5rem;">
-            <button onclick="document.getElementById('assessment-overlay').style.display='block'" class="voice-btn" style="background:#ef4444; box-shadow:0 0 20px rgba(239,68,68,0.5);">
-                Take Final Quiz 📝
-            </button>
-        </div>
-    `;
-
-    if (typeof THREE === 'undefined') { arena.innerHTML += '<p style="color:#f87171;text-align:center;margin-top:1rem;">Three.js loading...</p>'; return; }
-
-    const mount = document.getElementById('three-mount');
-    const W = mount.clientWidth, H = 450;
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(W, H); 
-    renderer.shadowMap.enabled = true;
-    mount.appendChild(renderer.domElement);
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a2e);
-    scene.fog = new THREE.Fog(0x0a0a2e, 80, 200);
-
-    const camera = new THREE.PerspectiveCamera(60, W/H, 0.1, 500);
-    camera.position.set(0, 30, 60);
-    camera.lookAt(0, 0, 0);
-
-    // Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4); scene.add(ambient);
-    const sun = new THREE.DirectionalLight(0xffd700, 1.2); sun.position.set(40, 60, 30); sun.castShadow = true; scene.add(sun);
-
-    // Island
-    const islandGeo = new THREE.CylinderGeometry(20, 22, 4, 32);
-    const islandMat = new THREE.MeshPhongMaterial({ color: 0x16a34a });
-    const island = new THREE.Mesh(islandGeo, islandMat); island.receiveShadow = true;
-    scene.add(island);
-
-    // Sand ring
-    const sandGeo = new THREE.CylinderGeometry(22, 24, 3, 32);
-    const sandMat = new THREE.MeshPhongMaterial({ color: 0xd4a017 });
-    const sand = new THREE.Mesh(sandGeo, sandMat); sand.position.y = -0.5; scene.add(sand);
-
-    // Water plane
-    const waterGeo = new THREE.PlaneGeometry(300, 300, 10, 10);
-    const waterMat = new THREE.MeshPhongMaterial({ color: 0x1e40af, transparent: true, opacity: 0.7, shininess: 100 });
-    const water = new THREE.Mesh(waterGeo, waterMat); water.rotation.x = -Math.PI/2; water.position.y = -4; scene.add(water);
-
-    // Knowledge orbs
-    const topics = currentTopic.split(' ').concat(['XP', 'Fun', 'Learn']);
-    const orbs = [];
-    topics.forEach((t, i) => {
-        const geo = new THREE.SphereGeometry(2.5, 16, 16);
-        const mat = new THREE.MeshPhongMaterial({ color: new THREE.Color().setHSL(i/topics.length, 1, 0.6), emissive: new THREE.Color().setHSL(i/topics.length, 1, 0.2) });
-        const orb = new THREE.Mesh(geo, mat);
-        const angle = (i / topics.length) * Math.PI * 2;
-        orb.position.set(Math.cos(angle)*28, 8 + Math.sin(i)*3, Math.sin(angle)*28);
-        orb.castShadow = true;
-        scene.add(orb); orbs.push({ mesh: orb, angle, speed: 0.005 + i*0.001 });
-    });
-
-    // Trees
-    for(let i=0;i<5;i++) {
-        const treeAngle = i/5*Math.PI*2;
-        const trunkGeo = new THREE.CylinderGeometry(0.5,0.7,6,8);
-        const trunk = new THREE.Mesh(trunkGeo, new THREE.MeshPhongMaterial({color:0x78350f}));
-        trunk.position.set(Math.cos(treeAngle)*12, 5, Math.sin(treeAngle)*12); scene.add(trunk);
-        const leafGeo = new THREE.ConeGeometry(4, 7, 8);
-        const leaf = new THREE.Mesh(leafGeo, new THREE.MeshPhongMaterial({color:0x16a34a}));
-        leaf.position.set(Math.cos(treeAngle)*12, 12, Math.sin(treeAngle)*12); scene.add(leaf);
-    }
-
-    // Stars
-    const starGeo = new THREE.BufferGeometry();
-    const starVerts = [];
-    for(let i=0;i<500;i++) { starVerts.push((Math.random()-0.5)*400,(Math.random())*200-20,(Math.random()-0.5)*400); }
-    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVerts,3));
-    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff,size:0.5})));
-
-    // Orbit Controls
-    let isDragging=false, prevMouse={x:0,y:0}, theta=0, phi=0.4;
-    mount.addEventListener('mousedown', e=>{isDragging=true; prevMouse={x:e.clientX,y:e.clientY};});
-    window.addEventListener('mouseup',()=>isDragging=false);
-    window.addEventListener('mousemove',e=>{
-        if(!isDragging)return;
-        theta -= (e.clientX-prevMouse.x)*0.005;
-        phi = Math.max(0.1,Math.min(1.2,phi-(e.clientY-prevMouse.y)*0.005));
-        prevMouse={x:e.clientX,y:e.clientY};
-    });
-    mount.addEventListener('wheel', e=>{ camera.position.multiplyScalar(1+e.deltaY*0.001); }, {passive:true});
-
-    let threeActive = true;
-    const cleanUp = () => { threeActive=false; renderer.dispose(); };
-    document.querySelectorAll('.mode-tab').forEach(t=>t.addEventListener('click',cleanUp,{once:true}));
-
-    // Facts
-    const factsDiv = document.getElementById('island-facts');
-    if(factsDiv) {
-        topics.slice(0,4).forEach(t=>{
-            const pill = document.createElement('div');
-            pill.style.cssText='padding:0.6rem 1.5rem;background:rgba(255,255,255,0.1);border-radius:50px;cursor:pointer;border:1px solid rgba(255,255,255,0.3);font-weight:bold; font-size:1.1rem; transition:0.2s;';
-            pill.textContent = '📚 '+t;
-            pill.onmouseenter = () => pill.style.background = 'rgba(255,255,255,0.2)';
-            pill.onmouseleave = () => pill.style.background = 'rgba(255,255,255,0.1)';
-            pill.onclick = () => speakAs(`Explore ${t} on the learning island!`, activeCharKey);
-            factsDiv.appendChild(pill);
         });
+        document.getElementById('page-num').textContent = num;
     }
-
-    function threeLoop() {
-        if(!threeActive) return;
-        const R = 60;
-        camera.position.x = R * Math.sin(theta) * Math.cos(phi);
-        camera.position.y = R * Math.sin(phi) + 10;
-        camera.position.z = R * Math.cos(theta) * Math.cos(phi);
-        camera.lookAt(0,5,0);
-        // Animate orbs
-        orbs.forEach(o=>{ o.angle+=o.speed; o.mesh.position.x=Math.cos(o.angle)*28; o.mesh.position.z=Math.sin(o.angle)*28; o.mesh.position.y=8+Math.sin(o.angle*2)*3; o.mesh.rotation.y+=0.02; });
-        // Water wave
-        water.position.y = -4 + Math.sin(Date.now()*0.001)*0.5;
-        renderer.render(scene, camera);
-        requestAnimationFrame(threeLoop);
+    function changePage(delta) {
+        if (!pdfDoc || pageRendering) return;
+        if (pageNum + delta <= 0 || pageNum + delta > pdfDoc.numPages) return;
+        pageNum += delta; renderPage(pageNum);
     }
-    threeLoop();
-    speakAs(`Welcome to the 3D Learning Island! Explore and discover ${currentTopic}!`, activeCharKey);
-    awardXP(20);
-}
-
-// Assessment Logic for 3D World
-window.checkMCQ = function(selected, correct) {
-    const msg = document.getElementById('quiz-msg');
-    if (selected === correct) {
-        msg.style.color = '#4ade80';
-        msg.innerHTML = '✅ Correct! Great job!';
-        playBeep(880, 0.2); setTimeout(()=>playBeep(1200, 0.2), 200);
-        setTimeout(() => {
-            document.getElementById('mcq-section').style.display = 'none';
-            document.getElementById('subjective-section').style.display = 'block';
-            msg.innerHTML = '';
-        }, 1500);
-    } else {
-        msg.style.color = '#f87171';
-        msg.innerHTML = '❌ Not quite. Try another option!';
-        playBeep(220, 0.3);
-    }
-};
-
-window.submitSubjective = function() {
-    const text = document.getElementById('subjective-input').value.trim();
-    const msg = document.getElementById('quiz-msg');
-    if (text.length < 5) {
-        msg.style.color = '#fbbf24';
-        msg.innerHTML = 'Please write a little bit more! 📝';
-        return;
-    }
-    msg.style.color = '#4ade80';
-    msg.innerHTML = '✨ Wonderful answer! ✨';
-    
-    // Show certificate
-    setTimeout(() => {
-        document.getElementById('assessment-overlay').style.display = 'none';
-        const cert = document.getElementById('certificate-overlay');
-        cert.style.display = 'flex';
-        gsap.from(cert.children[0], {scale: 0, rotation: 720, duration: 1, ease: "back.out(1.5)"});
-        
-        playBeep(523,0.15); setTimeout(()=>playBeep(659,0.15),200); setTimeout(()=>playBeep(784,0.4),400);
-        launchConfettiLocal(window.innerWidth/2, window.innerHeight/3, 150);
-        awardXP(100);
-    }, 1000);
-};
-
-// ═══════════════════════════════════════════
-//  SANDBOX / DRAWING MODE
-// ═══════════════════════════════════════════
-function renderSandbox() {
-    const arena = document.getElementById('content-arena');
-    arena.innerHTML = `
-        <div style="text-align:center;margin-bottom:1rem;">
-            <h2 style="font-family:'Bangers',cursive;font-size:2.5rem;color:var(--char-color); text-shadow: 1px 1px 4px rgba(0,0,0,0.5);">🎨 Creative Sandbox</h2>
-            <p style="font-size:1.1rem; opacity:0.8;">Draw something inspired by <strong>${currentTopic}</strong>!</p>
-        </div>
-        
-        <div style="display:flex; flex-direction:column; align-items:center; gap:1rem;">
-            <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; background:rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:12px;">
-                <button onclick="changeDrawColor('#ffffff')" class="color-btn" style="background:#ffffff;"></button>
-                <button onclick="changeDrawColor('#ef4444')" class="color-btn" style="background:#ef4444;"></button>
-                <button onclick="changeDrawColor('#3b82f6')" class="color-btn" style="background:#3b82f6;"></button>
-                <button onclick="changeDrawColor('#10b981')" class="color-btn" style="background:#10b981;"></button>
-                <button onclick="changeDrawColor('#f59e0b')" class="color-btn" style="background:#f59e0b;"></button>
-                <button onclick="changeDrawColor('#8b5cf6')" class="color-btn" style="background:#8b5cf6;"></button>
-                <div style="width:2px; background:rgba(255,255,255,0.2); margin:0 5px;"></div>
-                <button onclick="changeDrawSize(3)" style="padding:0.4rem 0.8rem; border-radius:8px; border:none; background:rgba(0,0,0,0.4); color:#fff; cursor:pointer;" title="Brush Size">Small</button>
-                <button onclick="changeDrawSize(8)" style="padding:0.4rem 0.8rem; border-radius:8px; border:none; background:rgba(0,0,0,0.4); color:#fff; cursor:pointer;" title="Brush Size">Med</button>
-                <button onclick="changeDrawSize(15)" style="padding:0.4rem 0.8rem; border-radius:8px; border:none; background:rgba(0,0,0,0.4); color:#fff; cursor:pointer;" title="Brush Size">Big</button>
-                <button onclick="changeDrawColor('#1e293b')" style="padding:0.4rem 0.8rem; border-radius:8px; border:none; background:rgba(0,0,0,0.4); color:#fff; cursor:pointer;" title="Eraser"><i class="fas fa-eraser"></i> Erase</button>
-                <button onclick="clearSandbox()" style="padding:0.4rem 0.8rem; border-radius:8px; border:none; background:#ef4444; color:#fff; cursor:pointer;" title="Clear Canvas"><i class="fas fa-trash"></i></button>
-            </div>
-            
-            <canvas id="sandboxCanvas" width="700" height="400" style="background:#1e293b; border-radius:16px; border:4px solid var(--char-color); cursor:crosshair; box-shadow:0 0 30px rgba(0,0,0,0.4);"></canvas>
-            
-            <button onclick="finishSandbox()" class="voice-btn" style="margin-top:1rem; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">
-                I'm Done! ✨
-            </button>
-        </div>
-        
-        <style>
-            .color-btn { width:30px; height:30px; border-radius:50%; border:2px solid #fff; cursor:pointer; transition:transform 0.2s; box-shadow:0 2px 5px rgba(0,0,0,0.3); }
-            .color-btn:hover { transform:scale(1.2); }
-        </style>
-    `;
-    
-    // Setup Canvas Drawing
-    initSandboxCanvas();
-    speakAs(`Let's get creative! Draw what you learned about ${currentTopic}.`, activeCharKey);
-}
-
-let sandboxColor = '#ffffff';
-let sandboxSize = 8;
-let sctx = null;
-let isDrawing = false;
-
-window.changeDrawColor = function(c) { sandboxColor = c; };
-window.changeDrawSize = function(s) { sandboxSize = s; };
-window.clearSandbox = function() {
-    if(!sctx) return;
-    sctx.fillStyle = '#1e293b';
-    sctx.fillRect(0, 0, 700, 400);
-};
-
-function initSandboxCanvas() {
-    const c = document.getElementById('sandboxCanvas');
-    if (!c) return;
-    sctx = c.getContext('2d');
-    sctx.lineCap = 'round';
-    sctx.lineJoin = 'round';
-    window.clearSandbox();
-    
-    const getPos = (e) => {
-        const rect = c.getBoundingClientRect();
-        return {
-            x: (e.clientX || e.touches?.[0]?.clientX) - rect.left,
-            y: (e.clientY || e.touches?.[0]?.clientY) - rect.top
-        };
-    };
-
-    const startDraw = (e) => { isDrawing = true; const p = getPos(e); sctx.beginPath(); sctx.moveTo(p.x, p.y); e.preventDefault(); };
-    const draw = (e) => {
-        if (!isDrawing) return;
-        const p = getPos(e);
-        sctx.lineTo(p.x, p.y);
-        sctx.strokeStyle = sandboxColor;
-        sctx.lineWidth = sandboxSize;
-        sctx.stroke();
-        sctx.beginPath();
-        sctx.moveTo(p.x, p.y);
-        e.preventDefault();
-    };
-    const stopDraw = () => { isDrawing = false; sctx.beginPath(); };
-
-    c.addEventListener('mousedown', startDraw);
-    c.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', stopDraw);
-    
-    c.addEventListener('touchstart', startDraw, {passive:false});
-    c.addEventListener('touchmove', draw, {passive:false});
-    c.addEventListener('touchend', stopDraw);
-}
-
-window.finishSandbox = function() {
-    speakAs("Wow! What a beautiful masterpiece! You are an artist!", activeCharKey);
-    playBeep(880,0.15); setTimeout(()=>playBeep(1100,0.15),180); setTimeout(()=>playBeep(1400,0.2),360);
-    launchConfettiLocal(window.innerWidth/2, window.innerHeight/2, 100);
-    awardXP(50);
-};
-
-
-// ═══════════════════════════════════════════
-//  BOOT
-// ═══════════════════════════════════════════
-window.addEventListener('load', () => {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.onvoiceschanged = () => {};
-        window.speechSynthesis.getVoices();
-    }
-    loadTopic(currentTopic);
-});
+    window.onload = init;
 </script>
-</body>
-</html>
+{% endblock %}

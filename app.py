@@ -12,9 +12,14 @@ import math
 import random
 import json
 import re
+from typing import List, Dict, Any, Tuple, cast
+import itertools
+import pypdf
 
 app = Flask(__name__)
 app.secret_key = 'edugalaxy_secret_key_2024'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # --- COMPREHENSIVE MULTI-BOARD SYLLABUS DATABASE (2025-26 Curriculum) ---
 SYLLABUS_DB = {
@@ -139,36 +144,31 @@ SYLLABUS_DB = {
 
 
 # Database configuration
+# --- SCIFI GAMIFIED ACHIEVEMENTS (The Galactic Collection) ---
 ACHIEVEMENTS = [
-    {'id': 'first_step',   'name': 'First Step',     'icon': '🚀', 'desc': 'Complete your first lesson',           'xp_req': 1,    'color': '#fb923c'},
-    {'id': 'bronze_mind',  'name': 'Bronze Mind',    'icon': '🥉', 'desc': 'Reach 100 XP',                         'xp_req': 100,  'color': '#cd7f32'},
-    {'id': 'silver_mind',  'name': 'Silver Mind',    'icon': '🥈', 'desc': 'Reach 300 XP',                         'xp_req': 300,  'color': '#c0c0c0'},
-    {'id': 'gold_mind',    'name': 'Gold Mind',      'icon': '🥇', 'desc': 'Reach 600 XP',                         'xp_req': 600,  'color': '#ffd700'},
-    {'id': 'diamond_mind', 'name': 'Diamond Mind',   'icon': '💎', 'desc': 'Reach 1000 XP',                        'xp_req': 1000, 'color': '#a5f3fc'},
-    {'id': 'streak_3',     'name': 'On Fire',        'icon': '🔥', 'desc': 'Complete 3 lessons in a row',          'xp_req': 50,   'color': '#f97316'},
-    {'id': 'polymath',     'name': 'Polymath',       'icon': '📚', 'desc': 'Study 3 different subjects',           'xp_req': 150,  'color': '#a78bfa'},
-    {'id': 'scientist',    'name': 'Scientist',      'icon': '🔬', 'desc': 'Complete 5 experiments',               'xp_req': 200,  'color': '#34d399'},
-    {'id': 'storyteller',  'name': 'Storyteller',    'icon': '📖', 'desc': 'Read 5 story chapters',                'xp_req': 50,   'color': '#60a5fa'},
-    {'id': 'voice_hero',   'name': 'Voice Hero',     'icon': '🎤', 'desc': 'Complete 3 voice challenges',          'xp_req': 75,   'color': '#f472b6'},
-    {'id': 'puzzle_master','name': 'Puzzle Master',  'icon': '🧩', 'desc': 'Solve 5 puzzles correctly',            'xp_req': 100,  'color': '#facc15'},
-    {'id': 'explorer',     'name': '3D Explorer',    'icon': '🌍', 'desc': 'Visit the 3D Learning Island',         'xp_req': 20,   'color': '#22d3ee'},
+    {'id': 'first_step',   'name': 'Initiate Pilot',   'icon': '🛰️', 'desc': 'Complete your first galactic jump',     'xp_req': 1,    'color': '#00ff87'},
+    {'id': 'bronze_mind',  'name': 'Cosmic Cadet',     'icon': '🥉', 'desc': 'Accumulate 100 Starlight XP',          'xp_req': 100,  'color': '#cd7f32'},
+    {'id': 'silver_mind',  'name': 'Star Commander',   'icon': '🥈', 'desc': 'Accumulate 300 Starlight XP',          'xp_req': 300,  'color': '#c0c0c0'},
+    {'id': 'gold_mind',    'name': 'Galactic Hero',    'icon': '🥇', 'desc': 'Accumulate 600 Starlight XP',          'xp_req': 600,  'color': '#ffd700'},
+    {'id': 'diamond_mind', 'name': 'Universe Master',  'icon': '💎', 'desc': 'Accumulate 1000 Starlight XP',         'xp_req': 1000, 'color': '#a5f3fc'},
+    {'id': 'streak_3',     'name': 'Hyper-Jump',       'icon': '🔥', 'desc': 'Execute 3 jumps in successsion',       'xp_req': 50,   'color': '#f97316'},
+    {'id': 'polymath',     'name': 'Multi-Versal',     'icon': '🌌', 'desc': 'Research 3 distinct planets',          'xp_req': 150,  'color': '#a78bfa'},
+    {'id': 'scientist',    'name': 'Tech Specialist',  'icon': '🤖', 'desc': 'Complete 5 virtual simulations',       'xp_req': 200,  'color': '#2dd4bf'},
+    {'id': 'storyteller',  'name': 'Lore Keeper',      'icon': '📜', 'desc': 'Decode 5 history scrolls',             'xp_req': 50,   'color': '#60a5fa'},
+    {'id': 'voice_hero',   'name': 'Wave Master',      'icon': '📡', 'desc': 'Complete 3 voice-sync codes',          'xp_req': 75,   'color': '#f472b6'},
+    {'id': 'puzzle_master','name': 'Code Breaker',     'icon': '🔐', 'desc': 'De-encrypt 5 security puzzles',        'xp_req': 100,  'color': '#facc15'},
+    {'id': 'explorer',     'name': 'Galaxy Explorer',  'icon': '🛸', 'desc': 'Navigate to Sector 7 Command',         'xp_req': 20,   'color': '#22d3ee'},
 ]
 
 DAILY_CHALLENGES = [
-    {'q': 'What is 7 × 8?',                        'ans': '56',         'subject': 'math',    'xp': 30},
-    {'q': 'Spell "Beautiful"',                       'ans': 'beautiful',  'subject': 'english', 'xp': 25},
-    {'q': 'What is the capital of India?',           'ans': 'new delhi',  'subject': 'gk',      'xp': 25},
-    {'q': 'How many planets in our solar system?',   'ans': '8',          'subject': 'science', 'xp': 30},
-    {'q': 'What is 15 + 27?',                        'ans': '42',         'subject': 'math',    'xp': 25},
-    {'q': 'Name the longest river in India.',        'ans': 'ganga',      'subject': 'gk',      'xp': 30},
-    {'q': 'What is H₂O?',                           'ans': 'water',      'subject': 'science', 'xp': 25},
-    {'q': 'What is 9 × 9?',                          'ans': '81',         'subject': 'math',    'xp': 30},
-    {'q': 'Spell "Elephant"',                        'ans': 'elephant',   'subject': 'english', 'xp': 20},
-    {'q': 'How many sides does a hexagon have?',     'ans': '6',          'subject': 'math',    'xp': 20},
-    {'q': 'What gas do plants absorb?',              'ans': 'carbon dioxide','subject':'science','xp': 30},
-    {'q': 'Which is the largest ocean?',             'ans': 'pacific',    'subject': 'gk',      'xp': 25},
-    {'q': 'What is the national animal of India?',   'ans': 'tiger',      'subject': 'gk',      'xp': 20},
-    {'q': 'What is 100 ÷ 4?',                        'ans': '25',         'subject': 'math',    'xp': 25},
+    {'q': 'What is the speed of light approx? (km/s)',  'ans': '300000',     'subject': 'science', 'xp': 50},
+    {'q': 'Complete the code: 1, 1, 2, 3, 5, ?',       'ans': '8',          'subject': 'math',    'xp': 40},
+    {'q': 'Which element is needed for fusion?',       'ans': 'hydrogen',   'subject': 'science', 'xp': 40},
+    {'q': 'Who wrote "A Brief History of Time"?',      'ans': 'stephen hawking','subject': 'gk',   'xp': 50},
+    {'q': 'Synonym for "Vast" (Starts with E)',        'ans': 'enormous',   'subject': 'english', 'xp': 30},
+    {'q': 'Square root of 144?',                       'ans': '12',         'subject': 'math',    'xp': 30},
+    {'q': 'Nearest galaxy to Milky Way?',              'ans': 'andromeda',  'subject': 'science', 'xp': 50},
+    {'q': 'Solve: 15% of 200?',                        'ans': '30',         'subject': 'math',    'xp': 40},
 ]
 
 
@@ -196,7 +196,11 @@ def init_db():
             xp INTEGER DEFAULT 0,
             level INTEGER DEFAULT 1,
             streak INTEGER DEFAULT 0,
-            medals TEXT DEFAULT 'None'
+            medals TEXT DEFAULT 'None',
+            inventory TEXT DEFAULT '[]',
+            pet_data TEXT DEFAULT '{"type": "None", "level": 1, "xp": 0}',
+            skill_tree TEXT DEFAULT '{}',
+            avatar_url TEXT DEFAULT 'default_avatar.png'
         )
     ''')
 
@@ -224,7 +228,10 @@ def init_db():
     ''')
 
     try:
-        cursor.execute('ALTER TABLE learning_progress ADD COLUMN mode TEXT DEFAULT "General"')
+        cursor.execute('ALTER TABLE users ADD COLUMN inventory TEXT DEFAULT "[]"')
+        cursor.execute('ALTER TABLE users ADD COLUMN pet_data TEXT DEFAULT \'{"type": "None", "level": 1, "xp": 0}\'')
+        cursor.execute('ALTER TABLE users ADD COLUMN skill_tree TEXT DEFAULT "{}"')
+        cursor.execute('ALTER TABLE users ADD COLUMN avatar_url TEXT DEFAULT "default_avatar.png"')
     except sqlite3.OperationalError:
         pass
 
@@ -395,21 +402,45 @@ def dashboard():
     daily_challenge = DAILY_CHALLENGES[int(today.replace('-','')) % len(DAILY_CHALLENGES)]
     activity = {r['day']: r['cnt'] for r in activity_raw}
 
+    # Parse JSON fields for template convenience
+    try:
+        pet_data = json.loads(user['pet_data'])
+    except:
+        pet_data = {"type": "None", "level": 1, "xp": 0}
+
+    try:
+        inventory = json.loads(user['inventory'])
+    except:
+        inventory = []
+
     return render_template('dashboard.html',
         user=user, subjects=subjects, progress=progress,
         achievements=achievements, daily_challenge=daily_challenge,
         daily_done=bool(daily_done), recent=recent, activity=activity,
-        xp_progress=xp_progress, next_level_xp=next_level_xp)
+        xp_progress=xp_progress, next_level_xp=next_level_xp,
+        pet_data=pet_data, inventory=inventory)
 
+
+@app.route('/syllabus/<class_level>/<subject>/<path:filename>')
+def serve_syllabus(class_level, subject, filename):
+    """Serve the PDF syllabus files safely."""
+    directory = os.path.join(app.root_path, 'Syllabus', f'class{class_level}', subject)
+    return send_from_directory(directory, filename)
+
+@app.route('/serve_video/<class_level>/<subject>/<path:filename>')
+def serve_video(class_level, subject, filename):
+    """Serve the MP4 syllabus video files safely."""
+    directory = os.path.join(app.root_path, 'Syllabus', f'class{class_level}', subject)
+    # Ensure correct mime type for video streaming
+    return send_from_directory(directory, filename, mimetype='video/mp4')
 
 @app.route('/learn/interactive', methods=['GET', 'POST'])
 def learn_interactive():
-    """Main interactive learning portal."""
+    """Main interactive learning portal - Storybook & Embedded Video View."""
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
     subject = request.form.get('subject') if request.method == 'POST' else request.args.get('subject')
-    mode = request.form.get('mode') if request.method == 'POST' else request.args.get('mode', 'storybook')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -421,19 +452,100 @@ def learn_interactive():
         return redirect(url_for('login'))
     conn.close()
 
-    board = user['board']
-    board_key = 'CBSE' if 'CBSE' in board else ('ICSE' if 'ICSE' in board else 'WBSE')
     class_match = re.search(r'Class\s*(\d+)', user['class_level'])
     class_num = class_match.group(1) if class_match else '1'
 
-    if not subject:
-        # If no subject, pick the first one available
-        avail_subjects = list(SYLLABUS_DB.get(board_key, {}).get(class_num, {}).keys())
-        subject = avail_subjects[0] if avail_subjects else 'General'
-
-    topics = SYLLABUS_DB.get(board_key, {}).get(class_num, {}).get(subject, ['General Introduction'])
+    # Subject Folder Mapping (matching filesystem case)
+    folder_map = {
+        'math': 'Maths', 'english': 'English', 'hindi': 'Hindi', 
+        'evs': 'EVS', 'science': 'EVS', 'arts': 'Arts', 'computer': 'Computer'
+    }
     
-    return render_template('learn_interactive.html', user=user, subject=subject, mode=mode, topics=topics)
+    if not subject:
+        subject = 'math'
+        
+    subject_folder = folder_map.get(subject.lower(), subject.title())
+    syllabus_dir = os.path.join(app.root_path, 'Syllabus', f'class{class_num}', subject_folder)
+    
+    chapters: List[Dict[str, Any]] = []
+    if os.path.exists(syllabus_dir):
+        files = [f for f in os.listdir(syllabus_dir) if f.endswith('.pdf')]
+        # Sort files assuming names like "chapter 1.pdf", "chapter 2.pdf"
+        files.sort(key=lambda x: int(match.group()) if (match := re.search(r'\d+', x)) else 0)
+        
+        # Vetted, Ultra-Reliable Global Video IDs (Math test cases)
+        yt_map = {
+            'math': ['jNQXAC9IVRw', 'ncORPosDrjI', 'X0eRtvhS04g'],
+            'english': ['bellPQKxH0M', 'W3LqD9-3yFk', 'r5z-l8U2874'],
+            'hindi': ['zMiyG7CIn8o', 'M6i-2U0HjW4', 'B2A6b4X1K7Q'],
+            'evs': ['f-lIup36jEY', 'WfGZ5v1X1_o', 'uabXGf1hmsU']
+        }
+        video_id_list = yt_map.get(subject.lower(), ['jNQXAC9IVRw']) # 'Me at the zoo' fallback explicitly allows embedding
+        
+        all_videos = [f for f in os.listdir(syllabus_dir) if f.lower().endswith('.mp4')]
+        
+        for idx, f in enumerate(files):
+            # Extract number from PDF name like "chapter  (1).pdf" or "unit 1.pdf"
+            num_match = re.search(r'\d+', f)
+            num = num_match.group() if num_match else str(idx + 1)
+            
+            # Find all local videos related to this chapter number
+            chapter_vids = []
+            
+            # Robust pattern: matches "chapter{num}" exactly at start of filename
+            # Handles: chapter1.mp4, chapter1 part1.mp4, chapter1 part (1).mp4, chapter10.mp4
+            # Uses word-boundary approach: chapter{num} must be followed by end, space, dot, or '('
+            padded_num = str(int(num))  # normalise e.g. "01" -> "1"
+            # Pattern: (chapter|unit|lesson) + optional-space + exact-number + (end|space|dot|'(')
+            exact_pattern = re.compile(
+                rf'^(?:chapter|unit|lesson|videoplayback)\s*0*{padded_num}(?:\s|\.|_|\(|$)',
+                re.I
+            )
+            
+            matches = []
+            for v_name in all_videos:
+                v_lower = v_name.lower().strip()
+                if exact_pattern.match(v_lower):
+                    matches.append(v_name)
+            
+            # Sort so part1 < part2 etc. Natural sort by embedded numbers
+            def _nat_sort_key(s):
+                return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
+            matches.sort(key=_nat_sort_key)
+            
+            for v_name in matches:
+                chapter_vids.append({
+                    'url': url_for('serve_video', class_level=class_num, subject=subject_folder, filename=v_name),
+                    'is_local': True,
+                    'title': v_name.replace('.mp4', '').replace('(', '').replace(')', '').title()
+                })
+            
+            # Fallback to YouTube if no local videos found
+            if not chapter_vids:
+                # Use a specific index safely
+                v_idx = idx % len(video_id_list)
+                # Cast to Any to prevent "non-class" indexing error in some linters
+                vid_id = cast(Any, video_id_list)[v_idx]
+                chapter_vids.append({
+                    'url': f"https://www.youtube.com/embed/{vid_id}",
+                    'is_local': False,
+                    'title': "Global Transmission"
+                })
+            
+            chapters.append({
+                'title': f.replace('.pdf', '').title(),
+                'filename': f,
+                'pdf_url': url_for('serve_syllabus', class_level=class_num, subject=subject_folder, filename=f),
+                'videos': chapter_vids,
+                'video_url': chapter_vids[0]['url'],
+                'is_local': chapter_vids[0]['is_local']
+            })
+    
+    if not chapters:
+        # Fallback if no PDFs found
+        chapters = [{'title': 'Chapter 1: Basics', 'filename': '', 'pdf_url': '', 'video_id': 'Y7zZ4Tzhj7Q'}]
+
+    return render_template('learn_interactive.html', user=user, subject=subject, chapters=chapters)
 
 @app.route('/api/lesson_content')
 def get_lesson_content():
@@ -441,7 +553,7 @@ def get_lesson_content():
     subject = request.args.get('subject', '').lower()
     topic = request.args.get('topic', 'General Knowledge')
     mode = request.args.get('mode', 'storybook')
-    
+
     # Subject to Character Mapping (Expanded with Female and Kid Characters)
     CHAR_POOL = {
         'math': [
@@ -488,31 +600,37 @@ def get_lesson_content():
     # Select a random character for the subject
     options = CHAR_POOL.get(subject, CHAR_POOL['math'])
     char = random.choice(options)
-    
+
     t_low = topic.lower()
 
-    # ─── STORYBOOK (Paginated) ──────────────────────────────────────
+    # ─── STORYBOOK (Paginated & Narrative) ──────────────────────────
     story_pages = []
+
+    # Base Narrative Template based on Subject
     if 'math' in subject:
-        story_pages.append({"text": f"Welcome to the Math Dojo! Today {char['name']} is going to teach you all about {topic}.", "audio": f"Welcome to the Math Dojo! Today I will teach you about {topic}."})
-        story_pages.append({"text": f"Did you know? Mathematics is the language of the universe. {topic} helps us solve real-world problems every single day!", "audio": f"Did you know? Mathematics is the language of the universe. {topic} helps us solve real problems!"})
-        story_pages.append({"text": f"Let's look at an example. If you have 3 apples and you get 2 more, you use math to know you have 5! The concept of {topic} is just as powerful.", "audio": f"For example, if you have 3 apples and get 2 more, you have 5. {topic} is just as powerful!"})
-        story_pages.append({"text": f"Now, let's practice! {char['catchphrase']} Always remember to double-check your work.", "audio": f"Now let's practice! {char['catchphrase']} Remember to double check your work."})
-    elif 'english' in subject or 'hindi' in subject or 'bengali' in subject:
-        story_pages.append({"text": f"Ahoy! {char['name']} is ready to explore the magic of words with you. Our treasure today is: {topic}.", "audio": f"Ahoy! I am ready to explore words with you. Today we learn {topic}."})
-        story_pages.append({"text": f"Language helps us communicate our feelings and stories. A solid grasp of {topic} will make you a master storyteller!", "audio": f"Language helps us communicate. Learning {topic} makes you a master storyteller!"})
-        story_pages.append({"text": f"For instance, every sentence needs structure. Understanding {topic} is like finding the map to the One Piece of grammar.", "audio": f"Every sentence needs structure. {topic} is the map to grammar."})
-        story_pages.append({"text": f"Repeat out loud: '{topic}'! {char['catchphrase']} You're doing great.", "audio": f"Repeat out loud: {topic}. {char['catchphrase']} You're doing great."})
+        intro = f"Welcome to the Math Dojo! {char['name']} is ready to master {topic} with you."
+        story_pages.append({"text": intro, "audio": intro})
+        story_pages.append({"text": f"In the world of numbers, {topic} is a powerful tool. It lets us measure, calculate, and build amazing things!", "audio": f"In the world of numbers, {topic} is a powerful tool!"})
+        story_pages.append({"text": f"Imagine you are an architect. To build a skyscraper, you'd need the logic of {topic} to ensure every floor is perfect!", "audio": f"To build a skyscraper, you'd need the logic of {topic}."})
+        story_pages.append({"text": f"Let's dive into some calculations. {char['catchphrase']} Focus your mind, Cadet!", "audio": f"Let's dive in. {char['catchphrase']} Focus your mind!"})
     elif 'science' in subject or 'evs' in subject:
-        story_pages.append({"text": f"Get ready to power up! {char['name']} is here to guide you through the wonders of {topic}.", "audio": f"Get ready to power up! I will guide you through {topic}."})
-        story_pages.append({"text": f"Science explains how everything around us works, from the smallest atom to the biggest star.", "audio": "Science explains how everything around us works."})
-        story_pages.append({"text": f"When we study {topic}, we can predict what will happen in nature and even create new inventions!", "audio": f"Studying {topic} lets us predict nature and invent new things!"})
-        story_pages.append({"text": f"Keep observing the world! {char['catchphrase']} Your curiosity is your greatest superpower.", "audio": f"Keep observing! {char['catchphrase']} Curiosity is your superpower."})
+        intro = f"Power up! {char['name']} is taking you to the Science Lab to explore {topic}."
+        story_pages.append({"text": intro, "audio": intro})
+        story_pages.append({"text": f"The universe is full of mysteries, and {topic} is one of the most fascinating ones!", "audio": f"The universe is full of mysteries, and {topic} is fascinating!"})
+        story_pages.append({"text": f"Whether it's the atoms in your body or the stars in the sky, everything follows the laws of {topic}.", "audio": f"Everything follows the laws of {topic}."})
+        story_pages.append({"text": f"Observe closely. {char['catchphrase']} Science is all about discovery!", "audio": f"Observe closely. {char['catchphrase']} Science is about discovery!"})
+    elif 'english' in subject or 'hindi' in subject or 'bengali' in subject:
+        intro = f"Ahoy! {char['name']} is your guide through the Enchanted Library. Today's book: {topic}."
+        story_pages.append({"text": intro, "audio": intro})
+        story_pages.append({"text": f"Words are like magic spells. Using {topic} correctly makes you a powerful wizard of communication!", "audio": f"Words are like spells. {topic} makes you a wizard of communication!"})
+        story_pages.append({"text": f"Each sentence we build with {topic} tells a part of our story. Let's make it a masterpiece!", "audio": f"Each sentence with {topic} tells a story. Let's make it a masterpiece!"})
+        story_pages.append({"text": f"Say it with me! {char['catchphrase']} You're becoming a master linguist.", "audio": f"Say it with me! {char['catchphrase']}"})
     else:
-        story_pages.append({"text": f"{char['name']} says hello! Today's grand adventure is all about {topic}.", "audio": f"Hello! Today's adventure is {topic}."})
-        story_pages.append({"text": f"Learning about {topic} helps us understand our world, our history, and our society better.", "audio": f"Learning {topic} helps us understand the world better."})
-        story_pages.append({"text": f"Every fact you learn makes your brain stronger. So let's dive into {topic} together!", "audio": f"Every fact makes your brain stronger. Let's dive into {topic}!"})
-        story_pages.append({"text": f"Fantastic! {char['catchphrase']} Let's keep moving forward!", "audio": f"Fantastic! {char['catchphrase']} Let's keep moving forward!"})
+        intro = f"Greetings! {char['name']} is here for our daily briefing on {topic}."
+        story_pages.append({"text": intro, "audio": intro})
+        story_pages.append({"text": f"Understanding {topic} gives you a window into how the world works and our place in it.", "audio": f"Understanding {topic} shows how the world works."})
+        story_pages.append({"text": f"Every great hero in history started by learning the basics, just like you are doing with {topic}.", "audio": f"Every hero started by learning basics, like {topic}."})
+        story_pages.append({"text": f"Stay curious! {char['catchphrase']} The more you know, the further you'll go!", "audio": f"Stay curious! {char['catchphrase']}"})
 
 
     # ─── ADVENTURE GAME ─────────────────────────────────────────────
@@ -540,7 +658,7 @@ def get_lesson_content():
     elif 'english' in subject:
         words = [w.capitalize() for w in topic.split()] + ['Book', 'Read', 'Write', 'Word', 'Spell', 'Letter']
         random.shuffle(words)
-        p_items = words[:6]
+        p_items = words[:6]  # type: ignore
         p_answer = topic.split()[0].capitalize() if topic.split() else 'Word'
         p_question = f"Drag the word: '{topic.split()[0]}' to the answer box"
         p_type = "crossword"
@@ -552,7 +670,7 @@ def get_lesson_content():
     else:
         extras = ['Knowledge', 'Victory', 'Science', 'Hero', topic.split()[0] if topic.split() else 'Star']
         random.shuffle(extras)
-        p_items = extras[:5] + [topic]
+        p_items = extras[:5] + [topic]  # type: ignore
         p_answer = topic
         p_question = f"Which word is today's topic?"
         p_type = "general"
@@ -587,7 +705,7 @@ def get_lesson_content():
         'computer': f"What is the brain of the computer? Please say: The C P U.",
     }
     voice_question = voice_map.get(subject, f"Please say: I am learning about {topic}.")
-    
+
     # Simple expected keyword matcher
     expected_words = []
     if 'math' in subject: expected_words = ['10', 'ten']
@@ -656,7 +774,7 @@ def complete_topic():
     """Mark a topic as completed and award XP."""
     if 'user_id' not in session:
         return redirect(url_for('login'))
-        
+
     data = request.json
     subject = data.get('subject')
     topic = data.get('topic')
@@ -665,13 +783,13 @@ def complete_topic():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     # Record progress
     cursor.execute(
         'INSERT INTO learning_progress (user_id, subject, topic, mode) VALUES (?, ?, ?, ?)',
         (session['user_id'], subject, topic, mode)
     )
-    
+
     # Update User XP
     cursor.execute('SELECT xp, streak FROM users WHERE id = ?', (session['user_id'],))
     user_data = cursor.fetchone()
@@ -679,15 +797,15 @@ def complete_topic():
     new_level = calculate_level(new_xp)
     new_medal = get_medal(new_xp)
     new_streak = user_data['streak'] + 1
-    
+
     cursor.execute(
         'UPDATE users SET xp = ?, level = ?, streak = ?, medals = ? WHERE id = ?',
         (new_xp, new_level, new_streak, new_medal, session['user_id'])
     )
-    
+
     conn.commit()
     conn.close()
-    
+
     return json.dumps({'status': 'success', 'new_xp': new_xp, 'level': new_level})
 
 @app.route('/learn')
@@ -736,6 +854,18 @@ def api_achievements():
     conn.close()
     achievements = get_user_achievements(u['xp'], session['user_id'])
     return json.dumps(achievements)
+
+@app.route('/skill_tree')
+def skill_tree():
+    """Skill Tree progression page."""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
+    user = cursor.fetchone()
+    conn.close()
+    return render_template('skill_tree.html', user=user)
 
 
 @app.route('/api/leaderboard_position')
@@ -788,6 +918,105 @@ def service_worker():
     resp.headers['Service-Worker-Allowed'] = '/'
     return resp
 
+
+@app.route('/api/skill_tree', methods=['GET', 'POST'])
+def api_skill_tree():
+    """Manage user skill tree progression."""
+    if 'user_id' not in session:
+        return json.dumps({'error': 'Not logged in'}), 401
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        data = request.json
+        skill_id = data.get('skill_id')
+        cursor.execute('SELECT skill_tree, xp FROM users WHERE id = ?', (session['user_id'],))
+        user_row = cursor.fetchone()
+        skill_tree = json.loads(user_row['skill_tree'])
+
+        # Simple unlocking logic - can be expanded
+        if skill_id not in skill_tree:
+            skill_tree[skill_id] = {'unlocked_at': datetime.datetime.now().isoformat()}
+            cursor.execute('UPDATE users SET skill_tree = ? WHERE id = ?', (json.dumps(skill_tree), session['user_id']))
+            conn.commit()
+        conn.close()
+        return json.dumps({'status': 'success', 'skill_tree': skill_tree})
+
+    cursor.execute('SELECT skill_tree FROM users WHERE id = ?', (session['user_id'],))
+    tree = cursor.fetchone()['skill_tree']
+    conn.close()
+    return json.dumps(json.loads(tree))
+
+@app.route('/api/claim_reward', methods=['POST'])
+def api_claim_reward():
+    """Grant random items/rewards from treasure chests."""
+    if 'user_id' not in session:
+        return json.dumps({'error': 'Not logged in'}), 401
+
+    rewards = [
+        {'id': 'starlight_fragment', 'name': 'Starlight Fragment', 'icon': '✨', 'xp': 20},
+        {'id': 'cosmic_shard', 'name': 'Cosmic Shard', 'icon': '💎', 'xp': 50},
+        {'id': 'warp_fuel', 'name': 'Warp Fuel', 'icon': '🚀', 'xp': 30},
+    ]
+    reward = random.choice(rewards)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT inventory, xp FROM users WHERE id = ?', (session['user_id'],))
+    user_data = cursor.fetchone()
+    inventory = json.loads(user_data['inventory'])
+    inventory.append(reward)
+
+    new_xp = user_data['xp'] + reward['xp']
+    cursor.execute('UPDATE users SET inventory = ?, xp = ?, level = ? WHERE id = ?',
+                   (json.dumps(inventory), new_xp, calculate_level(new_xp), session['user_id']))
+    conn.commit()
+    conn.close()
+
+    return json.dumps({'status': 'success', 'reward': reward, 'new_xp': new_xp})
+
+@app.route('/api/pet/interact', methods=['POST'])
+def api_pet_interact():
+    """Interact with the learning pet (feed, train)."""
+    if 'user_id' not in session:
+        return json.dumps({'error': 'Not logged in'}), 401
+
+    data = request.json
+    action = data.get('action') # 'feed' or 'train'
+    item_id = data.get('item_id')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT pet_data, inventory FROM users WHERE id = ?', (session['user_id'],))
+    user_row = cursor.fetchone()
+    pet_data = json.loads(user_row['pet_data'])
+    inventory = json.loads(user_row['inventory'])
+
+    if action == 'feed':
+        # Check if item exists in inventory
+        item_index = next((i for i, item in enumerate(inventory) if item['id'] == item_id), None)
+        if item_index is not None:
+            item = inventory.pop(item_index)
+            pet_data['xp'] += 20
+            if pet_data['xp'] >= 100:
+                pet_data['level'] += 1
+                pet_data['xp'] = 0
+                # Evolution Logic
+                if pet_data['level'] == 5: pet_data['type'] = 'Alpha'
+                elif pet_data['level'] == 10: pet_data['type'] = 'Omega'
+
+            cursor.execute('UPDATE users SET pet_data = ?, inventory = ? WHERE id = ?',
+                           (json.dumps(pet_data), json.dumps(inventory), session['user_id']))
+            conn.commit()
+            conn.close()
+            return json.dumps({'status': 'success', 'pet_data': pet_data, 'reward': 'Pet grew stronger!'})
+        else:
+            conn.close()
+            return json.dumps({'status': 'error', 'message': 'Item not found in inventory'})
+
+    conn.close()
+    return json.dumps({'status': 'error', 'message': 'Invalid action'})
 
 @app.route('/profile')
 def profile():
@@ -899,8 +1128,485 @@ def leaderboard():
     return render_template('leaderboard.html', users=users, class_filter=class_filter)
 
 
+# --- CHAPTER-SPECIFIC DYNAMIC PARSER ---
+class ChapterParser:
+    @staticmethod
+    def parse_pdf(file_path):
+        """Extract all text from a PDF file."""
+        if not os.path.exists(file_path):
+            return ""
+        
+        text = ""
+        try:
+            with open(file_path, "rb") as f:
+                reader = pypdf.PdfReader(f)
+                for page in reader.pages:
+                    text += page.extract_text() + "\n"
+        except Exception as e:
+            print(f"Error parsing PDF {file_path}: {e}")
+            return ""
+        return text
+
+    @staticmethod
+    def parse_txt(file_path):
+        """Extract structured game data from a chapter text file or PDF."""
+        if not os.path.exists(file_path):
+            return None
+        
+        if file_path.lower().endswith('.pdf'):
+            text = ChapterParser.parse_pdf(file_path)
+        else:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+            except UnicodeDecodeError:
+                with open(file_path, 'r', encoding='latin-1') as f:
+                    text = f.read()
+        
+        if not text:
+            return None
+
+        data = {
+            'terms': [],
+            'facts': [],
+            'tf': [],
+            'fill': []
+        }
+        
+        # 1. Extract terms (New words / vocabulary)
+        # Look for "New words" or "vocabulary" or "words to know" or "keywords"
+        term_sections = re.findall(r'(?:New words|vocabulary|words to know|keywords|Let us speak)\s*[:\-]*\s*(.*?)(?:\n\n|\r\n\r\n|\n[A-Z]|\Z)', text, re.DOTALL | re.IGNORECASE)
+        for section in term_sections:
+            # Clean up the section
+            section = re.sub(r'[\r\n]+', ' ', section)
+            # Split by various delimiters common in lists
+            words = re.split(r'[|,\t•●○■]', section)
+            for w in words:
+                w = w.strip().replace('*', '').replace('•', '').replace('●', '').replace('○', '').replace('■', '')
+                # Filter for clean words/terms
+                if 2 < len(w) < 40 and any(c.isalpha() for c in w):
+                    data['terms'].append(w)
+        
+        # 2. Extract facts/sentences for MCQs
+        # For PDF, we just take clean sentences from the whole text if not too many
+        sentences = re.split(r'[.!?](?:\s|\n|\r)', text)
+        for s in sentences:
+            # Clean up the sentence (remove page numbers, weird symbols etc)
+            s = s.strip()
+            s = re.sub(r'\s+', ' ', s)
+            if 30 < len(s) < 200:
+                if any(x in s.lower() for x in ['teacher', 'note', 'indd', 'reprint', 'page', 'mridang', 'ncert', 'editor']):
+                    continue
+                
+                # Simple Fact Extraction (avoid questions)
+                if not s.strip().endswith('?'):
+                    # Check for simple "A is B" patterns
+                    is_match = re.search(r'^(.*?)\s+(is|are|was|were|means|has|consists of)\s+(.*)$', s, re.I)
+                    if is_match:
+                        data['facts'].append((is_match.group(1).strip(), is_match.group(3).strip()))
+                    else:
+                        if len(data['facts']) < 25:
+                            data['facts'].append((s, "True"))
+
+        # 3. Extract Workbook Exercises (Fill in the blanks / True False)
+        # Look for patterns like "1. ...", "A. ...", or lines with "/"
+        exercise_lines = re.findall(r'(?:[A-Z0-9]\.\s*|●\s*|•\s*)(.*?)(?:\n|\Z)', text)
+        for line in exercise_lines:
+            line = line.strip()
+            if not line: continue
+            
+            # True/False detection
+            if '?' in line:
+                data['tf'].append((line, True))
+            
+            # Fill in the blank detection (Look for underscores or slash options)
+            if '___' in line or '/' in line:
+                if '/' in line and len(line) < 80:
+                    parts = re.split(r'[ /]', line)
+                    answer = next((p for p in parts if len(p) > 2), "Answer")
+                    data['fill'].append((line, answer))
+                else:
+                    data['fill'].append((line, "___"))
+
+        # Deduplicate
+        data['terms'] = list(dict.fromkeys(data['terms']))
+        return data
+
+class UniversalMapper:
+    @staticmethod
+    def get_asset_path(subject, chapter_name, chapter_index, board='CBSE', class_num='1'):
+        """Locate the best available text asset for a given chapter."""
+        # Clean inputs
+        subject = subject.lower()
+        chapter_index = int(chapter_index)
+        
+        # Priority 1: Syllabus recursive search (Class-specific)
+        target_class = f"class{class_num}"
+        for root, dirs, files in os.walk('Syllabus'):
+            # Path parts like ['Syllabus', 'class5', 'Maths']
+            path_parts = [p.lower() for p in root.split(os.sep)]
+            
+            # Ensure we are in the correct class folder AND subject folder (looser check for subject)
+            if target_class in path_parts and any(subject.lower() in p for p in path_parts):
+                for f in files:
+                    f_low = f.lower()
+                    if not (f_low.endswith('.pdf') or f_low.endswith('.txt')):
+                        continue
+                    
+                    # Regex match to find the chapter number
+                    # Supports: "chapter (1)", "chapter 1", "chapter  (10)", "unit 1", "1.pdf"
+                    target_idx = str(chapter_index + 1)
+                    if re.search(rf'(?:chapter|unit|ch|[\s\(])\s*0*{target_idx}(?:[\.\)\s]|$)', f_low) or f_low.startswith(f"{target_idx}."):
+                        return os.path.join(root, f)
+                    
+                    if chapter_name.lower() in f_low:
+                        return os.path.join(root, f)
+        
+        # Priority 2: Fallback to root-level common files (only as legacy support)
+        subj_map = {'english': 'eng', 'maths': 'math', 'math': 'math', 'hindi': 'hindi', 'evs': 'evs', 'science': 'sci'}
+        prefix = subj_map.get(subject, subject[:3])
+        root_file = f"{prefix}_ch{chapter_index + 1}.txt"
+        if os.path.exists(root_file) and class_num == '1': # Only for Class 1 fallbacks
+            return root_file
+        
+        return None
+        
+        return None
+        
+        return None
+
+CHAPTER_KNOWLEDGE = {
+    'math': {
+        'Shapes and Space': {
+            'terms': ['inside', 'outside', 'above', 'below', 'near', 'far', 'on', 'under', 'top', 'bottom'],
+            'facts': [('The cat is sleeping ___ the bed','under'),('Where do you put shoes?','Outside the room'),('The ball is ___ the basket','inside'),('Birds are ___ the tree','on')],
+            'tf': [('The red ball is under the bed',True),('We throw garbage inside the dustbin',True),('A furry cat hides below the mat',True),('Above and below are positional words',True)],
+            'fill': [('Draw a smile ___ the nose','below'),('Draw eyebrows ___ the eyes','above'),('The furry cat is at the ___ of the car','top')]
+        },
+        'What is Long? What is Round?': {
+            'terms': ['long', 'round', 'roll', 'slide', 'dholak', 'pencil box', 'ball', 'tower'],
+            'facts': [('A pencil box is','long'),('A ball is','round'),('A dholak can','roll'),('A striker in carrom','slides')],
+            'tf': [('A ball is long',False),('The dholak rolled fast',True),('A pencil box is round',False),('A striker slides on the board',True)],
+            'fill': [('The grandmother put the lamb into a ___','dholak'),('My ___ box is long','pencil'),('A ___ is round','ball')]
+        },
+        'Numbers 1–9': {
+            'terms': ['one','two','three','four','five','six','seven','eight','nine','count'],
+            'facts': [('1 + 1 =','2'),('2 + 3 =','5'),('The number after 7 is','8'),('5 - 2 =','3'),('4 + 4 =','8')],
+            'tf': [('3 + 2 = 5',True),('7 is less than 5',False),('1 is the smallest single digit',True),('9 comes before 8',False)],
+            'fill': [('3 + ___ = 7','4'),('___ - 2 = 3','5'),('The number before 6 is ___','5')]
+        },
+        'Addition': {
+            'terms': ['add','sum','plus','total','more','count','together','combine','equal','answer'],
+            'facts': [('5 + 3 =','8'),('2 + 7 =','9'),('Adding zero gives','same number'),('4 + 4 =','8'),('6 + 3 =','9')],
+            'tf': [('5 + 0 = 5',True),('3 + 4 = 8',False),('Addition makes numbers bigger',True),('2 + 2 = 5',False)],
+            'fill': [('7 + ___ = 10','3'),('___ + 5 = 9','4'),('8 + 2 = ___','10')]
+        },
+        'Subtraction': {
+            'terms': ['subtract','minus','less','take away','difference','remain','left','reduce','fewer','remove'],
+            'facts': [('9 - 4 =','5'),('7 - 3 =','4'),('Subtracting zero gives','same number'),('10 - 5 =','5'),('8 - 2 =','6')],
+            'tf': [('10 - 3 = 7',True),('5 - 5 = 1',False),('Subtraction makes numbers smaller',True),('6 - 2 = 3',False)],
+            'fill': [('10 - ___ = 6','4'),('___ - 3 = 5','8'),('9 - 4 = ___','5')]
+        },
+        'Multiplication': {
+            'terms':['multiply','times','product','groups','of','repeated','addition','table','double','triple'],
+            'facts':[('3 × 4 =','12'),('5 × 2 =','10'),('Any number × 1 =','same number'),('6 × 0 =','0'),('7 × 3 =','21')],
+            'tf':[('5 × 5 = 25',True),('3 × 0 = 3',False),('Multiplication is repeated addition',True),('4 × 2 = 6',False)],
+            'fill':[('6 × ___ = 18','3'),('___ × 5 = 25','5'),('8 × 2 = ___','16')]
+        },
+        'Fractions': {
+            'terms':['half','quarter','fraction','numerator','denominator','part','whole','equal','divide','piece'],
+            'facts':[('½ means','1 out of 2 parts'),('¼ means','1 out of 4 parts'),('The top number is called','numerator'),('The bottom number is called','denominator'),('2/4 is the same as','1/2')],
+            'tf':[('½ is greater than ¼',True),('The denominator is the top number',False),('1/3 means 1 part of 3 equal parts',True),('½ + ½ = ¼',False)],
+            'fill':[('In ¾, the numerator is ___','3'),('½ of 10 is ___','5'),('A fraction shows ___ of a whole','part')]
+        },
+        'Time': {
+            'terms':['clock','hour','minute','second','morning','afternoon','evening','night','watch','hands'],
+            'facts':[('1 hour has','60 minutes'),('1 day has','24 hours'),('The short hand shows','hours'),('The long hand shows','minutes'),('Noon means','12 PM')],
+            'tf':[('1 hour = 60 minutes',True),('The long hand shows hours',False),('Morning comes before afternoon',True),('1 day = 12 hours',False)],
+            'fill':[('1 hour = ___ minutes','60'),('The short hand shows the ___','hour'),('12 PM is called ___','noon')]
+        },
+    },
+    'english': {
+        'Greetings': {
+            'terms': ['morning', 'afternoon', 'evening', 'night', 'namaste', 'hello', 'goodbye', 'meet', 'greet'],
+            'facts': [('When I meet someone in the morning, I say','Good morning'),('When I go to bed, I say','Good night'),('When I meet someone in the evening, I say','Good evening'),('Namaste is a','greeting')],
+            'tf': [('We say Good Morning at night',False),('Namaste is used to greet others',True),('Good Night is said before sleeping',True),('We say Good Afternoon in the morning',False)],
+            'fill': [('When I meet someone in the afternoon, I say Good ___','afternoon'),('When I meet someone, I say ___','Namaste'),('I go to ___ at night','bed')]
+        },
+        'My Family': {
+            'terms': ['mother', 'father', 'brother', 'sister', 'grandmother', 'grandfather', 'aunt', 'uncle', 'sparrow', 'nest'],
+            'facts': [('Mama and Papa sparrow were making a','nest'),('Mama sparrow laid','three small eggs'),('Papa sparrow brought','food for babies'),('We are a','family')],
+            'tf': [('There were five baby sparrows',False),('A sparrow family lives in a nest',True),('Father sparrow brought food',True),('A family includes brother and sister',True)],
+            'fill': [('The baby sparrows grew ___ and bigger','bigger'),('They flew up into the big blue ___','sky'),('Mama sparrow laid three small ___','eggs')]
+        },
+        'Hop a Little': {
+            'terms': ['hop', 'jump', 'stamp', 'skip', 'tap', 'dance', 'twist', 'shake', 'yawn', 'sleep'],
+            'facts': [('Hop a little, jump a little, one two','three'),('Stamp a little, skip a little, tap one','knee'),('Dance a little, twist a little, shake your','hand'),('Yawn a little, sleep a little, in your','bed')],
+            'tf': [('We tap our knee in the poem',True),('We jump with ten feet',False),('We sleep in our bed',True),('We shake our hand',True)],
+            'fill': [('One, two, ___','three'),('Tap one ___','knee'),('Shake your ___','hand')]
+        },
+        'Nouns': {
+            'terms':['noun','name','person','place','animal','thing','proper','common','boy','girl'],
+            'facts':[('A noun is a','naming word'),('Dog is a','common noun'),('India is a','proper noun'),('Nouns can be','person, place, animal or thing'),('Common nouns are','general names')],
+            'tf':[('A noun is an action word',False),('Delhi is a proper noun',True),('Cat is a common noun',True),('Verbs are naming words',False)],
+            'fill':[('A ___ is a naming word','noun'),('India is a ___ noun','proper'),('A ___ names a general thing','common')]
+        },
+        'Verbs': {
+            'terms':['verb','action','run','jump','eat','sleep','play','write','read','sing'],
+            'facts':[('A verb is an','action word'),('Run, jump, eat are','verbs'),('Verbs tell us','what someone does'),('Is, am, are are also','verbs'),('Every sentence needs a','verb')],
+            'tf':[('A verb shows action',True),('Table is a verb',False),('Run is a verb',True),('Nouns tell what someone does',False)],
+            'fill':[('A ___ is an action word','verb'),('The girl ___s to school','walk'),('Birds ___ in the sky','fly')]
+        },
+        'Adjectives': {
+            'terms':['adjective','big','small','tall','short','beautiful','ugly','fast','slow','color'],
+            'facts':[('An adjective','describes a noun'),('Big, small, tall are','adjectives'),('Adjectives tell us','more about nouns'),('Colors are','adjectives'),('Adjectives answer','what kind, how many')],
+            'tf':[('An adjective describes a noun',True),('Run is an adjective',False),('Red is an adjective',True),('Adjectives are action words',False)],
+            'fill':[('An ___ describes a noun','adjective'),('The ___ ball is round','big'),('She has a ___ dress','beautiful')]
+        },
+        'Pronouns': {
+            'terms':['pronoun','he','she','it','they','we','I','you','him','her'],
+            'facts':[('A pronoun','replaces a noun'),('He, she, it are','pronouns'),('I and we are','first person pronouns'),('You is a','second person pronoun'),('They is a','third person pronoun')],
+            'tf':[('A pronoun replaces a noun',True),('Cat is a pronoun',False),('She is a pronoun',True),('Pronouns are naming words',False)],
+            'fill':[('A ___ replaces a noun','pronoun'),('___ is going to school (boy)','He'),('___ are playing (children)','They')]
+        },
+    },
+    'hindi': {
+        'स्वर': {
+            'terms':['अ','आ','इ','ई','उ','ऊ','ए','ऐ','ओ','औ'],
+            'facts':[('हिंदी में स्वर','11 होते हैं'),('अ, आ, इ, ई','स्वर हैं'),('स्वर स्वतंत्र रूप से','बोले जा सकते हैं'),('ऋ भी एक','स्वर है'),('अं और अः','अयोगवाह हैं')],
+            'tf':[('हिंदी में 11 स्वर हैं',True),('क एक स्वर है',False),('अ पहला स्वर है',True),('स्वर 5 होते हैं',False)],
+            'fill':[('हिंदी में ___ स्वर हैं','11'),('अ, आ, इ ये ___ हैं','स्वर'),('पहला स्वर ___ है','अ')]
+        },
+        'व्यंजन': {
+            'terms':['क','ख','ग','घ','च','छ','ज','झ','ट','ठ'],
+            'facts':[('हिंदी में व्यंजन','33 होते हैं'),('क से ज्ञ तक','व्यंजन हैं'),('व्यंजन बिना स्वर के','नहीं बोले जा सकते'),('क ख ग घ ङ','कवर्ग है'),('च छ ज झ ञ','चवर्ग है')],
+            'tf':[('हिंदी में 33 व्यंजन हैं',True),('अ एक व्यंजन है',False),('क पहला व्यंजन है',True),('व्यंजन अकेले बोले जा सकते हैं',False)],
+            'fill':[('हिंदी में ___ व्यंजन हैं','33'),('क, ख, ग ये ___ हैं','व्यंजन'),('पहला व्यंजन ___ है','क')]
+        },
+        'संज्ञा': {
+            'terms':['संज्ञा','नाम','व्यक्ति','स्थान','वस्तु','जातिवाचक','व्यक्तिवाचक','भाववाचक','गाय','दिल्ली'],
+            'facts':[('संज्ञा का अर्थ है','नाम'),('राम, दिल्ली','व्यक्तिवाचक संज्ञा'),('लड़का, नदी','जातिवाचक संज्ञा'),('ईमानदारी, सुंदरता','भाववाचक संज्ञा'),('संज्ञा के','तीन भेद होते हैं')],
+            'tf':[('संज्ञा एक नाम है',True),('दौड़ना एक संज्ञा है',False),('गंगा व्यक्तिवाचक संज्ञा है',True),('संज्ञा के दो भेद हैं',False)],
+            'fill':[('किसी व्यक्ति, स्थान या वस्तु के नाम को ___ कहते हैं','संज्ञा'),('राम एक ___ संज्ञा है','व्यक्तिवाचक'),('संज्ञा के ___ भेद होते हैं','तीन')]
+        },
+    },
+    'evs': {
+        'Plants': {
+            'terms':['plant','root','stem','leaf','flower','seed','water','sunlight','soil','grow'],
+            'facts':[('Plants need','water and sunlight'),('Roots absorb','water from soil'),('Leaves make','food for the plant'),('The process is called','photosynthesis'),('Seeds grow into','new plants')],
+            'tf':[('Plants need sunlight to grow',True),('Roots are above the ground',False),('Leaves make food for plants',True),('Plants dont need water',False)],
+            'fill':[('Plants need water and ___','sunlight'),('___ absorb water from soil','Roots'),('Leaves make ___ for the plant','food')]
+        },
+        'Animals': {
+            'terms':['animal','herbivore','carnivore','omnivore','habitat','pet','wild','domestic','bird','fish'],
+            'facts':[('Herbivores eat','only plants'),('Carnivores eat','only meat'),('Omnivores eat','both plants and meat'),('A habitat is','where an animal lives'),('Birds have','feathers and wings')],
+            'tf':[('A lion is a herbivore',False),('A cow eats only plants',True),('Fish live in water',True),('All animals can fly',False)],
+            'fill':[('Animals that eat only plants are called ___','herbivores'),('A ___ eats both plants and meat','omnivore'),('Where an animal lives is called its ___','habitat')]
+        },
+        'Water': {
+            'terms':['water','rain','river','ocean','ice','steam','cloud','evaporation','condensation','precipitation'],
+            'facts':[('Water exists in','3 states'),('Ice is','solid water'),('Steam is','water vapor'),('Evaporation turns water to','vapor'),('Rain comes from','clouds')],
+            'tf':[('Water can be solid liquid and gas',True),('Ice is a liquid',False),('Rain comes from clouds',True),('The ocean has fresh water',False)],
+            'fill':[('Water in solid form is called ___','ice'),('Water vapor forms ___','clouds'),('Rain is also called ___','precipitation')]
+        },
+    },
+    'science': {
+        'Plants': {
+            'terms':['plant','root','stem','leaf','flower','seed','water','sunlight','soil','photosynthesis'],
+            'facts':[('Plants make food through','photosynthesis'),('Roots anchor the plant in','soil'),('The green pigment in leaves is','chlorophyll'),('Plants release','oxygen'),('Seeds contain','baby plants')],
+            'tf':[('Photosynthesis needs sunlight',True),('Plants breathe in oxygen',False),('Chlorophyll is green',True),('Roots grow towards light',False)],
+            'fill':[('Plants make food through ___','photosynthesis'),('The green color in leaves is due to ___','chlorophyll'),('Plants release ___ gas','oxygen')]
+        },
+    },
+    'gk': {
+        'default': {
+            'terms':['India','Delhi','Earth','planet','country','capital','flag','river','mountain','ocean'],
+            'facts':[('Capital of India is','New Delhi'),('India has','28 states'),('The longest river in India is','Ganga'),('Earth is the','3rd planet from Sun'),('The national bird of India is','Peacock')],
+            'tf':[('Delhi is the capital of India',True),('India has 30 states',False),('The Peacock is our national bird',True),('Earth is the 5th planet',False)],
+            'fill':[('The capital of India is ___','New Delhi'),('India has ___ states','28'),('The national bird is ___','Peacock')]
+        },
+    },
+    'computer': {
+        'default': {
+            'terms':['computer','keyboard','mouse','monitor','CPU','printer','internet','software','hardware','memory'],
+            'facts':[('CPU stands for','Central Processing Unit'),('A keyboard is an','input device'),('A monitor is an','output device'),('The brain of computer is','CPU'),('Software are','programs and applications')],
+            'tf':[('CPU is the brain of computer',True),('Mouse is an output device',False),('Monitor displays information',True),('Keyboard is an output device',False)],
+            'fill':[('CPU stands for Central ___ Unit','Processing'),('A ___ is used to type','keyboard'),('The ___ displays output','monitor')]
+        },
+    },
+    'sst': {
+        'default': {
+            'terms':['Earth','globe','map','continent','ocean','country','India','direction','north','south'],
+            'facts':[('There are','7 continents'),('There are','5 oceans'),('India is in','Asia'),('A globe is a','model of Earth'),('Maps show','directions and places')],
+            'tf':[('There are 7 continents',True),('India is in Europe',False),('A globe is round',True),('There are 3 oceans',False)],
+            'fill':[('There are ___ continents','7'),('India is in the continent of ___','Asia'),('A ___ is a model of Earth','globe')]
+        },
+    },
+}
+
+def get_chapter_game_data(subject, chapter_name, chapter_index=0, board='CBSE', class_num='1'):
+    """Get game content for a specific chapter using dynamic parsing or fallbacks."""
+    
+    # 1. Try to find and parse a text asset
+    asset_path = UniversalMapper.get_asset_path(subject, chapter_name, chapter_index, board, class_num)
+    if asset_path:
+        dynamic_data = ChapterParser.parse_txt(asset_path)
+        if dynamic_data and (dynamic_data['terms'] or dynamic_data['facts']):
+            return dynamic_data
+
+    # 2. Fall back to existing CHAPTER_KNOWLEDGE
+    subj_data = CHAPTER_KNOWLEDGE.get(subject.lower(), {})
+    data = subj_data.get(chapter_name)
+    if not data:
+        for key in subj_data:
+            if key.lower() in chapter_name.lower() or chapter_name.lower() in key.lower():
+                data = subj_data[key]
+                break
+    if not data:
+        data = subj_data.get('default')
+        
+    # 3. Last resort: Smart Fallback using chapter name
+    if not data:
+        words = [w for w in chapter_name.split() if len(w) > 2]
+        # Basic context for math/language
+        data = {
+            'terms': words + ['concept', 'logic', 'practice', 'study'],
+            'facts': [
+                (f"We are learning {chapter_name} in", f"{subject.capitalize()}"),
+                (f"The main focus of this chapter is", chapter_name),
+                (f"Practicing {chapter_name} helps with", "subject mastery")
+            ],
+            'tf': [
+                (f"{chapter_name} is part of the {board} syllabus", True),
+                (f"{chapter_name} is a very easy topic", True),
+                (f"We should skip studying {chapter_name}", False)
+            ],
+            'fill': [
+                (f"Current Chapter: ___", chapter_name),
+                (f"Subject of study: ___", subject.capitalize())
+            ]
+        }
+    return data
+
+
+@app.route('/games/<subject>/<int:chapter_index>')
+def games(subject, chapter_index):
+    """Game Arcade Hub — chapter-specific interactive games."""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
+    user = cursor.fetchone()
+    conn.close()
+    if not user:
+        session.clear()
+        return redirect(url_for('login'))
+
+    board_key = 'CBSE' if 'CBSE' in user['board'] else ('ICSE' if 'ICSE' in user['board'] else 'WBSE')
+    class_match = re.search(r'Class\s*(\d+)', user['class_level'])
+    class_num = class_match.group(1) if class_match else '1'
+    chapters_list = SYLLABUS_DB.get(board_key, {}).get(class_num, {}).get(subject.lower(), [])
+    
+    if chapter_index < 0 or chapter_index >= len(chapters_list):
+        chapter_index = 0
+    chapter_name = chapters_list[chapter_index] if chapters_list else 'General'
+    
+    return render_template('games.html',
+        user=user, subject=subject, chapter_name=chapter_name,
+        chapter_index=chapter_index, class_num=class_num, board=board_key)
+
+
+@app.route('/api/game_data')
+def api_game_data():
+    """Return chapter-specific game content with dynamic mapping."""
+    if 'user_id' not in session:
+        return json.dumps({'error': 'Not logged in'}), 401
+    
+    subject = request.args.get('subject', 'math').lower()
+    chapter = request.args.get('chapter', 'General')
+    chapter_idx = int(request.args.get('chapter_idx', 0))
+    board = request.args.get('board', 'CBSE')
+    class_num = request.args.get('class_num', '1')
+    
+    data = get_chapter_game_data(subject, chapter, chapter_idx, board, class_num)
+    terms = data.get('terms', [])
+    facts = data.get('facts', [])
+    tf_qs = data.get('tf', [])
+    fill_qs = data.get('fill', [])
+    
+    # Build MCQ questions from facts
+    mcqs = []
+    facts_list: List[Tuple[Any, Any]] = cast(List[Tuple[Any, Any]], list(facts)) if facts else []  # type: ignore
+    for q, a in facts_list:
+        all_wrong = [str(f[1]) for f in facts_list if cast(Tuple[Any, Any], f)[1] != a]
+        # Use cast to satisfy Pyre slicing
+        wrong = cast(List[Any], list(itertools.islice(all_wrong, 3)))
+        while len(wrong) < 3:
+            wrong.append('None of these')
+        opts = [a] + wrong
+        random.shuffle(opts)
+        mcqs.append({'q': q + '?', 'options': opts, 'answer': a})
+    
+    # Build True/False
+    tf_list: List[Tuple[str, Any]] = list(tf_qs) if tf_qs else [] # type: ignore
+    tfs = [{'q': q, 'answer': a} for q, a in tf_list]
+    
+    # Build Fill-in-the-Blanks
+    fill_list: List[Tuple[str, Any]] = list(fill_qs) if fill_qs else [] # type: ignore
+    fills = [{'q': q, 'answer': a} for q, a in fill_list]
+    
+    # Word builder data
+    terms_list: List[str] = terms  # type: ignore
+    word = random.choice(terms_list) if terms_list else 'learn'
+    scrambled = list(str(word).upper())
+    random.shuffle(scrambled)
+    
+    # Match pairs from facts using islice
+    facts_for_pairs: List[Tuple[Any, Any]] = list(itertools.islice(facts_list, 6))
+    pairs = [{'left': q, 'right': a} for q, a in facts_for_pairs]
+    
+    return json.dumps({
+        'chapter': chapter, 'subject': subject,
+        'terms': terms, 'mcqs': mcqs, 'tfs': tfs,
+        'fills': fills, 'word': word.upper(),
+        'scrambled': ''.join(scrambled),
+        'pairs': pairs
+    })
+
+
+@app.route('/api/game_complete', methods=['POST'])
+def api_game_complete():
+    """Record game completion, award XP."""
+    if 'user_id' not in session:
+        return json.dumps({'error': 'Not logged in'}), 401
+    data = request.json
+    subject = data.get('subject', 'math')
+    chapter = data.get('chapter', 'General')
+    game_type = data.get('game_type', 'quiz')
+    score = data.get('score', 0)
+    
+    xp_map = {'mcq': 30, 'tf': 25, 'fill': 30, 'word_builder': 35,
+              'match': 35, 'drag_drop': 35, 'boss_battle': 60,
+              'timed': 40, 'spin': 30, 'streak': 50, 'survival': 60,
+              'memory': 35, 'word_scramble': 30, 'word_search': 40, 'picture': 30}
+    base_xp = xp_map.get(game_type, 25)
+    xp_earned = int(base_xp * min(score / 100, 1)) if score > 0 else 10
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO learning_progress (user_id, subject, topic, mode) VALUES (?,?,?,?)',
+                   (session['user_id'], subject, chapter, game_type))
+    cursor.execute('SELECT xp, streak FROM users WHERE id=?', (session['user_id'],))
+    u = cursor.fetchone()
+    new_xp = u['xp'] + xp_earned
+    cursor.execute('UPDATE users SET xp=?, level=?, streak=?, medals=? WHERE id=?',
+                   (new_xp, calculate_level(new_xp), u['streak'] + 1, get_medal(new_xp), session['user_id']))
+    conn.commit()
+    conn.close()
+    return json.dumps({'status': 'success', 'xp_earned': xp_earned, 'new_xp': new_xp})
 
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

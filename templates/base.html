@@ -1,142 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}EduGalaxy - Hacker Space Learning{% endblock %}</title>
-        <meta name="description" content="EduGalaxy — The world's first anime-powered interactive learning platform for kids. 6 modes, 15 anime heroes, CBSE/ICSE/WBSE Classes 1–5.">
-        <meta name="theme-color" content="#f97316">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="EduGalaxy">
-        <!-- PWA Manifest -->
-        <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-        <!-- Favicon -->
+        <title>{% block title %}EduGalaxy{% endblock %}</title>
+        <meta name="description" content="EduGalaxy — Explore the universe of knowledge.">
         <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-        <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.svg') }}">
-        <!-- CSS -->
-
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-        <!-- Google Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@400;500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <!-- FontAwesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        
-        <!-- Three.js CDN -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-        <!-- Three.js Post-Processing CDNs -->
-        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-        
-        <!-- Tone.js for Generative Music -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-
-        <!-- GSAP CDN for animations -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-        <!-- GSAP ScrollTrigger -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='gamify.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='sw-holo.css') }}">
+        <style>
+            .progress-container {
+                background: rgba(0,0,0,0.4);
+                border: 1px solid var(--glass-border);
+                border-radius: 4px;
+                overflow: hidden;
+                height: 8px;
+                margin: 0.5rem 0 1rem;
+            }
+            .hud-feedback { margin-top: 0.5rem; font-family: var(--font-heading); font-size: 0.85rem; }
+        </style>
     </head>
 
-    <body>
-        <!-- System Bootloader SVG -->
-        <div id="boot-sequence" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none;">
-            <svg id="hexa-loader" width="200" height="200" viewBox="0 0 200 200">
-                <polygon points="100,20 170,60 170,140 100,180 30,140 30,60" fill="none" stroke="#ff0055" stroke-width="4" stroke-dasharray="1000" stroke-dashoffset="1000">
-                    <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="2s" fill="freeze" />
-                </polygon>
-                <text x="100" y="105" fill="#00ffff" font-family="'Orbitron', sans-serif" font-size="16" text-anchor="middle" letter-spacing="2">INITIALIZING</text>
-            </svg>
-            <div id="boot-log" style="color: #00ff00; font-family: monospace; text-align: left; width: 300px; height: 100px; overflow: hidden; font-size: 12px; margin-top: 20px; opacity: 0.8;"></div>
+    <body class="page-{{ request.endpoint | replace('_', '-') }}">
+        <!-- ═══ 3D STAR WARS BACKGROUND SYSTEM ═══ -->
+        <div id="page-bg-layers">
+            <div class="bg-layer bg-deep"></div>
+            <div class="bg-layer bg-mid"></div>
+            <div class="bg-layer bg-focus"></div>
         </div>
+        <div id="holo-grid-overlay"></div>
 
-        <!-- 3D WebGL Background -->
-        <canvas id="galaxy-canvas"></canvas>
-        <div id="cosmic-overlay"></div>
-        <div id="crt-scanlines"></div> <!-- NEW: CRT Effect -->
+        <!-- Animated Starfield Background -->
+        <div id="starfield"></div>
+        <canvas id="parallax-starfield"></canvas>
+        <div id="scanlines"></div>
 
-        <!-- Navigation Bar -->
-        <nav class="navbar">
-            <div class="nav-container">
-                <a href="{{ url_for('home') }}" class="logo">
-                    <i class="fas fa-satellite"></i> <span>EduGalaxy</span>
-                </a>
-                <ul class="nav-links">
+        <!-- Navigation Bar - Sci-Fi HUD -->
+        <nav class="hud-nav" style="display: flex !important; justify-content: space-between; align-items: center; padding: 0.8rem 2rem; position: sticky; top: 0; z-index: 9999;">
+            
+            <!-- Logo Section -->
+            <div class="nav-left" style="flex: 0 0 250px; display: flex; align-items: center;">
+                <a href="{{ url_for('home') }}" class="logo-glow" style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 900; color: #00f3ff; text-decoration: none; letter-spacing: 3px; text-shadow: 0 0 15px #00f3ff, 0 0 30px rgba(0,243,255,0.4);">EDUGALAXY</a>
+            </div>
+            
+            <!-- Main Links (Centered) -->
+            <div class="nav-center" style="flex: 1; display: flex; justify-content: center;">
+                <ul class="nav-links" style="list-style: none; display: flex; align-items: center; gap: 2rem; margin: 0; padding: 0;">
                     {% if session.get('user_id') %}
-                    <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="{{ url_for('learn') }}"><i class="fas fa-rocket"></i> Learn</a></li>
-                    <li><a href="{{ url_for('leaderboard') }}"><i class="fas fa-trophy"></i> Rankings</a></li>
-                    <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-astronaut"></i> Profile</a></li>
-                    {% if session.get('user_email') == 'admin@edugalaxy.com' %}
-                    <li><a href="{{ url_for('admin') }}"><i class="fas fa-terminal"></i> Terminal</a></li>
-                    {% endif %}
-                    <li><a href="{{ url_for('logout') }}" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Abort</a></li>
+                    <li><a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; transition: all 0.3s;">DASHBOARD</a></li>
+                    <li><a href="{{ url_for('learn') }}" class="{% if request.endpoint == 'learn' or request.endpoint == 'learn_interactive' %}active{% endif %}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; transition: all 0.3s;">LEARN</a></li>
+                    <li><a href="{{ url_for('leaderboard') }}" class="{% if request.endpoint == 'leaderboard' %}active{% endif %}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; transition: all 0.3s;">RANKINGS</a></li>
+                    <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; transition: all 0.3s;">PROFILE</a></li>
                     {% else %}
-                    <li><a href="{{ url_for('home') }}">Home</a></li>
-                    <li><a href="{{ url_for('login') }}">Login</a></li>
-                    <li><a href="{{ url_for('signup') }}" class="btn btn-signup">Sign Up</a></li>
+                    <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; transition: all 0.3s;">HOME</a></li>
+                    <li><a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; transition: all 0.3s;">LOGIN</a></li>
                     {% endif %}
-
-                    
-                    <!-- Global Audio Toggle Btn -->
-                    <li>
-                        <button id="audio-toggle-btn" class="audio-toggle" title="Toggle Sound">
-                            <i class="fas fa-volume-up"></i>
-                        </button>
-                    </li>
                 </ul>
-                <div class="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+            </div>
+
+            <!-- Status HUD (Right) -->
+            <div class="nav-right" style="flex: 0 0 250px; display: flex; justify-content: flex-end; align-items: center; gap: 1rem;">
+                {% if session.get('user_id') %}
+                <div class="status-hud-tag" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #39ff14; border: 1px solid #39ff14; padding: 4px 10px; border-radius: 4px; background: rgba(57, 255, 20, 0.05); white-space: nowrap;">PILOT: {{ session.get('user_name', 'RECRUIT')|upper }}</div>
+                <a href="{{ url_for('logout') }}" style="font-size: 0.7rem; color: #ff003c; text-decoration: none; border: 1px solid #ff003c; padding: 4px 10px; border-radius: 4px; transition: all 0.3s;">LOGOUT</a>
+                {% else %}
+                <div class="status-hud-tag" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #39ff14; border: 1px solid #39ff14; padding: 4px 10px; border-radius: 4px;">SYSTEM: ACTIVE</div>
+                <a href="{{ url_for('signup') }}" style="color: #00f3ff; border: 1px solid #00f3ff; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-family: 'Orbitron', sans-serif; font-weight: 700; transition: all 0.3s;">ENLIST NOW</a>
+                {% endif %}
             </div>
         </nav>
 
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div class="flash-messages">
+        <div style="padding: 0 2rem; margin-top: 1rem;">
             {% for category, message in messages %}
-            <div class="flash-message {{ category }}">
-                <i class="fas fa-info-circle"></i> {{ message }}
-            </div>
+            <div style="background: rgba(0,243,255,0.1); border: 1px solid var(--neon-blue); color: var(--text-main); padding: 0.75rem 1.5rem; border-radius: 8px; margin-bottom: 0.5rem; font-family: var(--font-heading);">{{ message }}</div>
             {% endfor %}
         </div>
         {% endif %}
         {% endwith %}
 
         <!-- Main Content -->
-        <main id="page-content">
+        <main>
             {% block content %}{% endblock %}
         </main>
 
-        <!-- Footer -->
-        <footer>
-            <div class="footer-content">
-                <p>&copy; 2024 EduGalaxy. Gamify Your Galactic Journey!</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-discord"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-github"></i></a>
+        <!-- Footer Section -->
+        <footer style="text-align: center; padding: 4rem 2rem; border-top: 1px solid var(--glass-border); margin-top: auto; background: rgba(0,0,0,0.7);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; text-align: left;">
+                <div>
+                    <h4 style="color: var(--neon-blue); font-family: var(--font-heading); margin-bottom: 1rem; letter-spacing: 2px;">EDUGALAXY</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">The ultimate neural interface for modern learning. Master the galaxy, one sector at a time. Designed for the Jedi of tomorrow.</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--neon-purple); font-family: var(--font-heading); margin-bottom: 1rem; letter-spacing: 2px;">QUICK LINKS</h4>
+                    <ul style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 2;">
+                        <li><a href="{{ url_for('home') }}" style="color: var(--text-muted); text-decoration: none;">Sector Home</a></li>
+                        <li><a href="{{ url_for('dashboard') }}" style="color: var(--text-muted); text-decoration: none;">Command Center</a></li>
+                        <li><a href="{{ url_for('leaderboard') }}" style="color: var(--text-muted); text-decoration: none;">Global Rankings</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--neon-green); font-family: var(--font-heading); margin-bottom: 1rem; letter-spacing: 2px;">SYSTEM STATUS</h4>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--neon-green); font-family: var(--font-heading);">
+                        <div style="width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); animation: pulse-glow 2s infinite;"></div>
+                        ALL SYSTEMS OPERATIONAL
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">LATENCY: 14ms<br>UPTIME: 99.99%</p>
                 </div>
             </div>
+            <p style="margin-top: 3rem; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 1px;">&copy; 2026 EDUGALAXY. Powered by Neuro-Link Technocracy.</p>
         </footer>
 
-        <!-- Custom JS Engine -->
-        <script src="{{ url_for('static', filename='script.js') }}"></script>
+        <!-- ═══ GOD MODE MOTION & AUDIO ENGINE ═══ -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+        <script src="{{ url_for('static', filename='js/holo-motion.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/holo-audio.js') }}"></script>
         {% block scripts %}{% endblock %}
-        <!-- Register Service Worker (PWA) -->
-        <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(()=>{});
-        }
-        </script>
     </body>
-
 </html>
-

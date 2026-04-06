@@ -1,192 +1,149 @@
 {% extends "base.html" %}
-{% block title %}EduGalaxy — Mission Control Profile{% endblock %}
+{% block title %}EduGalaxy — Jedi Profile{% endblock %}
 
 {% block content %}
-<div class="profile-universe">
-
-  <!-- HERO -->
-  <div class="prof-hero">
-    <div class="prof-avatar">{{ user.name[0].upper() }}</div>
-    <div class="prof-info">
-      <h1 class="prof-name">{{ user.name }} <span class="prof-medal">{{ medal }}</span></h1>
-      <p class="prof-meta">{{ user.class_level }} · {{ user.board }} · Member since {{ joined }}</p>
-      <div class="prof-xp-bar">
-        <div class="prof-xp-fill" style="width:{{ xp_progress }}%"></div>
-      </div>
-      <div class="prof-xp-label">{{ user.xp }} XP · Tier {{ user.level }} — {{ next_level_xp - user.xp }} XP to Tier {{ user.level + 1 }}</div>
-    </div>
-  </div>
-
-  <!-- STATS GRID -->
-  <div class="prof-stats-grid">
-    <div class="prof-stat-card" style="--psc:#f97316">
-      <div class="psc-icon">⚡</div>
-      <div class="psc-val">{{ user.xp }}</div>
-      <div class="psc-label">Total XP</div>
-    </div>
-    <div class="prof-stat-card" style="--psc:#a855f7">
-      <div class="psc-icon">🔥</div>
-      <div class="psc-val">{{ user.streak }}</div>
-      <div class="psc-label">Lessons Done</div>
-    </div>
-    <div class="prof-stat-card" style="--psc:#10b981">
-      <div class="psc-icon">📚</div>
-      <div class="psc-val">{{ total_lessons }}</div>
-      <div class="psc-label">Activities Completed</div>
-    </div>
-    <div class="prof-stat-card" style="--psc:#06b6d4">
-      <div class="psc-icon">🌍</div>
-      <div class="psc-val">{{ subjects_studied }}</div>
-      <div class="psc-label">Subjects Explored</div>
-    </div>
-    <div class="prof-stat-card" style="--psc:#fbbf24">
-      <div class="psc-icon">🏆</div>
-      <div class="psc-val">#{{ rank }}</div>
-      <div class="psc-label">Galactic Rank</div>
-    </div>
-    <div class="prof-stat-card" style="--psc:#f43f5e">
-      <div class="psc-icon">🧩</div>
-      <div class="psc-val">{{ badges_earned }}</div>
-      <div class="psc-label">Badges Earned</div>
-    </div>
-  </div>
-
-  <!-- SUBJECT MASTERY RINGS -->
-  <div class="prof-section">
-    <h2 class="prof-section-title">📊 Subject Mastery</h2>
-    <div class="mastery-rings-row">
-      {% set ring_colors = {'math':'#f87171','english':'#60a5fa','science':'#34d399','hindi':'#fb923c','evs':'#4ade80','bengali':'#a78bfa','sst':'#fbbf24','gk':'#facc15','computer':'#22d3ee'} %}
-      {% for subj, pct in subject_progress.items() %}
-      {% set color = ring_colors.get(subj, '#f97316') %}
-      <div class="mastery-ring-card">
-        <svg viewBox="0 0 80 80" class="ring-svg">
-          <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
-          <circle cx="40" cy="40" r="32" fill="none" stroke="{{ color }}" stroke-width="8"
-            stroke-dasharray="{{ (pct / 100 * 201.06)|round(1) }} 201.06"
-            stroke-linecap="round" transform="rotate(-90 40 40)"
-            style="filter:drop-shadow(0 0 6px {{ color }})"/>
-          <text x="40" y="46" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">{{ pct }}%</text>
-        </svg>
-        <div class="ring-label" style="color:{{ color }}">{{ subj|title }}</div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- ACHIEVEMENTS RACK -->
-  <div class="prof-section">
-    <h2 class="prof-section-title">🏅 Achievement Rack</h2>
-    <div class="prof-badges-grid">
-      {% for a in achievements %}
-      <div class="prof-badge {% if a.earned %}prof-badge-earned{% endif %}" style="--bc:{{ a.color }}" title="{{ a.desc }}">
-        <div class="pb-icon">{{ a.icon }}</div>
-        <div class="pb-name">{{ a.name }}</div>
-        {% if not a.earned %}<div class="pb-lock">🔒</div>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- RECENT ACTIVITY -->
-  <div class="prof-section">
-    <h2 class="prof-section-title">⚡ Recent Activity</h2>
-    <div class="prof-activity">
-      {% for r in recent %}
-      <div class="prof-activity-item">
-        <div class="pai-emoji">{% if r.mode=='storybook' %}📖{% elif r.mode=='adventure' %}🎮{% elif r.mode=='puzzle' %}🧩{% elif r.mode=='experiment' %}🔬{% elif r.mode=='voice' %}🎤{% elif r.mode=='world' %}🌍{% else %}⭐{% endif %}</div>
-        <div class="pai-info">
-          <div class="pai-title">{{ r.topic }}</div>
-          <div class="pai-meta">{{ r.subject|title }} · {{ r.mode|title }} mode</div>
+<div class="profile-wrapper">
+    <header class="profile-header">
+        <div class="glass-panel identity-card">
+            <div class="avatar-section">
+                <div class="avatar-glow profile-avatar">
+                    <img src="/static/anime/{{ session.get('user_name', 'naruto').lower() }}.png" alt="Profile">
+                </div>
+                <div class="id-tag">ID: #{{ user.id }}</div>
+            </div>
+            <div class="id-details">
+                <h1 class="glitch-text" data-text="{{ user.name }}">{{ user.name }}</h1>
+                <div class="meta-row">
+                    <span class="badge-tag">{{ user.class_level }}</span>
+                    <span class="badge-tag">{{ user.board }}</span>
+                    <span class="badge-tag neon-purple">{{ medal }} RANK</span>
+                </div>
+                <p class="joined-date">COMMISSIONED: {{ joined }}</p>
+                
+                <div class="xp-hud-bar">
+                    <label>CORE ENERGY (XP): {{ user.xp }}</label>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: {{ (user.xp % 1000) / 10 }}%;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="pai-time">{{ r.completed_at[:10] if r.completed_at else 'Recent' }}</div>
-      </div>
-      {% else %}
-      <div style="text-align:center;opacity:0.4;padding:2rem">No activity yet — start learning!</div>
-      {% endfor %}
+    </header>
+
+    <div class="profile-grid">
+        <!-- Stats HUD -->
+        <section class="glass-panel stats-hud">
+            <h3><span class="icon">📈</span> TELEMETRY DATA</h3>
+            <div class="stats-list">
+                <div class="stat-entry">
+                    <span>TOTAL XP</span>
+                    <b class="neon-blue">{{ user.xp }}</b>
+                </div>
+                <div class="stat-entry">
+                    <span>CURRENT STREAK</span>
+                    <b class="neon-red">{{ user.streak }} 🔥</b>
+                </div>
+                <div class="stat-entry">
+                    <span>LESSONS MASTERED</span>
+                    <b class="neon-green">{{ total_lessons }}</b>
+                </div>
+                <div class="stat-entry">
+                    <span>GLOBAL RANK</span>
+                    <b class="neon-yellow">#{{ rank }}</b>
+                </div>
+            </div>
+        </section>
+
+        <!-- Subject Mastery -->
+        <section class="glass-panel mastery-hud">
+            <h3><span class="icon">⚔️</span> MODULE MASTERY</h3>
+            <div class="mastery-list">
+                {% for subj, pct in subject_progress.items() %}
+                <div class="mastery-item">
+                    <div class="mastery-labels">
+                        <span>{{ subj|upper }}</span>
+                        <span>{{ pct }}%</span>
+                    </div>
+                    <div class="progress-container mini">
+                        <div class="progress-bar" style="width: {{ pct }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Honor/Achievements -->
+        <section class="glass-panel achievements-hud">
+            <h3><span class="icon">🏆</span> EARNED HONORS</h3>
+            <div class="achievements-grid-mini">
+                {% for a in achievements %}
+                <div class="achievement-icon-card {% if a.earned %}unlocked{% else %}locked{% endif %}" title="{{ a.desc }}">
+                    <span class="a-icon">{{ a.icon }}</span>
+                    <span class="a-name">{{ a.name }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Recent Logs -->
+        <section class="glass-panel logs-hud">
+            <h3><span class="icon">📑</span> MISSION LOGS</h3>
+            <div class="logs-list">
+                {% if recent %}
+                {% for r in recent %}
+                <div class="log-entry">
+                    <span class="log-topic">{{ r.topic }}</span>
+                    <span class="log-meta">[{{ r.subject|upper }} / {{ r.mode|upper }}] — {{ r.completed_at[:10] if r.completed_at else 'N/A' }}</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="empty-msg">NO RECENT LOGS DETECTED.</p>
+                {% endif %}
+            </div>
+        </section>
     </div>
-  </div>
 
-  <div style="text-align:center;margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
-    <a href="{{ url_for('dashboard') }}" class="prof-btn-primary">🏠 Dashboard</a>
-    <a href="{{ url_for('learn') }}" class="prof-btn-secondary">🎓 Start Learning</a>
-    <a href="{{ url_for('leaderboard') }}" class="prof-btn-secondary">🏆 Rankings</a>
-  </div>
-
+    <footer class="action-footer">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">COMMAND CENTER</a>
+        <a href="{{ url_for('learn') }}" class="btn btn-primary">NEW MISSION</a>
+    </footer>
 </div>
 
 <style>
-.profile-universe { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 5rem; }
+    .profile-wrapper { max-width: 1200px; margin: 0 auto; padding-bottom: 4rem; }
+    .identity-card { display: flex; gap: 3rem; align-items: center; margin-bottom: 2.5rem; border-left: 5px solid var(--neon-blue) !important; }
+    .avatar-section { text-align: center; }
+    .profile-avatar { width: 160px; height: 160px; }
+    .id-tag { margin-top: 1rem; font-family: var(--font-heading); color: var(--text-muted); font-size: 0.8rem; letter-spacing: 2px; }
+    
+    .id-details h1 { font-size: 3.5rem; margin-bottom: 0.5rem; }
+    .meta-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    .joined-date { font-family: var(--font-heading); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .xp-hud-bar { max-width: 400px; }
+    .xp-hud-bar label { display: block; font-family: var(--font-heading); font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--neon-blue); }
 
-/* HERO */
-.prof-hero { display:flex; align-items:center; gap:2rem; padding:2.5rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:28px; margin-bottom:2rem; flex-wrap:wrap; }
-.prof-avatar { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#f97316,#a855f7); display:flex; align-items:center; justify-content:center; font-family:'Bangers',cursive; font-size:3rem; flex-shrink:0; box-shadow:0 0 40px rgba(249,115,22,0.4); }
-.prof-info { flex:1; min-width:200px; }
-.prof-name { font-family:'Bangers',cursive; font-size:2.2rem; display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap; }
-.prof-medal { font-size:1.4rem; }
-.prof-meta { color:rgba(255,255,255,0.55); margin:0.3rem 0 0.8rem; }
-.prof-xp-bar { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; margin-bottom:0.4rem; }
-.prof-xp-fill { height:100%; background:linear-gradient(90deg,#f97316,#a855f7); border-radius:4px; transition:width 1.5s cubic-bezier(.4,0,.2,1); }
-.prof-xp-label { font-size:0.82rem; color:rgba(255,255,255,0.5); }
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .stats-list { display: flex; flex-direction: column; gap: 1rem; }
+    .stat-entry { display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 6px; border: 1px solid var(--glass-border); }
+    .stat-entry span { color: var(--text-muted); font-family: var(--font-heading); font-size: 0.9rem; }
+    .stat-entry b { font-family: var(--font-heading); font-size: 1.3rem; }
 
-/* STATS GRID */
-.prof-stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-bottom:2rem; }
-.prof-stat-card { text-align:center; padding:1.5rem 1rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:20px; transition:transform 0.3s; }
-.prof-stat-card:hover { transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.2); }
-.psc-icon { font-size:2rem; margin-bottom:0.5rem; }
-.psc-val { font-family:'Bangers',cursive; font-size:2.2rem; color:var(--psc); }
-.psc-label { font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:0.2rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+    .mastery-list { display: flex; flex-direction: column; gap: 1.2rem; }
+    .mastery-labels { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 0.9rem; }
+    .progress-container.mini { height: 12px; }
 
-/* SECTION */
-.prof-section { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:1.5rem; margin-bottom:1.5rem; }
-.prof-section-title { font-family:'Bangers',cursive; font-size:1.5rem; margin-bottom:1.2rem; }
+    .achievements-grid-mini { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; }
+    .achievement-icon-card { text-align: center; padding: 1rem; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; transition: 0.3s; position: relative; }
+    .achievement-icon-card.locked { opacity: 0.3; filter: grayscale(1); }
+    .a-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+    .a-name { font-size: 0.65rem; font-family: var(--font-heading); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .achievement-icon-card.unlocked:hover { border-color: var(--neon-yellow); transform: scale(1.1); box-shadow: 0 0 15px var(--neon-blue); }
 
-/* MASTERY RINGS */
-.mastery-rings-row { display:flex; flex-wrap:wrap; gap:1.5rem; }
-.mastery-ring-card { text-align:center; }
-.ring-svg { width:80px; height:80px; }
-.ring-label { font-size:0.78rem; font-weight:700; margin-top:0.3rem; text-transform:capitalize; }
+    .logs-list { display: flex; flex-direction: column; gap: 0.8rem; max-height: 400px; overflow-y: auto; }
+    .log-entry { padding: 1rem; background: rgba(0,0,0,0.2); border-left: 3px solid var(--neon-blue); border-radius: 4px; }
+    .log-topic { display: block; color: var(--text-main); font-weight: 700; margin-bottom: 3px; }
+    .log-meta { font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-heading); }
 
-/* BADGES */
-.prof-badges-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:0.8rem; }
-.prof-badge { position:relative; text-align:center; padding:1rem 0.5rem 0.8rem; background:rgba(255,255,255,0.04); border:2px solid rgba(255,255,255,0.1); border-radius:16px; transition:all 0.3s; }
-.prof-badge-earned { border-color:var(--bc); background:rgba(255,255,255,0.08); box-shadow:0 0 20px rgba(0,0,0,0.2); }
-.prof-badge-earned:hover { transform:scale(1.08); }
-.pb-icon { font-size:2rem; }
-.pb-name { font-size:0.68rem; font-weight:800; letter-spacing:0.5px; margin-top:0.3rem; }
-.pb-lock { position:absolute; top:4px; right:6px; font-size:0.65rem; opacity:0.5; }
-
-/* ACTIVITY */
-.prof-activity { display:flex; flex-direction:column; gap:0.6rem; }
-.prof-activity-item { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.04); border-radius:14px; }
-.pai-emoji { font-size:1.5rem; width:40px; text-align:center; flex-shrink:0; }
-.pai-info { flex:1; }
-.pai-title { font-weight:700; font-size:0.9rem; }
-.pai-meta { font-size:0.75rem; opacity:0.5; text-transform:capitalize; }
-.pai-time { font-size:0.75rem; opacity:0.4; white-space:nowrap; }
-
-/* BUTTONS */
-.prof-btn-primary,.prof-btn-secondary { padding:0.8rem 2rem; border-radius:50px; font-weight:800; text-decoration:none; font-size:0.95rem; transition:all 0.3s; }
-.prof-btn-primary { background:linear-gradient(135deg,#f97316,#a855f7); color:#fff; }
-.prof-btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(249,115,22,0.4); }
-.prof-btn-secondary { border:2px solid rgba(255,255,255,0.25); color:#fff; }
-.prof-btn-secondary:hover { background:rgba(255,255,255,0.1); }
-
-/* MOBILE */
-@media(max-width:600px) {
-  .prof-hero { flex-direction:column; text-align:center; }
-  .prof-stats-grid { grid-template-columns:repeat(2,1fr); }
-  .mastery-rings-row { justify-content:center; }
-}
+    .action-footer { grid-column: span 2; display: flex; justify-content: center; gap: 2rem; margin-top: 3rem; }
 </style>
-<script>
-window.addEventListener('load',()=>{
-  const fill=document.querySelector('.prof-xp-fill');
-  if(fill){const w=fill.style.width;fill.style.width='0%';setTimeout(()=>fill.style.width=w,300);}
-  document.querySelectorAll('.ring-svg circle:nth-child(2)').forEach(c=>{
-    const dash=c.getAttribute('stroke-dasharray');
-    c.setAttribute('stroke-dasharray','0 201.06');
-    setTimeout(()=>{ c.style.transition='stroke-dasharray 1.5s ease'; c.setAttribute('stroke-dasharray',dash); },500);
-  });
-});
-</script>
 {% endblock %}

@@ -1,0 +1,691 @@
+{% extends "base.html" %}
+{% block title %}Battle Simulator Arena — {{ chapter_name }}{% endblock %}
+
+{% block content %}
+<style>
+/* ═══ BATTLE ARENA THEME ═══ */
+:root { 
+    --arena-nav-bg: rgba(10, 20, 40, 0.8);
+    --shield-blue: rgba(0, 243, 255, 0.3);
+    --saber-purple: rgba(157, 78, 221, 0.3);
+}
+
+.arcade-wrapper { 
+    padding: 3rem 2rem; 
+    min-height: 100vh;
+    background: radial-gradient(circle at center, rgba(255, 0, 60, 0.05) 0%, transparent 80%);
+}
+
+.arena-hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+    padding: 1.5rem;
+    background: rgba(10, 25, 47, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+}
+
+.arena-title-box h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 6px;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 15px var(--neon-blue);
+}
+
+.arena-status-strip {
+    display: flex;
+    gap: 2rem;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+.arena-status-strip b { color: var(--neon-blue); }
+
+.battle-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 2rem; 
+    perspective: 1000px;
+}
+
+.game-card { 
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.game-card:hover {
+    transform: translateY(-10px) rotateX(5deg);
+    border-color: var(--neon-blue);
+    box-shadow: 0 15px 40px rgba(0, 243, 255, 0.15);
+}
+
+.game-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; width: 0; height: 2px;
+    background: var(--neon-blue);
+    transition: width 0.4s ease;
+}
+.game-card:hover::after { width: 100%; }
+
+.game-icon { 
+    font-size: 3.5rem; 
+    margin-bottom: 1.5rem; 
+    display: block; 
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+}
+
+.game-title { 
+    font-family: 'Orbitron', sans-serif; 
+    font-size: 1.1rem; 
+    color: #fff; 
+    letter-spacing: 2px; 
+    margin-bottom: 0.8rem; 
+}
+
+.game-desc { 
+    font-size: 0.8rem; 
+    color: var(--text-muted); 
+    line-height: 1.5; 
+    min-height: 2.5rem;
+}
+
+.game-reward { 
+    display: inline-block; 
+    margin-top: 1.5rem; 
+    font-size: 0.75rem; 
+    color: var(--neon-green); 
+    border: 1px solid rgba(57,255,20,0.2); 
+    padding: 5px 15px; 
+    border-radius: 20px;
+    background: rgba(57,255,20,0.05);
+}
+
+.battle-section-label { 
+    grid-column: 1 / -1; 
+    font-family: 'Orbitron', sans-serif; 
+    color: var(--neon-purple); 
+    font-size: 1.2rem; 
+    letter-spacing: 5px; 
+    padding: 1rem 0; 
+    border-bottom: 1px solid var(--glass-border); 
+    margin: 2rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.battle-section-label::before { content: '>'; color: var(--neon-purple); }
+
+.back-link {
+    text-decoration: none;
+    color: var(--neon-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+.back-link:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
+
+/* Custom Modal Styling for Star Wars */
+.game-modal {
+    background: rgba(10, 20, 40, 0.95) !important;
+    border: 2px solid var(--neon-blue) !important;
+    box-shadow: 0 0 100px rgba(0, 243, 255, 0.2) !important;
+}
+</style>
+
+<div class="arcade-wrapper">
+    <div class="arena-hud-top">
+        <div class="arena-title-box">
+            <h1 class="glitch-text" data-text="BATTLE SIMULATOR">BATTLE SIMULATOR</h1>
+            <div class="arena-status-strip">
+                <span>COMBAT ZONE: <b>{{ chapter_name|upper }}</b></span>
+                <span>SYSTEM: <b>{{ subject|upper }}</b></span>
+                <span>DIFFICULTY: <b>ELITE</b></span>
+            </div>
+        </div>
+        <a href="{{ url_for('learn_interactive', subject=subject) }}" class="back-link">← RETREAT TO SECTOR</a>
+    </div>
+
+    <div class="battle-grid">
+        <div class="battle-section-label">SIMULATION PROTOCOLS</div>
+        
+        <div class="game-card holo-card" onclick="launchGame('mcq')">
+            <span class="game-icon">🎯</span>
+            <div class="game-title">PLASMA TAP</div>
+            <div class="game-desc">High-speed tactical MCQ decisions.</div>
+            <span class="game-reward">+30 XP</span>
+        </div>
+        
+        <div class="game-card holo-card" onclick="launchGame('tf')">
+            <span class="game-icon">⚡</span>
+            <div class="game-title">BINARY BOLT</div>
+            <div class="game-desc">Instant True/False logic pulses.</div>
+            <span class="game-reward">+25 XP</span>
+        </div>
+
+        <div class="game-card holo-card" onclick="launchGame('fill')">
+            <span class="game-icon">✏️</span>
+            <div class="game-title">CORE MATRIX</div>
+            <div class="game-desc">Reconstruct missing data sequences.</div>
+            <span class="game-reward">+30 XP</span>
+        </div>
+
+        <div class="game-card holo-card" onclick="launchGame('word_builder')">
+            <span class="game-icon">🔤</span>
+            <div class="game-title">CODE BREAKER</div>
+            <div class="game-desc">Assemble scrambled code blocks.</div>
+            <span class="game-reward">+35 XP</span>
+        </div>
+
+        <div class="battle-section-label">COMBAT CHALLENGES</div>
+
+        <div class="game-card holo-card" onclick="launchGame('boss_battle')">
+            <span class="game-icon">⚔️</span>
+            <div class="game-title">SITH DUEL</div>
+            <div class="game-desc">Engage a Knowledge Overlord in combat.</div>
+            <span class="game-reward">+60 XP</span>
+        </div>
+
+        <div class="game-card holo-card" onclick="launchGame('survival')">
+            <span class="game-icon">💀</span>
+            <div class="game-title">SURVIVAL RUN</div>
+            <div class="game-desc">One error terminates the sequence.</div>
+            <span class="game-reward">+60 XP</span>
+        </div>
+
+        <div class="game-card holo-card" onclick="launchGame('timed')">
+            <span class="game-icon">⏱️</span>
+            <div class="game-title">TURBO LASER</div>
+            <div class="game-desc">Maximum output under time pressure.</div>
+            <span class="game-reward">+40 XP</span>
+        </div>
+
+        <div class="battle-section-label">TACTICAL TRAINING</div>
+
+        <div class="game-card holo-card" onclick="launchGame('memory')">
+            <span class="game-icon">🃏</span>
+            <div class="game-title">MIND SYNC</div>
+            <div class="game-desc">Synchronize pattern memory buffers.</div>
+            <span class="game-reward">+35 XP</span>
+        </div>
+
+        <div class="game-card holo-card" onclick="launchGame('word_search')">
+            <span class="game-icon">🔍</span>
+            <div class="game-title">SIGNAL FINDER</div>
+            <div class="game-desc">Locate hidden data signatures.</div>
+            <span class="game-reward">+40 XP</span>
+        </div>
+    </div>
+</div>
+
+<!-- Game Overlay -->
+<div class="game-overlay" id="game-overlay">
+    <div class="game-modal" id="game-modal">
+        <button class="game-close" onclick="closeGame()">✕</button>
+        <div id="game-content"></div>
+    </div>
+</div>
+
+<script>
+const SUBJECT = {{ subject|tojson }};
+const CHAPTER = {{ chapter_name|tojson }};
+const CHAPTER_IDX = {{ chapter_index|default(0) }};
+const BOARD = {{ board|tojson }};
+const CLASS_NUM = {{ class_num|tojson }};
+let gameData = null;
+let currentGame = null;
+
+// Fetch chapter-specific game data
+async function loadGameData() {
+    const resp = await fetch(`/api/game_data?subject=${SUBJECT}&chapter=${encodeURIComponent(CHAPTER)}&chapter_idx=${CHAPTER_IDX}&board=${BOARD}&class_num=${CLASS_NUM}`);
+    gameData = await resp.json();
+}
+loadGameData();
+
+function launchGame(type) {
+    if (!gameData) { alert('Loading game data...'); return; }
+    currentGame = type;
+    document.getElementById('game-overlay').classList.add('active');
+    const gc = document.getElementById('game-content');
+    switch(type) {
+        case 'mcq': startMCQ(gc); break;
+        case 'tf': startTF(gc); break;
+        case 'fill': startFill(gc); break;
+        case 'word_builder': startWordBuilder(gc); break;
+        case 'match': startMatch(gc); break;
+        case 'drag_drop': startDragDrop(gc); break;
+        case 'boss_battle': startBossBattle(gc); break;
+        case 'timed': startTimed(gc); break;
+        case 'spin': startSpin(gc); break;
+        case 'streak': startStreak(gc); break;
+        case 'survival': startSurvival(gc); break;
+        case 'memory': startMemory(gc); break;
+        case 'word_scramble': startWordScramble(gc); break;
+        case 'word_search': startWordSearch(gc); break;
+        case 'picture': startPicture(gc); break;
+    }
+}
+
+function closeGame() {
+    document.getElementById('game-overlay').classList.remove('active');
+    document.getElementById('game-content').innerHTML = '';
+    if (window._gameTimer) clearInterval(window._gameTimer);
+}
+
+async function completeGame(gameType, score) {
+    const resp = await fetch('/api/game_complete', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({subject: SUBJECT, chapter: CHAPTER, game_type: gameType, score: score})
+    });
+    const data = await resp.json();
+    return data;
+}
+
+function showResult(gc, score, maxScore, gameType) {
+    const pct = Math.round(score / maxScore * 100);
+    completeGame(gameType, pct).then(data => {
+        gc.innerHTML = `<div class="g-result">
+            <h3 class="${pct >= 60 ? 'neon-green' : 'neon-red'}">${pct >= 60 ? '🏆 VICTORY!' : '💫 KEEP TRYING!'}</h3>
+            <p style="color:#fff;font-size:1.2rem">Score: ${score}/${maxScore} (${pct}%)</p>
+            <p class="xp-earned">+${data.xp_earned} XP EARNED!</p>
+            <p style="color:var(--text-muted);margin-top:0.5rem">Total XP: ${data.new_xp}</p>
+            <div style="margin-top:1.5rem">
+                <button class="g-btn primary" onclick="launchGame('${gameType}')">🔄 RETRY</button>
+                <button class="g-btn" onclick="closeGame()">🏠 BACK TO ARCADE</button>
+            </div>
+        </div>`;
+    });
+}
+
+function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+// ===== 1. MCQ QUICK TAP =====
+function startMCQ(gc) {
+    const qs = shuffle([...gameData.mcqs]); let idx=0, score=0;
+    function showQ() {
+        if(idx >= qs.length) { showResult(gc, score, qs.length, 'mcq'); return; }
+        const q = qs[idx];
+        gc.innerHTML = `<h2>🎯 MCQ QUICK TAP</h2>
+            <div class="g-progress"><div class="g-progress-fill" style="width:${idx/qs.length*100}%"></div></div>
+            <div class="g-score">Q${idx+1}/${qs.length} | Score: ${score}</div>
+            <div class="g-question">${q.q}</div>
+            <div class="g-options">${q.options.map((o,i) => `<div class="g-opt" data-idx="${i}">${o}</div>`).join('')}</div>`;
+        gc.querySelectorAll('.g-opt').forEach(btn => {
+            btn.onclick = () => {
+                const correct = btn.textContent === q.answer;
+                if(correct) { score++; btn.classList.add('correct'); }
+                else { btn.classList.add('wrong'); gc.querySelectorAll('.g-opt').forEach(b => { if(b.textContent===q.answer) b.classList.add('correct');}); }
+                setTimeout(() => { idx++; showQ(); }, 800);
+            };
+        });
+    }
+    showQ();
+}
+
+// ===== 2. TRUE/FALSE LIGHTNING =====
+function startTF(gc) {
+    const qs = shuffle([...gameData.tfs]); let idx=0, score=0;
+    function showQ() {
+        if(idx >= qs.length) { showResult(gc, score, qs.length, 'tf'); return; }
+        const q = qs[idx];
+        gc.innerHTML = `<h2>⚡ TRUE / FALSE</h2>
+            <div class="g-progress"><div class="g-progress-fill" style="width:${idx/qs.length*100}%"></div></div>
+            <div class="g-score">Q${idx+1}/${qs.length} | Score: ${score}</div>
+            <div class="g-question">${q.q}</div>
+            <div class="tf-btns">
+                <button class="g-btn tf-btn tf-true" onclick="checkTF(true)">✅ TRUE</button>
+                <button class="g-btn tf-btn tf-false" onclick="checkTF(false)">❌ FALSE</button>
+            </div>`;
+        window.checkTF = (ans) => {
+            if(ans === q.answer) score++;
+            idx++; showQ();
+        };
+    }
+    showQ();
+}
+
+// ===== 3. FILL IN THE BLANKS =====
+function startFill(gc) {
+    const qs = shuffle([...gameData.fills]); let idx=0, score=0;
+    function showQ() {
+        if(idx >= qs.length) { showResult(gc, score, qs.length, 'fill'); return; }
+        const q = qs[idx];
+        gc.innerHTML = `<h2>✏️ FILL THE BLANKS</h2>
+            <div class="g-progress"><div class="g-progress-fill" style="width:${idx/qs.length*100}%"></div></div>
+            <div class="g-score">Q${idx+1}/${qs.length} | Score: ${score}</div>
+            <div class="g-question">${q.q}</div>
+            <div style="text-align:center"><input class="g-input" id="fill-input" placeholder="Type your answer..." style="max-width:300px"><br>
+            <button class="g-btn primary" style="margin-top:1rem" onclick="checkFill()">SUBMIT ✓</button></div>
+            <p style="text-align:center;color:var(--text-muted);font-size:0.8rem;margin-top:0.5rem">Hint: ${q.answer.length} letters</p>`;
+        window.checkFill = () => {
+            const val = document.getElementById('fill-input').value.trim().toLowerCase();
+            if(val === q.answer.toLowerCase()) score++;
+            idx++; showQ();
+        };
+        document.getElementById('fill-input').addEventListener('keydown', e => { if(e.key==='Enter') window.checkFill(); });
+    }
+    showQ();
+}
+
+// ===== 4. WORD BUILDER =====
+function startWordBuilder(gc) {
+    const word = gameData.word; const letters = shuffle(word.split(''));
+    let answer = []; let usedIdx = new Set();
+    function render() {
+        gc.innerHTML = `<h2>🔤 WORD BUILDER</h2>
+            <p style="text-align:center;color:var(--text-muted)">Arrange the letters to form the correct word</p>
+            <div class="answer-rack">${answer.map((l,i) => `<div class="answer-tile" onclick="removeFromAnswer(${i})">${l}</div>`).join('')}</div>
+            <div class="letter-rack">${letters.map((l,i) => `<div class="letter-tile ${usedIdx.has(i)?'used':''}" onclick="addToAnswer(${i},'${l}')">${l}</div>`).join('')}</div>
+            <div style="text-align:center;margin-top:1rem"><button class="g-btn primary" onclick="checkWord()">CHECK ✓</button><button class="g-btn" onclick="resetWord()">CLEAR ↻</button></div>`;
+    }
+    window.addToAnswer = (i, l) => { if(!usedIdx.has(i)){ answer.push(l); usedIdx.add(i); render(); }};
+    window.removeFromAnswer = (i) => { const removed = answer.splice(i, 1)[0]; const origIdx = letters.findIndex((l,idx) => l===removed && usedIdx.has(idx)); usedIdx.delete(origIdx); render(); };
+    window.resetWord = () => { answer=[]; usedIdx.clear(); render(); };
+    window.checkWord = () => { const built = answer.join(''); showResult(gc, built===word?1:0, 1, 'word_builder'); };
+    render();
+}
+
+// ===== 5. MATCH THE PAIR =====
+function startMatch(gc) {
+    const pairs = gameData.pairs.slice(0, 5);
+    const lefts = shuffle(pairs.map(p => ({text: p.left, id: p.left})));
+    const rights = shuffle(pairs.map(p => ({text: p.right, id: p.left})));
+    let selectedLeft = null; let matched = new Set(); let score = 0;
+    function render() {
+        if(matched.size === pairs.length) { showResult(gc, score, pairs.length, 'match'); return; }
+        gc.innerHTML = `<h2>🔗 MATCH THE PAIR</h2>
+            <div class="g-score">Matched: ${matched.size}/${pairs.length}</div>
+            <div class="match-container">
+                <div>${lefts.map(l => `<div class="match-item ${matched.has(l.id)?'matched':''} ${selectedLeft===l.id?'selected':''}" onclick="selectLeft('${l.id}')">${l.text}</div>`).join('')}</div>
+                <div>${rights.map(r => `<div class="match-item ${matched.has(r.id)?'matched':''}" onclick="selectRight('${r.id}')">${r.text}</div>`).join('')}</div>
+            </div>`;
+    }
+    window.selectLeft = (id) => { selectedLeft = id; render(); };
+    window.selectRight = (id) => { if(selectedLeft && selectedLeft === id) { matched.add(id); score++; } selectedLeft = null; render(); };
+    render();
+}
+
+// ===== 6. DRAG & DROP (Click-based) =====
+function startDragDrop(gc) {
+    const pairs = gameData.pairs.slice(0, 4);
+    const items = shuffle(pairs.map(p => p.right));
+    const targets = pairs.map(p => p.left);
+    let answers = {}; let currentDrag = null;
+    function render() {
+        gc.innerHTML = `<h2>👆 DRAG & DROP</h2>
+            <p style="text-align:center;color:var(--text-muted)">Click an answer, then click where it belongs</p>
+            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin:1rem 0">${items.map(it => `<div class="letter-tile ${Object.values(answers).includes(it)?'used':''}" style="width:auto;padding:0.5rem 1rem" onclick="pickItem('${it.replace(/'/g,'\\\'')}')">${it}</div>`).join('')}</div>
+            <div style="display:grid;gap:1rem;margin-top:1rem">${targets.map(t => `<div class="match-item ${answers[t]?'matched':''}" style="display:flex;justify-content:space-between" onclick="placeItem('${t.replace(/'/g,'\\\'')}')"><span>${t}</span><span style="color:var(--neon-green)">${answers[t]||'???'}</span></div>`).join('')}</div>
+            <div style="text-align:center;margin-top:1.5rem"><button class="g-btn primary" onclick="checkDragDrop()">CHECK ALL ✓</button></div>`;
+    }
+    window.pickItem = (it) => { currentDrag = it; };
+    window.placeItem = (t) => { if(currentDrag) { answers[t] = currentDrag; currentDrag = null; render(); }};
+    window.checkDragDrop = () => { let s = 0; pairs.forEach(p => { if(answers[p.left] === p.right) s++; }); showResult(gc, s, pairs.length, 'drag_drop'); };
+    render();
+}
+
+// ===== 7. BOSS BATTLE =====
+function startBossBattle(gc) {
+    const qs = shuffle([...gameData.mcqs]); let idx = 0, bossHP = 100, playerHP = 100;
+    const bosses = ['🐉','👹','🤖','👾','🦹'];
+    const boss = bosses[Math.floor(Math.random()*bosses.length)];
+    function showQ() {
+        if(bossHP <= 0) { showResult(gc, Math.ceil(playerHP/100*qs.length), qs.length, 'boss_battle'); return; }
+        if(playerHP <= 0 || idx >= qs.length) { showResult(gc, Math.ceil((100-bossHP)/100*qs.length), qs.length, 'boss_battle'); return; }
+        const q = qs[idx % qs.length];
+        gc.innerHTML = `<h2>⚔️ BOSS BATTLE</h2>
+            <div class="boss-area"><span class="boss-emoji">${boss}</span>
+                <div class="hp-label">BOSS HP: ${bossHP}%</div>
+                <div class="hp-bar"><div class="hp-fill" style="width:${bossHP}%"></div></div>
+            </div>
+            <div class="g-score" style="color:var(--neon-green)">YOUR HP: ${playerHP}%</div>
+            <div class="g-question">${q.q}</div>
+            <div class="g-options">${q.options.map(o => `<div class="g-opt">${o}</div>`).join('')}</div>`;
+        gc.querySelectorAll('.g-opt').forEach(btn => {
+            btn.onclick = () => {
+                if(btn.textContent === q.answer) { bossHP -= 25; btn.classList.add('correct'); }
+                else { playerHP -= 25; btn.classList.add('wrong'); }
+                idx++; setTimeout(showQ, 600);
+            };
+        });
+    }
+    showQ();
+}
+
+// ===== 8. TIMED CHALLENGE =====
+function startTimed(gc) {
+    const qs = shuffle([...gameData.mcqs, ...gameData.mcqs]); let idx=0, score=0, timeLeft=60;
+    window._gameTimer = setInterval(() => { timeLeft--; const el=document.getElementById('timer-val'); if(el) el.textContent=timeLeft; if(timeLeft<=0){clearInterval(window._gameTimer); showResult(gc, score, idx||1, 'timed');} }, 1000);
+    function showQ() {
+        if(idx >= qs.length) { clearInterval(window._gameTimer); showResult(gc, score, qs.length, 'timed'); return; }
+        const q = qs[idx];
+        gc.innerHTML = `<h2>⏱️ TIMED CHALLENGE</h2>
+            <div class="g-timer" id="timer-val">${timeLeft}</div>
+            <div class="g-score">Score: ${score}</div>
+            <div class="g-question">${q.q}</div>
+            <div class="g-options">${q.options.map(o => `<div class="g-opt">${o}</div>`).join('')}</div>`;
+        gc.querySelectorAll('.g-opt').forEach(btn => {
+            btn.onclick = () => { if(btn.textContent===q.answer) score++; idx++; showQ(); };
+        });
+    }
+    showQ();
+}
+
+// ===== 9. SPIN THE WHEEL =====
+function startSpin(gc) {
+    const types = [{name:'MCQ',icon:'🎯',color:'#00f3ff'},{name:'T/F',icon:'⚡',color:'#9d4edd'},{name:'Fill',icon:'✏️',color:'#39ff14'},{name:'Bonus',icon:'🎁',color:'#ffc107'}];
+    let score = 0, rounds = 0, maxRounds = 3;
+    function showWheel() {
+        if(rounds >= maxRounds) { showResult(gc, score, maxRounds, 'spin'); return; }
+        gc.innerHTML = `<h2>🎡 SPIN THE WHEEL</h2><div class="g-score">Round ${rounds+1}/${maxRounds} | Score: ${score}</div>
+            <div class="wheel-container"><div class="wheel-pointer">▼</div>
+                <div class="wheel" id="the-wheel" style="background:conic-gradient(${types.map((t,i) => `${t.color} ${i*90}deg ${(i+1)*90}deg`).join(',')})">
+                    ${types.map((t,i) => `<div style="position:absolute;top:${i<2?'15%':'55%'};left:${i%2===0?'15%':'55%'};font-size:2rem">${t.icon}</div>`).join('')}
+                </div>
+            </div>
+            <button class="g-btn primary spin-btn" onclick="doSpin()">🎰 SPIN!</button>`;
+    }
+    window.doSpin = () => {
+        const wheel = document.getElementById('the-wheel');
+        const deg = 1440 + Math.floor(Math.random()*360);
+        wheel.style.transform = `rotate(${deg}deg)`;
+        setTimeout(() => {
+            const winner = types[Math.floor(((deg % 360) / 90)) % types.length];
+            rounds++;
+            if(winner.name === 'Bonus') { score++; showWheel(); }
+            else {
+                const q = winner.name==='MCQ' ? gameData.mcqs[0] : (winner.name==='T/F' ? gameData.tfs[0] : gameData.fills[0]);
+                if(winner.name==='Fill') {
+                    gc.innerHTML = `<h2>✏️ ${winner.name} QUESTION</h2><div class="g-question">${q.q}</div><div style="text-align:center"><input class="g-input" id="spin-ans" style="max-width:300px"><br><button class="g-btn primary" style="margin-top:1rem" onclick="checkSpinFill()">SUBMIT</button></div>`;
+                    window.checkSpinFill = () => { if(document.getElementById('spin-ans').value.trim().toLowerCase()===q.answer.toLowerCase()) score++; showWheel(); };
+                } else if(winner.name==='T/F') {
+                    gc.innerHTML = `<h2>⚡ ${winner.name} QUESTION</h2><div class="g-question">${q.q}</div><div class="tf-btns"><button class="g-btn tf-btn tf-true" onclick="checkSpinTF(true)">TRUE</button><button class="g-btn tf-btn tf-false" onclick="checkSpinTF(false)">FALSE</button></div>`;
+                    window.checkSpinTF = (a) => { if(a===q.answer) score++; showWheel(); };
+                } else {
+                    gc.innerHTML = `<h2>🎯 ${winner.name} QUESTION</h2><div class="g-question">${q.q}</div><div class="g-options">${q.options.map(o=>`<div class="g-opt" onclick="checkSpinMCQ(this,'${q.answer.replace(/'/g,'\\\'')}')">${o}</div>`).join('')}</div>`;
+                    window.checkSpinMCQ = (el,ans) => { if(el.textContent===ans) score++; showWheel(); };
+                }
+            }
+        }, 3200);
+    };
+    showWheel();
+}
+
+// ===== 10. STREAK CHAIN =====
+function startStreak(gc) {
+    const qs = shuffle([...gameData.mcqs, ...gameData.tfs.map(t => ({q:t.q+'?', options:['True','False'], answer:t.answer?'True':'False'}))]); 
+    let idx=0, score=0, streak=0, bestStreak=0;
+    function showQ() {
+        if(idx >= qs.length) { showResult(gc, score, qs.length, 'streak'); return; }
+        const q = qs[idx];
+        gc.innerHTML = `<h2>🔥 STREAK CHAIN</h2>
+            <div class="g-streak">🔥 STREAK: ${streak} | BEST: ${bestStreak}</div>
+            <div class="g-score">Score: ${score}/${qs.length}</div>
+            <div class="g-question">${q.q}</div>
+            <div class="g-options">${q.options.map(o => `<div class="g-opt">${o}</div>`).join('')}</div>`;
+        gc.querySelectorAll('.g-opt').forEach(btn => {
+            btn.onclick = () => {
+                if(btn.textContent === q.answer) { score++; streak++; bestStreak = Math.max(bestStreak, streak); }
+                else { streak = 0; }
+                idx++; showQ();
+            };
+        });
+    }
+    showQ();
+}
+
+// ===== 11. SURVIVAL MODE =====
+function startSurvival(gc) {
+    const qs = shuffle([...gameData.mcqs, ...gameData.mcqs]); let idx=0, score=0;
+    function showQ() {
+        if(idx >= qs.length) { showResult(gc, score, qs.length, 'survival'); return; }
+        const q = qs[idx];
+        gc.innerHTML = `<h2>💀 SURVIVAL MODE</h2>
+            <p style="text-align:center;color:var(--neon-red);font-size:0.9rem">ONE WRONG = GAME OVER!</p>
+            <div class="g-score">Survived: ${score} questions</div>
+            <div class="g-question">${q.q}</div>
+            <div class="g-options">${q.options.map(o => `<div class="g-opt">${o}</div>`).join('')}</div>`;
+        gc.querySelectorAll('.g-opt').forEach(btn => {
+            btn.onclick = () => {
+                if(btn.textContent === q.answer) { score++; idx++; showQ(); }
+                else { showResult(gc, score, qs.length, 'survival'); }
+            };
+        });
+    }
+    showQ();
+}
+
+// ===== 12. MEMORY FLIP =====
+function startMemory(gc) {
+    const pairs = gameData.pairs.slice(0, 4);
+    let cards = []; pairs.forEach(p => { cards.push({id:p.left, text:p.left.substring(0,15), type:'q'}); cards.push({id:p.left, text:p.right.substring(0,15), type:'a'}); });
+    cards = shuffle(cards);
+    let flipped = [], matched = new Set(), moves = 0;
+    function render() {
+        if(matched.size === pairs.length) { showResult(gc, Math.max(1, pairs.length - Math.floor(moves/4)), pairs.length, 'memory'); return; }
+        gc.innerHTML = `<h2>🃏 MEMORY FLIP</h2><div class="g-score">Moves: ${moves} | Matched: ${matched.size}/${pairs.length}</div>
+            <div class="memory-grid">${cards.map((c,i) => {
+                const isFlipped = flipped.includes(i) || matched.has(c.id);
+                return `<div class="mem-card ${isFlipped?'flipped':''} ${matched.has(c.id)?'matched':''}" onclick="flipCard(${i})">
+                    <span class="front">${c.text}</span><span class="back">❓</span></div>`;
+            }).join('')}</div>`;
+    }
+    window.flipCard = (i) => {
+        if(flipped.length >= 2 || flipped.includes(i) || matched.has(cards[i].id)) return;
+        flipped.push(i); render();
+        if(flipped.length === 2) {
+            moves++;
+            const [a,b] = flipped;
+            if(cards[a].id === cards[b].id && cards[a].type !== cards[b].type) { matched.add(cards[a].id); }
+            setTimeout(() => { flipped = []; render(); }, 1000);
+        }
+    };
+    render();
+}
+
+// ===== 13. WORD SCRAMBLE =====
+function startWordScramble(gc) {
+    const terms = shuffle([...gameData.terms]).slice(0, 5);
+    let idx = 0, score = 0;
+    function showQ() {
+        if(idx >= terms.length) { showResult(gc, score, terms.length, 'word_scramble'); return; }
+        const word = terms[idx].toUpperCase();
+        const scrambled = shuffle(word.split('')).join('');
+        gc.innerHTML = `<h2>🔀 WORD SCRAMBLE</h2>
+            <div class="g-progress"><div class="g-progress-fill" style="width:${idx/terms.length*100}%"></div></div>
+            <div class="g-score">Word ${idx+1}/${terms.length} | Score: ${score}</div>
+            <div class="g-question" style="font-size:2rem;letter-spacing:8px;color:var(--neon-yellow)">${scrambled}</div>
+            <div style="text-align:center"><input class="g-input" id="ws-input" placeholder="Unscramble the word..." style="max-width:300px"><br>
+            <button class="g-btn primary" style="margin-top:1rem" onclick="checkScramble('${word}')">SUBMIT ✓</button>
+            <p style="color:var(--text-muted);font-size:0.8rem;margin-top:0.5rem">Hint: ${word.length} letters</p></div>`;
+        document.getElementById('ws-input').addEventListener('keydown', e => { if(e.key==='Enter') window.checkScramble(word); });
+    }
+    window.checkScramble = (word) => {
+        const val = document.getElementById('ws-input').value.trim().toUpperCase();
+        if(val === word) score++;
+        idx++; showQ();
+    };
+    showQ();
+}
+
+// ===== 14. WORD SEARCH =====
+function startWordSearch(gc) {
+    const words = gameData.terms.slice(0, 4).map(w => w.toUpperCase());
+    const size = 8;
+    const grid = Array.from({length:size}, () => Array.from({length:size}, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random()*26)]));
+    // Place words horizontally
+    words.forEach((w, wi) => {
+        if(w.length <= size) {
+            const row = wi % size;
+            const col = Math.max(0, Math.floor(Math.random()*(size-w.length)));
+            for(let i=0;i<w.length;i++) grid[row][col+i] = w[i];
+        }
+    });
+    let selected = new Set(), foundWords = new Set(), selecting = false;
+    function render() {
+        if(foundWords.size === words.length) { showResult(gc, words.length, words.length, 'word_search'); return; }
+        gc.innerHTML = `<h2>🔍 WORD SEARCH</h2><div class="g-score">Found: ${foundWords.size}/${words.length}</div>
+            <div class="ws-words">${words.map(w => `<span class="ws-word ${foundWords.has(w)?'found':''}">${w}</span>`).join('')}</div>
+            <div style="text-align:center"><div class="ws-grid" style="grid-template-columns:repeat(${size},1fr)">
+                ${grid.map((row,ri) => row.map((c,ci) => {
+                    const key = `${ri}-${ci}`;
+                    return `<div class="ws-cell ${selected.has(key)?'selected':''}" onmousedown="wsStart('${key}')" onmouseenter="wsMove('${key}')" onmouseup="wsEnd()">${c}</div>`;
+                }).join('')).join('')}
+            </div></div>
+            <button class="g-btn" style="display:block;margin:1rem auto" onclick="wsClear()">CLEAR SELECTION</button>`;
+    }
+    window.wsStart = (k) => { selecting=true; selected.clear(); selected.add(k); render(); };
+    window.wsMove = (k) => { if(selecting) { selected.add(k); render(); } };
+    window.wsEnd = () => {
+        selecting = false;
+        const letters = [...selected].map(k => { const[r,c]=k.split('-').map(Number); return grid[r][c]; }).join('');
+        words.forEach(w => { if(letters.includes(w) || letters.split('').reverse().join('').includes(w)) foundWords.add(w); });
+        render();
+    };
+    window.wsClear = () => { selected.clear(); render(); };
+    render();
+}
+
+// ===== 15. PICTURE QUIZ =====
+function startPicture(gc) {
+    const EmojiMap = {'circle':'⭕','square':'⬛','triangle':'🔺','plant':'🌱','water':'💧','sun':'☀️','animal':'🐾','book':'📚','add':'➕','subtract':'➖','multiply':'✖️','noun':'📝','verb':'🏃','earth':'🌍','computer':'💻','time':'⏰','number':'🔢','fraction':'🍕','color':'🎨','bird':'🐦'};
+    const qs = gameData.terms.slice(0,5).map(t => {
+        const emoji = EmojiMap[t.toLowerCase()] || '❓';
+        const wrong = shuffle(gameData.terms.filter(x => x !== t)).slice(0,3);
+        return {q: emoji, answer: t, options: shuffle([t, ...wrong])};
+    });
+    let idx=0, score=0;
+    function showQ() {
+        if(idx >= qs.length) { showResult(gc, score, qs.length, 'picture'); return; }
+        const q = qs[idx];
+        gc.innerHTML = `<h2>🖼️ PICTURE QUIZ</h2>
+            <div class="g-progress"><div class="g-progress-fill" style="width:${idx/qs.length*100}%"></div></div>
+            <div class="g-score">Q${idx+1}/${qs.length} | Score: ${score}</div>
+            <div class="g-question" style="font-size:5rem">${q.q}</div>
+            <p style="text-align:center;color:var(--text-muted)">What does this represent?</p>
+            <div class="g-options">${q.options.map(o => `<div class="g-opt">${o}</div>`).join('')}</div>`;
+        gc.querySelectorAll('.g-opt').forEach(btn => {
+            btn.onclick = () => {
+                if(btn.textContent === q.answer) { score++; btn.classList.add('correct'); }
+                else { btn.classList.add('wrong'); }
+                setTimeout(() => { idx++; showQ(); }, 600);
+            };
+        });
+    }
+    showQ();
+}
+</script>
+{% endblock %}

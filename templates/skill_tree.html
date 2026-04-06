@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}EduGalaxy — Skill Tree{% endblock %}
+
+{% block content %}
+<div class="skill-tree-wrapper">
+    <!-- Header HUD -->
+    <div class="tree-header">
+        <h1 class="glitch-text" data-text="HOLOCRON PATH">HOLOCRON PATH</h1>
+        <p class="tree-subtitle">COMMUNE WITH THE FORCE TO UNLOCK ANCIENT KNOWLEDGE</p>
+    </div>
+
+    <div class="force-nodes-container">
+        <div class="skill-node-tree">
+            <!-- Node 1 -->
+            <div class="skill-node-wrapper">
+                <div class="skill-node unlocked holo-card">
+                    <div class="node-icon">✨</div>
+                    <div class="node-info">
+                        <h4>CORE LITERACY</h4>
+                        <span class="status-tag">UNLOCKED</span>
+                    </div>
+                </div>
+                <div class="node-connector"></div>
+            </div>
+
+            <!-- Node 2 -->
+            <div class="skill-node-wrapper">
+                <div class="skill-node locked holo-card" id="node-logic-card">
+                    <div class="node-icon">🧩</div>
+                    <div class="node-info">
+                        <h4>QUANTUM LOGIC</h4>
+                        <p class="cost">COST: 50 XP</p>
+                    </div>
+                    <button class="btn-unlock" onclick="unlockSkill('node-logic', this)">ASCEND</button>
+                </div>
+                <div class="node-connector"></div>
+            </div>
+
+            <!-- Node 3 -->
+            <div class="skill-node-wrapper">
+                <div class="skill-node locked holo-card" id="node-data-card">
+                    <div class="node-icon">💾</div>
+                    <div class="node-info">
+                        <h4>DATA DECODING</h4>
+                        <p class="cost">COST: 50 XP</p>
+                    </div>
+                    <button class="btn-unlock" onclick="unlockSkill('node-data', this)">ASCEND</button>
+                </div>
+                <div class="node-connector"></div>
+            </div>
+
+            <!-- Node 4 -->
+            <div class="skill-node-wrapper">
+                <div class="skill-node locked holo-card" id="node-galactic-card">
+                    <div class="node-icon">🌌</div>
+                    <div class="node-info">
+                        <h4>GALACTIC HISTORY</h4>
+                        <p class="cost">COST: 50 XP</p>
+                    </div>
+                    <button class="btn-unlock" onclick="unlockSkill('node-galactic', this)">ASCEND</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tree-footer">
+        <a href="{{ url_for('dashboard') }}" class="btn-holo">
+            ← RETURN TO GALAXY MAP
+        </a>
+    </div>
+</div>
+
+<style>
+    .skill-tree-wrapper { padding: 4rem 2rem; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+    
+    .tree-header { text-align: center; margin-bottom: 5rem; }
+    .tree-header h1 { 
+        font-family: 'Orbitron', sans-serif; 
+        font-size: 3.5rem; 
+        letter-spacing: 12px; 
+        color: #fff;
+        text-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        margin-bottom: 1rem;
+    }
+    .tree-subtitle { font-family: 'Rajdhani', sans-serif; color: var(--text-muted); letter-spacing: 4px; font-size: 0.9rem; }
+
+    .force-nodes-container { width: 100%; max-width: 800px; display: flex; justify-content: center; }
+    .skill-node-tree { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    
+    .skill-node-wrapper { display: flex; flex-direction: column; align-items: center; }
+
+    .skill-node { 
+        width: 450px; 
+        padding: 1.5rem 2.5rem; 
+        display: flex; 
+        align-items: center; 
+        gap: 25px; 
+        transition: all 0.4s;
+        position: relative;
+        background: rgba(10, 25, 47, 0.6);
+        border: 1px solid var(--glass-border);
+    }
+    .skill-node.locked { filter: grayscale(0.8); opacity: 0.7; }
+    .skill-node.unlocked { border-color: var(--neon-green); box-shadow: 0 0 20px rgba(57, 255, 20, 0.1); }
+    .skill-node:hover { transform: scale(1.03); border-color: var(--neon-purple); cursor: default; }
+
+    .node-icon { font-size: 2.5rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; }
+    .node-info h4 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #fff; letter-spacing: 2px; margin-bottom: 5px; }
+    .node-info p, .node-info span { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; }
+
+    .status-tag { color: var(--neon-green) !important; font-weight: 700; }
+    .cost { color: var(--neon-yellow) !important; }
+
+    .node-connector { width: 2px; height: 60px; background: linear-gradient(to bottom, var(--neon-purple), transparent); opacity: 0.5; }
+
+    .btn-unlock {
+        margin-left: auto;
+        background: rgba(157, 78, 221, 0.15);
+        border: 1px solid var(--neon-purple);
+        color: var(--neon-purple);
+        padding: 8px 25px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.75rem;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    .btn-unlock:hover { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px var(--neon-purple); }
+
+    .tree-footer { margin-top: 5rem; padding-bottom: 5rem; }
+    .btn-holo {
+        padding: 1rem 3rem;
+        background: rgba(0, 243, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: #fff;
+        text-decoration: none;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    .btn-holo:hover { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); }
+</style>
+
+<script>
+function unlockSkill(skillId, btn) {
+    fetch('/api/skill_tree', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({skill_id: skillId})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            btn.parentElement.innerHTML = '<strong>' + btn.parentElement.querySelector('strong').textContent + '</strong> — Unlocked ✅';
+            alert('Skill unlocked!');
+        } else {
+            alert('Not enough XP to unlock this skill.');
+        }
+    });
+}
+</script>
+{% endblock %}

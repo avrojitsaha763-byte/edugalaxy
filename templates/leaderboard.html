@@ -1,157 +1,110 @@
 {% extends "base.html" %}
-{% block title %}EduGalaxy — Galactic Hall of Fame{% endblock %}
-{% block content %}
-<div class="lb-universe">
-    <div class="lb-header">
-        <span class="section-tag">🏆 GLOBAL RANKINGS</span>
-        <h1 class="gradient-text" style="font-family:'Bangers',cursify;font-size:clamp(2.5rem,6vw,4rem);letter-spacing:2px;">Hall of Fame</h1>
-        <p style="color:rgba(255,255,255,0.6)">The greatest learning legends across the galaxy</p>
-    </div>
+{% block title %}EduGalaxy — Senate Hall of Champions{% endblock %}
 
-    <!-- CLASS FILTER BAR -->
-    <div class="lb-filter-bar">
-        <span class="filter-label">🎯 Filter by Class:</span>
-        <div class="filter-pills">
-            <a href="{{ url_for('leaderboard') }}" class="filter-pill {% if class_filter=='all' %}active{% endif %}">All</a>
+{% block content %}
+<div class="leaderboard-wrapper">
+    <header class="section-header">
+        <!-- Animated podium rings -->
+        <div style="position:relative; margin-bottom:1rem;">
+            <div style="font-size:4rem; animation: iconFloat 4s ease-in-out infinite; display:inline-block; filter: drop-shadow(0 0 20px gold);">🏛️</div>
+        </div>
+        <h1 class="glitch-text">SENATE HALL OF CHAMPIONS</h1>
+        <p class="subtitle">⚡ REAL-TIME TELEMETRY — GALAXY'S GREATEST JEDI MINDS</p>
+        <div style="display:flex; justify-content:center; gap:2rem; margin-top:1.5rem; flex-wrap:wrap;">
+            <div style="text-align:center;"><div style="font-size:2.5rem; filter:drop-shadow(0 0 15px gold);">🥇</div><div style="font-family:var(--font-heading); font-size:0.7rem; color:gold; margin-top:0.3rem;">COMMANDER</div></div>
+            <div style="text-align:center; opacity:0.85;"><div style="font-size:2rem; filter:drop-shadow(0 0 10px silver);">🥈</div><div style="font-family:var(--font-heading); font-size:0.7rem; color:silver; margin-top:0.3rem;">CAPTAIN</div></div>
+            <div style="text-align:center; opacity:0.75;"><div style="font-size:1.7rem; filter:drop-shadow(0 0 8px #cd7f32);">🥉</div><div style="font-family:var(--font-heading); font-size:0.7rem; color:#cd7f32; margin-top:0.3rem;">PILOT</div></div>
+        </div>
+    </header>
+
+    <!-- Class Filter HUD -->
+    <div class="glass-panel filter-hud">
+        <span class="filter-label">SECTOR FILTER:</span>
+        <div class="filter-links">
+            <a href="{{ url_for('leaderboard') }}" class="filter-btn {% if class_filter=='all' %}active{% endif %}">ALL SECTORS</a>
             {% for c in range(1,6) %}
-            <a href="{{ url_for('leaderboard') }}?class=Class {{ c }}" class="filter-pill {% if class_filter=='Class '~c %}active{% endif %}">Class {{ c }}</a>
+            <a href="{{ url_for('leaderboard') }}?class=Class {{ c }}" class="filter-btn {% if class_filter=='Class '~c %}active{% endif %}">CLASS {{ c }}</a>
             {% endfor %}
         </div>
     </div>
 
-    {% if users|length >= 3 %}
-    <!-- PODIUM TOP 3 -->
-    <div class="podium-row">
-        <!-- 2nd place -->
-        <div class="podium-slot podium-2">
-            <div class="podium-char">{{ users[1].name[0]|upper }}</div>
-            <div class="podium-name">{{ users[1].name }}</div>
-            <div class="podium-xp">{{ users[1].xp }} XP</div>
-            <div class="podium-block p2-block"><span class="podium-rank">🥈 #2</span></div>
+    <div class="rankings-container">
+        {% if users %}
+        <div class="glass-panel table-wrapper">
+            <table class="hud-table">
+                <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>JEDI NAME</th>
+                        <th>SECTOR</th>
+                        <th>XP ENERGY</th>
+                        <th>LEVEL</th>
+                        <th>HONOR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr class="{% if session.get('user_id') == u.id %}current-user-row{% endif %}">
+                        <td class="rank-col">
+                            {% if loop.index == 1 %}👑 1{% elif loop.index == 2 %}🥈 2{% elif loop.index == 3 %}🥉 3{% else %}{{ loop.index }}{% endif %}
+                        </td>
+                        <td class="name-col">
+                            {{ u.name }}
+                            {% if session.get('user_id') == u.id %} <span class="badge-tag self-tag">YOU</span>{% endif %}
+                        </td>
+                        <td>{{ u.class_level }}</td>
+                        <td class="xp-col">{{ u.xp }}</td>
+                        <td>{{ u.level }}</td>
+                        <td class="medal-col">
+                            <span class="medal-icon">
+                                {% if u.medals == 'Diamond' %}💎{% elif u.medals == 'Gold' %}🥇{% elif u.medals == 'Silver' %}🥈{% elif u.medals == 'Bronze' %}🥉{% else %}🎖️{% endif %}
+                            </span>
+                            {{ u.medals }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <!-- 1st place -->
-        <div class="podium-slot podium-1">
-            <div class="podium-crown">👑</div>
-            <div class="podium-char podium-char-big">{{ users[0].name[0]|upper }}</div>
-            <div class="podium-name" style="font-size:1.2rem;">{{ users[0].name }}</div>
-            <div class="podium-xp" style="font-size:1.3rem;color:#ffd700;">{{ users[0].xp }} XP</div>
-            <div class="podium-block p1-block"><span class="podium-rank">🥇 #1</span></div>
+        {% else %}
+        <div class="glass-panel empty-state">
+            <p>NO DATA DETECTED IN THIS SECTOR.</p>
+            <a href="{{ url_for('learn') }}" class="btn btn-primary">INITIALIZE TRAINING</a>
         </div>
-        <!-- 3rd place -->
-        <div class="podium-slot podium-3">
-            <div class="podium-char">{{ users[2].name[0]|upper }}</div>
-            <div class="podium-name">{{ users[2].name }}</div>
-            <div class="podium-xp">{{ users[2].xp }} XP</div>
-            <div class="podium-block p3-block"><span class="podium-rank">🥉 #3</span></div>
-        </div>
+        {% endif %}
     </div>
-    {% endif %}
 
-    <!-- FULL TABLE -->
-    {% if users %}
-    <div class="lb-table-wrap">
-        <table class="lb-table">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Cadet</th>
-                    <th>Class</th>
-                    <th>XP</th>
-                    <th>Tier</th>
-                    <th>Medal</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for u in users %}
-                <tr class="lb-row {% if session.get('user_id') == u.id %}lb-me{% endif %}" style="animation-delay:{{ loop.index0 * 0.05 }}s">
-                    <td class="lb-rank">
-                        {% if loop.index == 1 %}👑{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}#{{ loop.index }}{% endif %}
-                    </td>
-                    <td class="lb-player">
-                        <div class="lb-avatar" style="--av:{{ ['#f97316','#a855f7','#06b6d4','#10b981','#f87171'][loop.index0 % 5] }}">{{ u.name[0]|upper }}</div>
-                        <div>
-                            <div class="lb-pname">{{ u.name }}{% if session.get('user_id') == u.id %} <span class="lb-you">YOU</span>{% endif %}</div>
-                            <div class="lb-pmeta">{{ u.board }}</div>
-                        </div>
-                    </td>
-                    <td><span class="lb-class-badge">{{ u.class_level }}</span></td>
-                    <td class="lb-xp">⚡ {{ u.xp }}</td>
-                    <td><span class="lb-tier">Tier {{ u.level }}</span></td>
-                    <td>
-                        {% if u.medals == 'Diamond' %}💎 Diamond{% elif u.medals == 'Gold' %}🥇 Gold{% elif u.medals == 'Silver' %}🥈 Silver{% elif u.medals == 'Bronze' %}🥉 Bronze{% else %}🎖️ —{% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="action-footer">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← RETURN TO COMMAND CENTER</a>
     </div>
-    {% else %}
-    <div class="lb-empty">
-        <div style="font-size:4rem">🚀</div>
-        <h2>No cadets in this class yet!</h2>
-        <p>Be the first legend to conquer this class!</p>
-        <a href="{{ url_for('learn') }}" class="btn-hero-primary" style="display:inline-flex;margin-top:1rem">Start Learning</a>
-
-    </div>
-    {% endif %}
-
-    {% if session.get('user_id') %}
-    <div style="text-align:center;margin-top:2rem">
-        <a href="{{ url_for('dashboard') }}" class="btn-hero-secondary" style="display:inline-flex;gap:0.7rem;padding:0.9rem 2rem;border:2px solid rgba(255,255,255,0.3);border-radius:50px;color:#fff;text-decoration:none;font-weight:700;">
-            <i class="fas fa-home"></i> Return to Command Center
-        </a>
-    </div>
-    {% endif %}
 </div>
 
 <style>
-.gradient-text { background:linear-gradient(135deg,#f97316,#a855f7,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.section-tag { display:inline-block; padding:0.3rem 1rem; border:1px solid rgba(249,115,22,0.4); border-radius:50px; color:#f97316; font-size:0.75rem; font-weight:800; letter-spacing:3px; }
-.lb-universe { max-width:900px; margin:0 auto; padding:4rem 1.5rem 6rem; }
-.lb-header { text-align:center; margin-bottom:3rem; }
+    .leaderboard-wrapper { max-width: 1100px; margin: 0 auto; padding-bottom: 4rem; }
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .subtitle { color: var(--text-muted); font-family: var(--font-heading); letter-spacing: 1px; }
 
-/* PODIUM */
-.podium-row { display:flex; justify-content:center; align-items:flex-end; gap:1rem; margin-bottom:3rem; flex-wrap:wrap; }
-.podium-slot { display:flex; flex-direction:column; align-items:center; }
-.podium-char { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#f97316,#a855f7); display:flex; align-items:center; justify-content:center; font-family:'Bangers',cursify; font-size:1.8rem; margin-bottom:0.5rem; box-shadow:0 0 25px rgba(249,115,22,0.5); }
-.podium-char-big { width:72px; height:72px; font-size:2.2rem; box-shadow:0 0 40px rgba(255,215,0,0.6); }
-.podium-crown { font-size:2rem; animation:bounce 1.5s ease-in-out infinite; margin-bottom:0.3rem; }
-@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
-.podium-name { font-weight:800; font-size:1rem; text-align:center; }
-.podium-xp { font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:0.8rem; }
-.podium-block { width:120px; display:flex; align-items:center; justify-content:center; border-radius:12px 12px 0 0; }
-.p1-block { height:120px; background:linear-gradient(180deg,rgba(255,215,0,0.3),rgba(255,215,0,0.1)); border:1px solid rgba(255,215,0,0.5); }
-.p2-block { height:90px; background:linear-gradient(180deg,rgba(192,192,192,0.2),rgba(192,192,192,0.06)); border:1px solid rgba(192,192,192,0.3); }
-.p3-block { height:70px; background:linear-gradient(180deg,rgba(205,127,50,0.2),rgba(205,127,50,0.06)); border:1px solid rgba(205,127,50,0.3); }
-.podium-rank { font-weight:900; font-size:1rem; }
+    .filter-hud { padding: 1rem 2rem !important; margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem; }
+    .filter-label { font-family: var(--font-heading); color: var(--neon-blue); font-size: 0.9rem; font-weight: 700; }
+    .filter-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .filter-btn { text-decoration: none; color: var(--text-muted); font-family: var(--font-heading); font-size: 0.85rem; padding: 0.5rem 1rem; border: 1px solid transparent; transition: 0.3s; }
+    .filter-btn:hover { color: var(--neon-blue); border-color: var(--neon-blue); }
+    .filter-btn.active { color: #fff; background: rgba(0, 243, 255, 0.2); border-color: var(--neon-blue); }
 
-/* TABLE */
-.lb-table-wrap { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:24px; overflow:hidden; }
-.lb-table { width:100%; border-collapse:collapse; }
-.lb-table thead th { padding:1rem 1.2rem; text-align:left; font-size:0.8rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; opacity:0.5; border-bottom:1px solid rgba(255,255,255,0.08); }
-.lb-row { border-bottom:1px solid rgba(255,255,255,0.05); animation:fadeInUp 0.5s ease both; transition:background 0.2s; }
-@keyframes fadeInUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
-.lb-row:hover { background:rgba(255,255,255,0.04); }
-.lb-me { background:rgba(249,115,22,0.08) !important; border-left:3px solid #f97316; }
-.lb-row td { padding:1rem 1.2rem; vertical-align:middle; }
-.lb-rank { font-family:'Bangers',cursify; font-size:1.3rem; width:60px; }
-.lb-player { display:flex; align-items:center; gap:1rem; }
-.lb-avatar { width:40px; height:40px; border-radius:50%; background:var(--av); display:flex; align-items:center; justify-content:center; font-family:'Bangers',cursify; font-size:1.3rem; }
-.lb-pname { font-weight:700; }
-.lb-pmeta { font-size:0.78rem; opacity:0.45; }
-.lb-you { background:#f97316; color:#fff; font-size:0.6rem; padding:1px 6px; border-radius:50px; font-weight:900; letter-spacing:1px; vertical-align:middle; margin-left:4px; }
-.lb-xp { font-weight:700; color:#facc15; }
-.lb-tier { background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); padding:0.2rem 0.7rem; border-radius:50px; font-size:0.8rem; font-weight:700; color:#a78bfa; }
-.lb-class-badge { background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:#fb923c; padding:0.2rem 0.7rem; border-radius:50px; font-size:0.75rem; font-weight:700; white-space:nowrap; }
-.lb-empty { text-align:center; padding:4rem 2rem; opacity:0.7; }
-.btn-hero-primary { position:relative; display:inline-flex; align-items:center; gap:0.7rem; padding:1rem 2.5rem; background:linear-gradient(135deg,#f97316,#ef4444); color:#fff; border-radius:50px; font-weight:900; font-size:1.1rem; text-decoration:none; overflow:hidden; }
-.btn-hero-secondary { display:inline-flex; }
-/* FILTER BAR */
-.lb-filter-bar { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
-.filter-label { font-weight:800; opacity:0.7; font-size:0.9rem; white-space:nowrap; }
-.filter-pills { display:flex; gap:0.5rem; flex-wrap:wrap; }
-.filter-pill { padding:0.4rem 1.1rem; border-radius:50px; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.85rem; font-weight:700; transition:all 0.2s; }
-.filter-pill:hover { border-color:#f97316; color:#f97316; }
-.filter-pill.active { background:linear-gradient(135deg,#f97316,#a855f7); border-color:transparent; color:#fff; }
+    .table-wrapper { padding: 0 !important; overflow: hidden; border-radius: 12px; }
+    .hud-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .hud-table th { background: rgba(0, 243, 255, 0.1); padding: 1.2rem; font-family: var(--font-heading); color: var(--neon-blue); font-size: 0.9rem; border-bottom: 1px solid var(--glass-border); }
+    .hud-table td { padding: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: var(--font-body); font-size: 1.1rem; }
+    
+    .current-user-row { background: rgba(157, 78, 221, 0.1) !important; box-shadow: inset 4px 0 0 var(--neon-purple); }
+    .current-user-row td { color: #fff; font-weight: 700; }
+    .self-tag { font-size: 0.6rem; padding: 2px 6px; }
+
+    .rank-col { font-family: var(--font-heading); font-weight: 700; color: var(--neon-yellow); }
+    .xp-col { color: var(--neon-blue); font-family: var(--font-heading); letter-spacing: 1px; }
+    .medal-icon { margin-right: 5px; }
+    
+    .empty-state { text-align: center; padding: 4rem !important; }
+    .action-footer { margin-top: 3rem; text-align: center; }
 </style>
 {% endblock %}

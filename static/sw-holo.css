@@ -1,0 +1,439 @@
+/* sw-holo.css — EduGalaxy GOD MODE: Star Wars Holographic Design System */
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 1: GLOBAL 3D PAGE BACKGROUND SYSTEM
+══════════════════════════════════════════════════════════ */
+
+/* Full-screen cinematic background system with 3 layers of depth */
+#page-bg-layers {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  width: 120%;
+  height: 120%;
+  top: -10%;
+  left: -10%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform;
+  transition: transform 0.2s cubic-bezier(0.2, 0.4, 0.3, 1);
+}
+
+.bg-deep {
+  filter: brightness(0.2) saturate(1.2) blur(8px);
+  z-index: 1;
+  opacity: 0.8;
+}
+
+.bg-mid {
+  filter: brightness(0.35) saturate(1.4) blur(2px);
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.bg-focus {
+  filter: brightness(0.4) saturate(1.5);
+  z-index: 3;
+  mix-blend-mode: color-dodge;
+  opacity: 0.15; /* Subtle holographic shimmer layer */
+}
+
+/* Chromatic aberration and flicker overlay */
+#page-bg-layers::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background:
+    linear-gradient(180deg, rgba(0,243,255,0.04) 0%, transparent 30%, rgba(157,78,221,0.04) 100%),
+    linear-gradient(90deg, rgba(0,0,0,0.5) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.5) 100%);
+  animation: holoFlicker 10s step-end infinite;
+}
+
+@keyframes holoFlicker {
+  0%, 100% { opacity: 1; transform: translateX(0); }
+  92%  { opacity: 0.8; transform: translateX(2px); }
+  93%  { opacity: 1; transform: translateX(-1px); }
+  94%  { opacity: 0.9; transform: translateX(3px); }
+  95%  { opacity: 1; transform: translateX(0); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 2: PER-PAGE BACKGROUND IMAGES
+   Applying the same image to all layers but different filters/depths
+══════════════════════════════════════════════════════════ */
+body.page-home        .bg-layer { background-image: url('/static/images/bg_home.png'); }
+body.page-login       .bg-layer { background-image: url('/static/images/bg_login.png'); }
+body.page-signup      .bg-layer { background-image: url('/static/images/bg_signup.png'); }
+body.page-dashboard   .bg-layer { background-image: url('/static/images/bg_dashboard.png'); }
+body.page-learn       .bg-layer { background-image: url('/static/images/bg_learn.png'); }
+body.page-interactive .bg-layer { background-image: url('/static/images/bg_interactive.png'); }
+body.page-games       .bg-layer { background-image: url('/static/images/bg_games.png'); }
+body.page-leaderboard .bg-layer { background-image: url('/static/images/bg_leaderboard.png'); }
+body.page-profile     .bg-layer { background-image: url('/static/images/bg_profile.png'); }
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 3: HOLOGRAPHIC GLASS PANELS
+══════════════════════════════════════════════════════════ */
+.glass-panel {
+  background: rgba(8,18,35,0.80) !important;
+  border: 1px solid rgba(0,243,255,0.25) !important;
+  border-radius: 12px;
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow:
+    0 0 0 1px rgba(0,243,255,0.1),
+    0 8px 32px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Animated prismatic border shimmer */
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg,
+    rgba(0,243,255,0.6) 0%,
+    rgba(157,78,221,0.4) 25%,
+    rgba(57,255,20,0.3) 50%,
+    rgba(0,243,255,0.6) 75%,
+    rgba(157,78,221,0.4) 100%);
+  background-size: 300% 300%;
+  animation: borderShimmer 6s ease infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes borderShimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* HUD Corner Brackets */
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    linear-gradient(to right, rgba(0,243,255,0.7) 12px, transparent 12px) top left / 20px 2px no-repeat,
+    linear-gradient(to bottom, rgba(0,243,255,0.7) 12px, transparent 12px) top left / 2px 20px no-repeat,
+    linear-gradient(to left, rgba(0,243,255,0.7) 12px, transparent 12px) top right / 20px 2px no-repeat,
+    linear-gradient(to bottom, rgba(0,243,255,0.7) 12px, transparent 12px) top right / 2px 20px no-repeat,
+    linear-gradient(to right, rgba(0,243,255,0.7) 12px, transparent 12px) bottom left / 20px 2px no-repeat,
+    linear-gradient(to top, rgba(0,243,255,0.7) 12px, transparent 12px) bottom left / 2px 20px no-repeat,
+    linear-gradient(to left, rgba(0,243,255,0.7) 12px, transparent 12px) bottom right / 20px 2px no-repeat,
+    linear-gradient(to top, rgba(0,243,255,0.7) 12px, transparent 12px) bottom right / 2px 20px no-repeat;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 4: HOLO-THEATER VIDEO FRAME
+══════════════════════════════════════════════════════════ */
+.holo-theater {
+  position: relative;
+  border: 2px solid var(--neon-blue);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 0 40px rgba(0,243,255,0.5),
+    0 0 80px rgba(0,243,255,0.15),
+    inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+.holo-theater::before {
+  content: 'HOLO-TRANSMISSION';
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: var(--neon-blue);
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  opacity: 0.7;
+}
+
+.holo-theater::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,243,255,0.015) 3px,
+    rgba(0,243,255,0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 5: PER-PAGE UNIQUE ACCENT THEMES
+══════════════════════════════════════════════════════════ */
+
+/* HOME — Battle Bridge: cyan + explosion orange */
+body.page-home .home-hero {
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,0) 0%,
+    rgba(0,10,30,0.7) 60%,
+    rgba(0,10,30,0.98) 100%) !important;
+}
+body.page-home h1 { color: #fff; text-shadow: 0 0 30px #00f3ff, 0 0 60px rgba(0,243,255,0.4); }
+body.page-home .btn-primary {
+  background: linear-gradient(135deg, #00f3ff, #9d4edd);
+  box-shadow: 0 0 30px rgba(0,243,255,0.5), 0 0 60px rgba(157,78,221,0.3);
+  animation: battlePulse 2s ease-in-out infinite;
+}
+@keyframes battlePulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(0,243,255,0.5), 0 0 60px rgba(157,78,221,0.3); }
+  50% { box-shadow: 0 0 50px rgba(0,243,255,0.8), 0 0 100px rgba(157,78,221,0.5); }
+}
+
+/* X-Wing flyby animation */
+.xwing-flyby {
+  position: absolute;
+  font-size: 2.5rem;
+  top: 20%;
+  animation: flyAcross 12s linear infinite;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 12px #00f3ff);
+  pointer-events: none;
+}
+.xwing-flyby:nth-child(2) { top: 35%; animation-delay: -5s; animation-duration: 18s; font-size: 1.5rem; }
+.xwing-flyby:nth-child(3) { top: 55%; animation-delay: -9s; animation-duration: 15s; font-size: 2rem; }
+@keyframes flyAcross {
+  from { left: -10%; transform: scaleX(-1); }
+  to   { left: 110%; transform: scaleX(-1); }
+}
+
+/* DASHBOARD — Command Center: green radar + purple */
+body.page-dashboard .glass-panel::before { filter: hue-rotate(60deg); }
+body.page-dashboard h1, body.page-dashboard h2 {
+  text-shadow: 0 0 20px var(--neon-green), 0 0 40px rgba(57,255,20,0.3);
+}
+/* Scrolling mission ticker */
+.mission-ticker {
+  width: 100%;
+  overflow: hidden;
+  background: rgba(0,0,0,0.7);
+  border-top: 1px solid var(--neon-blue);
+  border-bottom: 1px solid var(--neon-blue);
+  padding: 8px 0;
+  margin-bottom: 2rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  color: var(--neon-blue);
+  letter-spacing: 2px;
+}
+.ticker-inner {
+  display: inline-block;
+  white-space: nowrap;
+  animation: tickerScroll 30s linear infinite;
+}
+@keyframes tickerScroll {
+  0%   { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+/* LOGIN — Security Clearance: red + cyan scan */
+body.page-login .glass-panel { border-color: rgba(255,0,60,0.4) !important; }
+body.page-login .glass-panel::before { filter: hue-rotate(180deg); }
+body.page-login h1, body.page-login h2 {
+  text-shadow: 0 0 20px var(--neon-red);
+  color: var(--neon-blue);
+}
+/* Retinal scan sweeper */
+.retinal-scan {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+  box-shadow: 0 0 20px var(--neon-blue);
+  animation: scanSweep 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 100;
+}
+@keyframes scanSweep {
+  0%   { top: 0%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* SIGNUP — Academy Enlistment: gold + cyan */
+body.page-signup .glass-panel { border-color: rgba(255,193,7,0.4) !important; }
+body.page-signup h1, body.page-signup h2 {
+  text-shadow: 0 0 20px var(--neon-yellow);
+  color: var(--neon-yellow);
+}
+
+/* LEARN — Jedi Archives: purple mystical */
+body.page-learn .glass-panel { border-color: rgba(157,78,221,0.5) !important; }
+body.page-learn h1, body.page-learn h2 {
+  text-shadow: 0 0 20px var(--neon-purple), 0 0 40px rgba(157,78,221,0.4);
+  color: var(--neon-purple);
+}
+
+/* INTERACTIVE — Holodeck Training: cyan + white */
+body.page-interactive .chapter-sidebar,
+body.page-interactive .viewer-pane {
+  box-shadow: 0 0 40px rgba(0,243,255,0.3), inset 0 0 20px rgba(0,0,0,0.5) !important;
+}
+body.page-interactive .viewer-header {
+  background: linear-gradient(90deg, rgba(0,243,255,0.1), rgba(0,0,0,0.8), rgba(157,78,221,0.1)) !important;
+}
+
+/* GAMES — Battle Simulator: red/orange combat */
+body.page-games .glass-panel { border-color: rgba(255,80,0,0.5) !important; }
+body.page-games .glass-panel::before { filter: hue-rotate(120deg); }
+body.page-games h1, body.page-games h2 {
+  text-shadow: 0 0 20px #ff5000, 0 0 40px rgba(255,80,0,0.3);
+  color: #ff8c00;
+}
+
+/* LEADERBOARD — Senate Hall: gold championship */
+body.page-leaderboard .glass-panel { border-color: rgba(255,193,7,0.5) !important; }
+body.page-leaderboard h1, body.page-leaderboard h2 {
+  text-shadow: 0 0 20px var(--neon-yellow);
+  color: var(--neon-yellow);
+}
+
+/* PROFILE — Pilot Dossier: green biometric */
+body.page-profile .glass-panel { border-color: rgba(57,255,20,0.4) !important; }
+body.page-profile h1, body.page-profile h2 {
+  text-shadow: 0 0 20px var(--neon-green);
+  color: var(--neon-green);
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 6: ANIMATED NAV ENHANCEMENT
+══════════════════════════════════════════════════════════ */
+.hud-nav {
+  background: rgba(0,2,8,0.97) !important;
+  border-bottom: 1px solid transparent !important;
+  border-image: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), var(--neon-blue), transparent) 1 !important;
+  box-shadow: 0 2px 40px rgba(0,0,0,0.9), 0 0 20px rgba(0,243,255,0.15) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 7: ENHANCED COMMON COMPONENTS
+══════════════════════════════════════════════════════════ */
+
+/* 3D Button hover with lightsaber bloom */
+.btn:hover {
+  transform: scale(1.05) translateY(-2px) !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 60px rgba(0,243,255,0.7), 0 10px 40px rgba(0,0,0,0.5) !important;
+}
+
+/* Glitch text animation enhancement */
+.glitch-text {
+  animation: glitchPulse 8s ease-in-out infinite;
+}
+@keyframes glitchPulse {
+  0%, 90%, 100% { text-shadow: 0 0 15px rgba(0,243,255,0.4); }
+  92%  { text-shadow: 4px 0 0 rgba(255,0,60,0.7), -4px 0 0 rgba(0,243,255,0.7); transform: skewX(1deg); }
+  94%  { text-shadow: -4px 0 0 rgba(255,0,60,0.7), 4px 0 0 rgba(0,243,255,0.7); transform: skewX(-1deg); }
+  96%  { text-shadow: 0 0 15px rgba(0,243,255,0.4); transform: skewX(0); }
+}
+
+/* Progress bar laser beam */
+.progress-bar {
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-blue));
+  background-size: 200% 100%;
+  animation: laserBeam 2s linear infinite;
+  box-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0,243,255,0.4);
+  border-radius: 4px;
+  height: 6px;
+  position: relative;
+}
+@keyframes laserBeam {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Neon text utility classes */
+.neon-blue  { color: var(--neon-blue);   text-shadow: 0 0 10px var(--neon-blue); }
+.neon-purple{ color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); }
+.neon-green { color: var(--neon-green);  text-shadow: 0 0 10px var(--neon-green); }
+.neon-yellow{ color: var(--neon-yellow); text-shadow: 0 0 10px var(--neon-yellow); }
+.neon-red   { color: var(--neon-red);    text-shadow: 0 0 10px var(--neon-red); }
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 8: DEPTH-OF-FIELD VIGNETTE
+══════════════════════════════════════════════════════════ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center,
+    transparent 30%,
+    rgba(0,0,0,0.4) 70%,
+    rgba(0,0,0,0.85) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 9: FEATURE CARDS ON HOME PAGE
+══════════════════════════════════════════════════════════ */
+.feature-card {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.feature-card .feature-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 10px var(--neon-blue));
+  animation: iconFloat 4s ease-in-out infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* Dashboard subject cards */
+.subject-card {
+  border-color: var(--glass-border) !important;
+  background: rgba(0,20,40,0.6) !important;
+  transition: all 0.2s ease;
+}
+.subject-card:hover {
+  border-color: var(--neon-blue) !important;
+  background: rgba(0,50,80,0.8) !important;
+  box-shadow: 0 0 25px rgba(0,243,255,0.3);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  padding: 0 2rem 4rem;
+}
+@media (max-width: 960px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
